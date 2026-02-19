@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.6%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.6%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 89.8%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 9%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.6%;
+    --radius: 0.5rem;
+
+    /* Microphone accent color */
+    --mic-accent: 220 90% 56%;
+    --mic-accent-hover: 220 90% 50%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 0 0% 3.6%;
+      --foreground: 0 0% 98.2%;
+      --card: 0 0% 10.2%;
+      --card-foreground: 0 0% 98.2%;
+      --primary: 0 0% 98.2%;
+      --primary-foreground: 0 0% 9%;
+      --secondary: 0 0% 14.9%;
+      --secondary-foreground: 0 0% 98.2%;
+      --muted: 0 0% 14.9%;
+      --muted-foreground: 0 0% 63.9%;
+      --accent: 0 0% 98.2%;
+      --accent-foreground: 0 0% 9%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 9%;
+      --border: 0 0% 14.9%;
+      --input: 0 0% 14.9%;
+      --ring: 0 0% 83.1%;
+    }
+  }
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-background text-foreground;
+}
+
+/* Typography */
+@layer components {
+  .text-xs {
+    @apply text-12px leading-4;
+  }
+
+  .text-sm {
+    @apply text-14px leading-5;
+  }
+
+  .text-base {
+    @apply text-16px leading-6;
+  }
+
+  .text-lg {
+    @apply text-18px leading-7;
+  }
+
+  .text-xl {
+    @apply text-20px leading-8;
+  }
+
+  .text-2xl {
+    @apply text-24px leading-9;
+  }
+
+  .text-3xl {
+    @apply text-30px leading-10;
+  }
+
+  .text-4xl {
+    @apply text-36px leading-12;
+  }
+
+  /* Custom scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) hsl(var(--background));
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+
+  /* Monospace for transcripts */
+  .font-mono-transcript {
+    @apply font-mono text-sm leading-relaxed tracking-tight;
+  }
+
+  /* Microphone button */
+  .btn-mic {
+    @apply relative inline-flex items-center justify-center rounded-full p-3 font-semibold text-white shadow-lg transition-all duration-200 bg-blue-500 hover:bg-blue-600 active:scale-95;
+  }
+
+  .btn-mic.listening {
+    @apply animate-pulse bg-red-500 hover:bg-red-600;
+  }
+
+  /* Loading animation */
+  @keyframes wave {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  .animate-wave > div:nth-child(1) {
+    animation: wave 1s ease-in-out 0s infinite;
+  }
+
+  .animate-wave > div:nth-child(2) {
+    animation: wave 1s ease-in-out 0.1s infinite;
+  }
+
+  .animate-wave > div:nth-child(3) {
+    animation: wave 1s ease-in-out 0.2s infinite;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus states */
+@layer components {
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring;
+  }
+}

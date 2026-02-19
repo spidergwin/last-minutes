@@ -1,0 +1,217 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============= Authentication Models =============
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  name               String?
+  image              String?
+  emailVerified      Boolean   @default(false)
+  role               UserRole  @default(USER)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  accounts           Account[]
+  sessions           Session[]
+  transcripts        Transcript[]
+  usage              Usage?
+  subscription       Subscription?
+  auditLogs          AuditLog[]
+  translationStats   TranslationStat[]
+
+  @@index([email])
+  @@index([role])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  sessionToken String? @unique
+  userId    String
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============= Main Business Models =============
+
+model Transcript {
+  id                 String   @id @default(cuid())
+  userId             String
+  title              String
+  originalText       String   @db.Text
+  translatedText     String?  @db.Text
+  sourceLanguage     String   @default("en")
+  targetLanguage     String?
+  duration           Int      // in seconds
+  wordCount          Int      @default(0)
+  fileUrl            String?
+  fileType           String?  // "audio", "video", "dictation"
+  transcribedAt      DateTime @default(now())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  isPublic           Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([sourceLanguage])
+}
+
+model Usage {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  monthlyDictationMins  Int      @default(0)
+  monthlyUploadMins     Int      @default(0)
+  monthlyTranslations   Int      @default(0)
+  totalDictationMins    Int      @default(0)
+  totalUploadMins       Int      @default(0)
+  totalTranslations     Int      @default(0)
+  lastResetDate         DateTime @default(now())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Subscription {
+  id               String             @id @default(cuid())
+  userId           String             @unique
+  plan             SubscriptionPlan   @default(FREE)
+  status           SubscriptionStatus @default(ACTIVE)
+  stripeId         String?            @unique
+  stripePriceId    String?
+  stripeCurrentPeriodEnd DateTime?
+  monthlyLimit     Int                @default(0)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([plan])
+}
+
+enum SubscriptionPlan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  SUSPENDED
+  PAST_DUE
+}
+
+// ============= Monitoring & Analytics =============
+
+model TranslationStat {
+  id              String   @id @default(cuid())
+  userId          String
+  sourceLang      String
+  targetLang      String
+  wordCount       Int
+  translationTime Int      // in ms
+  success         Boolean  @default(true)
+  provider        String   // "libretranslate" | "argos"
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([sourceLang, targetLang])
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     LogLevel
+  message   String   @db.Text
+  metadata  String?  @db.Text // JSON string
+  service   String
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([createdAt])
+  @@index([service])
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  CRITICAL
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  resource  String
+  changes   String?  @db.Text // JSON string
+  ipAddress String?
+  userAgent String?
+  success   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
