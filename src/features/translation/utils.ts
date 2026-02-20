@@ -11,7 +11,7 @@ export const SUPPORTED_LANGUAGES = {
 export const NIGERIAN_LANGUAGES = ["ha", "yo", "ig", "pid"] as const;
 
 export function isNigerianLanguage(langCode: string): boolean {
-  return NIGERIAN_LANGUAGES.includes(langCode as any);
+  return (NIGERIAN_LANGUAGES as readonly string[]).includes(langCode);
 }
 
 export function getLanguageName(code: string, native: boolean = false): string {
@@ -39,7 +39,7 @@ export class TranslationError extends Error {
   }
 }
 
-export async function detectLanguage(text: string): Promise<string> {
+export async function detectLanguage(_text: string): Promise<string> {
   // Placeholder - would implement language detection
   // For now, return English as default
   return "en";

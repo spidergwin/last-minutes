@@ -43,7 +43,7 @@ export const useDictationStore = create<DictationState>((set) => ({
   reset: () => set(initialState),
   appendTranscript: (text) =>
     set((state) => ({
-      transcript: state.transcript + " " + text,
+      transcript: (state.transcript + " " + text).trim(),
       interimTranscript: "",
     })),
 }));

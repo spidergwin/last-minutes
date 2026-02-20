@@ -11,7 +11,7 @@ export class APIError extends Error {
   }
 }
 
-export function logError(error: Error, context?: Record<string, any>) {
+export function logError(error: Error, context?: Record<string, unknown>) {
   console.error({
     timestamp: new Date().toISOString(),
     name: error.name,

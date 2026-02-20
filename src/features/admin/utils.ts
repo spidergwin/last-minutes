@@ -30,13 +30,13 @@ export interface UserAction {
   userId: string;
   action: AdminAction;
   timestamp: Date;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 export async function logAdminAction(
   userId: string,
   action: AdminAction,
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 ): Promise<void> {
   // This would log to database
   console.log({

@@ -1,10 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, XAxis as XAxisType } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { AdminStats } from "@/lib/validations";
 
 export default function AdminDashboard() {
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<AdminStats>({
     queryKey: ["admin-stats"],
     queryFn: async () => {
       const response = await fetch("/api/admin/stats");
@@ -41,7 +42,7 @@ export default function AdminDashboard() {
           <h3 className="font-semibold text-lg mb-4">Usage Trend</h3>
           <BarChart width={300} height={300} data={stats?.usageTrend || []}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxisType dataKey="date" />
+            <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
             <Bar dataKey="transcripts" fill="#3b82f6" />
@@ -51,7 +52,7 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 rounded-lg border border-slate-200">
           <h3 className="font-semibold text-lg mb-4">Top Languages</h3>
           <ul className="space-y-3">
-            {(stats?.topLanguages || []).map((lang: any) => (
+            {(stats?.topLanguages || []).map((lang) => (
               <li key={lang.code} className="flex justify-between">
                 <span>{lang.name}</span>
                 <span className="font-semibold">{lang.count}</span>

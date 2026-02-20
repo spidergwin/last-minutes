@@ -2,9 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
+import { User } from "@/lib/validations";
 
 export default function AdminUsersPage() {
-  const { data: users = [], isLoading } = useQuery({
+  const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ["admin-users"],
     queryFn: async () => {
       const response = await fetch("/api/admin/users");
@@ -41,7 +42,7 @@ export default function AdminUsersPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user: any) => (
+            {users.map((user) => (
               <tr key={user.id} className="border-b border-slate-200 hover:bg-slate-50">
                 <td className="px-6 py-4 text-sm font-medium">{user.email}</td>
                 <td className="px-6 py-4 text-sm">{user.name}</td>

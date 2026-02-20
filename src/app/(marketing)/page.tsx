@@ -64,7 +64,7 @@ export default function LandingPage() {
               key={i}
               className="w-1 bg-gradient-to-t from-blue-500 to-purple-500 rounded-full animate-wave"
               style={{
-                height: `${Math.random() * 100}%`,
+                height: `${((i * 7) % 61) + 40}%`,
                 animationDelay: `${i * 0.1}ms`,
               }}
             />

@@ -44,7 +44,7 @@ export async function exportTranscriptAsJSON(
   title: string,
   originalText: string,
   translatedText?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): Promise<string> {
   const data = {
     title,

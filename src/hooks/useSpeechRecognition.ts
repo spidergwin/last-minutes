@@ -3,13 +3,51 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useDictationStore } from "@/store/dictation";
 
+// --- Types for Web Speech API ---
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: {
+    length: number;
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+      isFinal: boolean;
+    };
+  };
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
+
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognitionInstance;
+}
+
 const SpeechRecognition =
   typeof window !== "undefined"
-    ? (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+    ? ((window as unknown as { webkitSpeechRecognition: SpeechRecognitionConstructor })
+        .webkitSpeechRecognition ||
+        (window as unknown as { SpeechRecognition: SpeechRecognitionConstructor })
+          .SpeechRecognition)
     : null;
 
 export function useSpeechRecognition() {
-  const recognitionRef = useRef<InstanceType<typeof SpeechRecognition> | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const {
     setIsListening,
     setTranscript,
@@ -30,14 +68,14 @@ export function useSpeechRecognition() {
 
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.language = language;
+    recognition.lang = language;
 
     recognition.onstart = () => {
       setIsListening(true);
       setError(null);
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimTranscript = "";
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -53,7 +91,7 @@ export function useSpeechRecognition() {
       setInterimTranscript(interimTranscript);
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       setError(`Speech recognition error: ${event.error}`);
     };
 
@@ -62,7 +100,7 @@ export function useSpeechRecognition() {
     };
 
     recognition.start();
-  }, [language, setIsListening, setTranscript, setInterimTranscript, appendTranscript, setError]);
+  }, [language, setIsListening, setInterimTranscript, appendTranscript, setError]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {

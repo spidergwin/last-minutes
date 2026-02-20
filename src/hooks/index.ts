@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Transcript, CreateTranscriptInput } from "@/lib/validations";
 
 interface TranslateParams {
   text: string;
@@ -34,7 +34,7 @@ export function useTranslate() {
 }
 
 export function useTranscripts() {
-  return useQuery({
+  return useQuery<Transcript[]>({
     queryKey: ["transcripts"],
     queryFn: async () => {
       const response = await fetch("/api/transcripts");
@@ -45,7 +45,7 @@ export function useTranscripts() {
 }
 
 export function useTranscript(id: string) {
-  return useQuery({
+  return useQuery<Transcript>({
     queryKey: ["transcript", id],
     queryFn: async () => {
       const response = await fetch(`/api/transcripts/${id}`);
@@ -58,7 +58,7 @@ export function useTranscript(id: string) {
 
 export function useCreateTranscript() {
   return useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: CreateTranscriptInput) => {
       const response = await fetch("/api/transcripts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

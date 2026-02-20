@@ -91,13 +91,71 @@ export const NIGERIAN_LANGUAGES = ["ha", "yo", "ig", "pid"] as const;
 
 // ============= API Response Schemas =============
 
+export const userRoleSchema = z.enum(["USER", "ADMIN", "SUPER_ADMIN"]);
+export type UserRole = z.infer<typeof userRoleSchema>;
+
+export const userSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  name: z.string().nullable(),
+  image: z.string().nullable().optional(),
+  emailVerified: z.boolean().default(false),
+  role: userRoleSchema.default("USER"),
+  createdAt: z.union([z.string(), z.date()]),
+  updatedAt: z.union([z.string(), z.date()]),
+});
+
+export type User = z.infer<typeof userSchema>;
+
+export const transcriptSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  title: z.string(),
+  originalText: z.string(),
+  translatedText: z.string().nullable().optional(),
+  sourceLanguage: z.string().default("en"),
+  targetLanguage: z.string().nullable().optional(),
+  duration: z.number(),
+  wordCount: z.number().default(0),
+  fileUrl: z.string().nullable().optional(),
+  fileType: z.string().nullable().optional(),
+  transcribedAt: z.union([z.string(), z.date()]),
+  createdAt: z.union([z.string(), z.date()]),
+  updatedAt: z.union([z.string(), z.date()]),
+  isPublic: z.boolean().default(false),
+});
+
+export type Transcript = z.infer<typeof transcriptSchema>;
+
+export const adminStatsSchema = z.object({
+  totalUsers: z.number(),
+  activeUsers: z.number(),
+  totalTranscripts: z.number(),
+  totalMinutes: z.number(),
+  usageTrend: z.array(
+    z.object({
+      date: z.string(),
+      transcripts: z.number(),
+    })
+  ),
+  topLanguages: z.array(
+    z.object({
+      name: z.string(),
+      code: z.string(),
+      count: z.number(),
+    })
+  ),
+});
+
+export type AdminStats = z.infer<typeof adminStatsSchema>;
+
 export const apiResponseSchema = z.object({
   success: z.boolean(),
-  data: z.any().optional(),
+  data: z.unknown().optional(),
   error: z.string().optional(),
   message: z.string().optional(),
 });
 
-export type APIResponse<T = any> = z.infer<typeof apiResponseSchema> & {
+export type APIResponse<T = unknown> = z.infer<typeof apiResponseSchema> & {
   data?: T;
 };

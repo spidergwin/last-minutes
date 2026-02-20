@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FileText, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { Transcript } from "@/lib/validations";
 
 export default function DashboardPage() {
   const { data: transcripts = [] } = useTranscripts();
@@ -19,7 +20,7 @@ export default function DashboardPage() {
         toast.success("Transcript deleted");
         queryClient.invalidateQueries({ queryKey: ["transcripts"] });
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete");
     }
   };
@@ -52,7 +53,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid gap-4">
-            {transcripts.map((transcript: any) => (
+            {transcripts.map((transcript: Transcript) => (
               <div
                 key={transcript.id}
                 className="bg-white p-6 rounded-lg border border-slate-200 flex items-center justify-between hover:shadow-md transition"
