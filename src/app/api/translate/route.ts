@@ -69,7 +69,7 @@ async function getTranslation(
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting
-    const identifier = request.ip || "anonymous";
+    const identifier = request.headers.get("x-forwarded-for") || "anonymous";
     const allowed = await checkRateLimit(identifier);
 
     if (!allowed) {

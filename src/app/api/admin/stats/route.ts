@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         activeUsers,
         totalTranscripts,
         totalMinutes: totalMinutes._sum.duration || 0,
-        topLanguages: topLanguages.map((lang) => ({
+        topLanguages: topLanguages.map((lang: any) => ({
           code: lang.sourceLanguage,
           count: lang._count,
         })),

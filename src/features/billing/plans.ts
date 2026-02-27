@@ -57,5 +57,5 @@ export function getPlan(planKey: keyof typeof SUBSCRIPTION_PLANS) {
 
 export function canUseFeature(plan: keyof typeof SUBSCRIPTION_PLANS, feature: string): boolean {
   const planData = SUBSCRIPTION_PLANS[plan];
-  return planData.features.includes(feature);
+  return (planData.features as readonly string[]).includes(feature);
 }
