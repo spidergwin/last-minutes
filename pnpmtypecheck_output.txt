@@ -2,8 +2,16 @@
 > last-minutes@0.1.0 typecheck /home/gwin/projects/last-minutes
 > tsc --noEmit
 
-src/app/(app)/app/page.tsx(93,7): error TS2448: Block-scoped variable 'handleToggleMic' used before its declaration.
-src/app/(app)/app/page.tsx(93,7): error TS2454: Variable 'handleToggleMic' is used before being assigned.
-src/app/(app)/app/page.tsx(145,50): error TS2345: Argument of type '{ title: string; originalText: string; sourceLanguage: string; }' is not assignable to parameter of type '{ title: string; originalText: string; sourceLanguage: string; fileType: "audio" | "video" | "dictation"; targetLanguage?: string | undefined; fileUrl?: string | undefined; }'.
-  Property 'fileType' is missing in type '{ title: string; originalText: string; sourceLanguage: string; }' but required in type '{ title: string; originalText: string; sourceLanguage: string; fileType: "audio" | "video" | "dictation"; targetLanguage?: string | undefined; fileUrl?: string | undefined; }'.
+src/app/api/admin/stats/route.ts(28,13): error TS2561: Object literal may only specify known properties, but 'expiresAt' does not exist in type 'SessionWhereInput'. Did you mean to write 'expires'?
+src/app/api/export/[transcriptId]/route.ts(40,9): error TS2353: Object literal may only specify known properties, and 'summaries' does not exist in type 'TranscriptInclude<$Extensions.DefaultArgs>'.
+src/app/api/summarize/route.ts(71,30): error TS2339: Property 'summary' does not exist on type 'PrismaClient<PrismaClientOptions, never, $Extensions.DefaultArgs>'.
+src/features/export/docx.ts(2,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
+src/features/export/docx.ts(46,28): error TS7006: Parameter 'line' implicitly has an 'any' type.
+src/features/export/docx.ts(78,19): error TS7006: Parameter 'line' implicitly has an 'any' type.
+src/features/export/docx.ts(92,20): error TS7006: Parameter 'line' implicitly has an 'any' type.
+src/features/export/json.ts(1,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
+src/features/export/pdf.ts(2,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
+src/features/export/service.ts(1,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
+src/features/export/srt.ts(1,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
+src/features/export/txt.ts(1,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
  ELIFECYCLE  Command failed with exit code 1.
