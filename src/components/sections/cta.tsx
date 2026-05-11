@@ -10,7 +10,7 @@ export function CTA() {
   return (
     <section className="py-24 md:py-32 relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700" />
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-600 via-orange-600 to-purple-700" />
       <div className="absolute inset-0 bg-grid opacity-10" />
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 

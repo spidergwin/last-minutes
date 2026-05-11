@@ -22,7 +22,7 @@ export function Hero() {
     <section className="relative pt-28 pb-20 md:pt-40 md:pb-32 overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 bg-grid opacity-40" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-indigo-500/10 via-violet-500/10 to-purple-500/5 rounded-full blur-3xl" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-purple-500/5 rounded-full blur-3xl" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
@@ -35,9 +35,9 @@ export function Hero() {
           <motion.div variants={fadeUp}>
             <Badge
               variant="secondary"
-              className="mb-6 py-1.5 px-5 text-sm font-medium border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full"
+              className="mb-6 py-1.5 px-5 text-sm font-medium border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-2 animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2 animate-pulse" />
               {heroContent.badge}
             </Badge>
           </motion.div>
@@ -66,7 +66,7 @@ export function Hero() {
             <Link href={heroContent.cta.primary.href}>
               <Button
                 size="lg"
-                className="h-13 px-8 text-base bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white gap-2 shadow-xl shadow-indigo-500/25 border-0 w-full sm:w-auto"
+                className="h-13 px-8 text-base bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white gap-2 shadow-xl shadow-amber-500/25 border-0 w-full sm:w-auto"
               >
                 {heroContent.cta.primary.text}
                 <ArrowRight className="w-4 h-4" />
@@ -108,7 +108,7 @@ export function Hero() {
           {[...Array(60)].map((_, i) => (
             <div
               key={i}
-              className="w-[3px] bg-gradient-to-t from-indigo-500/60 to-violet-500/30 rounded-full animate-wave origin-bottom"
+              className="w-[3px] bg-gradient-to-t from-amber-500/60 to-orange-500/30 rounded-full animate-wave origin-bottom"
               style={{
                 height: `${Math.sin(i * 0.3) * 40 + 50}%`,
                 animationDelay: `${i * 0.04}s`,

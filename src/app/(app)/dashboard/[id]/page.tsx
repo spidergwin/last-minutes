@@ -1,7 +1,13 @@
 "use client";
 
 import { use, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useTranscript, useDeleteTranscript, useSummarize, useUpdateTranscript } from "@/hooks";
+
+const TranscriptEditor = dynamic(
+  () => import('@/components/transcript-editor').then(mod => ({ default: mod.TranscriptEditor })),
+  { ssr: false, loading: () => <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600" /></div> }
+);
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -122,7 +128,7 @@ export default function TranscriptDetailPage({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
       </div>
     );
   }
@@ -222,12 +228,12 @@ export default function TranscriptDetailPage({
           transition={{ delay: 0.05 }}
           className="lg:col-span-2 space-y-6"
         >
-          {/* Transcript Text */}
-          <Card className="shadow-sm">
+          {/* Transcript Editor */}
+          <Card className="shadow-sm overflow-hidden">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  <FileText className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                   <CardTitle className="text-base">Transcript</CardTitle>
                 </div>
                 <Badge variant="secondary" className="text-xs font-normal">
@@ -236,12 +242,16 @@ export default function TranscriptDetailPage({
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <p className="text-[15px] leading-[1.8] text-foreground/90 whitespace-pre-wrap">
-                  {transcript.originalText}
-                </p>
-              </div>
+            <CardContent className="p-0">
+              <TranscriptEditor
+                initialContent={transcript.originalText}
+                onSave={async (content: string) => {
+                  await updateMutation.mutateAsync({
+                    id: transcript.id,
+                    data: { originalText: content },
+                  });
+                }}
+              />
             </CardContent>
           </Card>
 
@@ -249,7 +259,7 @@ export default function TranscriptDetailPage({
           <Card className="shadow-sm">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <CardTitle className="text-base">AI Summary</CardTitle>
               </div>
               <CardDescription>Generate an AI-powered summary of this transcript.</CardDescription>
@@ -270,7 +280,7 @@ export default function TranscriptDetailPage({
                 <Button
                   onClick={handleSummarize}
                   disabled={summarizeMutation.isPending}
-                  className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white border-0"
+                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0"
                 >
                   {summarizeMutation.isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -304,7 +314,7 @@ export default function TranscriptDetailPage({
           <Card className="shadow-sm">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                <BarChart3 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <CardTitle className="text-base">Details</CardTitle>
               </div>
             </CardHeader>
@@ -340,7 +350,7 @@ export default function TranscriptDetailPage({
           <Card className="shadow-sm">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <Download className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                <Download className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <CardTitle className="text-base">Export</CardTitle>
               </div>
               <CardDescription>Download in your preferred format.</CardDescription>

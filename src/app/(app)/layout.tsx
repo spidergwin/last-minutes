@@ -11,6 +11,7 @@ import { useUsage } from "@/hooks";
 const routeTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/app": "Dictation Workspace",
+  "/upload": "Upload & Transcribe",
   "/settings": "Settings",
   "/settings/billing": "Billing",
 };
@@ -42,7 +43,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="text-xs font-normal bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20">
+            <Badge variant="secondary" className="text-xs font-normal bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20">
               {planName} Plan
             </Badge>
             <ThemeToggle />

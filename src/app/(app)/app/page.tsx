@@ -239,13 +239,13 @@ export default function DictationWorkspace() {
                 </Badge>
               )}
               {isConnecting && (
-                <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 bg-indigo-500/5 gap-1.5">
+                <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-amber-600 dark:text-amber-400 border-amber-500/20 bg-amber-500/5 gap-1.5">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   Connecting
                 </Badge>
               )}
               {isProcessing && !isConnecting && !isListening && (
-                <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 bg-indigo-500/5 gap-1.5">
+                <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-amber-600 dark:text-amber-400 border-amber-500/20 bg-amber-500/5 gap-1.5">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   Processing
                 </Badge>
@@ -291,7 +291,7 @@ export default function DictationWorkspace() {
                     <motion.span
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 0.5 }}
-                      className="text-indigo-500 dark:text-indigo-400"
+                      className="text-amber-500 dark:text-amber-400"
                     >
                       {interimTranscript}
                     </motion.span>
@@ -306,7 +306,7 @@ export default function DictationWorkspace() {
                   {[...Array(12)].map((_, i) => (
                     <div
                       key={i}
-                      className="w-[3px] bg-gradient-to-t from-indigo-500/40 to-violet-500/20 rounded-full animate-wave origin-bottom"
+                      className="w-[3px] bg-gradient-to-t from-amber-500/40 to-orange-500/20 rounded-full animate-wave origin-bottom"
                       style={{
                         height: `${Math.sin(i * 0.5) * 60 + 30}%`,
                         animationDelay: `${i * 0.08}s`,
@@ -356,9 +356,9 @@ export default function DictationWorkspace() {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="flex flex-col rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden shrink-0"
             >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 bg-indigo-500/5">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 bg-amber-500/5">
                 <div className="flex items-center gap-2">
-                  <Languages className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  <Languages className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                   <span className="text-sm font-semibold">Translation</span>
                 </div>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowTranslation(false)}>
@@ -437,7 +437,7 @@ export default function DictationWorkspace() {
               className={`relative group flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${
                 isListening
                   ? "bg-red-500 hover:bg-red-600 shadow-red-500/30"
-                  : "bg-gradient-to-br from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 shadow-indigo-500/30"
+                  : "bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-amber-500/30"
               } shadow-lg active:scale-95`}
             >
               {isListening ? (
@@ -485,7 +485,7 @@ export default function DictationWorkspace() {
             </Select>
 
             <Button
-              className="h-10 px-4 rounded-xl gap-2 text-sm bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-md shadow-indigo-500/15 border-0"
+              className="h-10 px-4 rounded-xl gap-2 text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md shadow-amber-500/15 border-0"
               disabled={!transcript || !targetLanguage || translateMutation.isPending}
               onClick={handleTranslate}
             >

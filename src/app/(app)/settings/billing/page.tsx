@@ -22,7 +22,7 @@ export default function BillingPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
       </div>
     );
   }
@@ -48,14 +48,14 @@ export default function BillingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
       >
-        <Card className="shadow-sm border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-violet-500/5">
+        <Card className="shadow-sm border-amber-500/10 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                <CreditCard className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 <CardTitle>Current Plan</CardTitle>
               </div>
-              <Badge className="bg-gradient-to-r from-indigo-500 to-violet-600 text-white border-0 px-3">
+              <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 px-3">
                 {currentPlan.name}
               </Badge>
             </div>
@@ -76,7 +76,7 @@ export default function BillingPage() {
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
                   style={{ width: `${usagePercent}%` }}
                 />
               </div>
@@ -114,7 +114,7 @@ export default function BillingPage() {
         <Card className="shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              <Zap className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               <CardTitle>Available Plans</CardTitle>
             </div>
             <CardDescription>Choose the plan that fits your needs.</CardDescription>
@@ -129,12 +129,12 @@ export default function BillingPage() {
                       key={key}
                       className={`relative rounded-xl border p-5 transition-all ${
                         isCurrentPlan
-                          ? "border-indigo-500/40 bg-indigo-500/5 shadow-md"
-                          : "border-border hover:border-indigo-500/20 hover:shadow-sm"
+                          ? "border-amber-500/40 bg-amber-500/5 shadow-md"
+                          : "border-border hover:border-amber-500/20 hover:shadow-sm"
                       }`}
                     >
                       {isCurrentPlan && (
-                        <Badge className="absolute -top-2.5 right-3 bg-indigo-600 text-white border-0 text-[10px]">
+                        <Badge className="absolute -top-2.5 right-3 bg-amber-600 text-white border-0 text-[10px]">
                           Current
                         </Badge>
                       )}
@@ -151,7 +151,7 @@ export default function BillingPage() {
                       <ul className="mt-4 space-y-2">
                         {plan.features.map((feature) => (
                           <li key={feature} className="flex items-start gap-2 text-xs">
-                            <Check className="h-3.5 w-3.5 text-indigo-500 shrink-0 mt-0.5" />
+                            <Check className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
                             <span>{feature}</span>
                           </li>
                         ))}

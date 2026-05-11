@@ -30,7 +30,7 @@ export function Features() {
         >
           <Badge
             variant="secondary"
-            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full"
+            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full"
           >
             {featuresContent.badge}
           </Badge>
@@ -54,7 +54,7 @@ export function Features() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-50px" }}
-                className={`group relative rounded-2xl border bg-card p-6 md:p-8 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5 hover:border-indigo-500/20 ${item.span}`}
+                className={`group relative rounded-2xl border bg-card p-6 md:p-8 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/5 hover:border-amber-500/20 ${item.span}`}
               >
                 {/* Gradient accent bar */}
                 <div className={`absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r ${item.accent} rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />

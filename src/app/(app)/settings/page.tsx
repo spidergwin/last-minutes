@@ -58,7 +58,7 @@ export default function SettingsPage() {
         <Card className="shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <User className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              <User className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               <CardTitle>Profile</CardTitle>
             </div>
             <CardDescription>Your personal information.</CardDescription>
@@ -89,7 +89,7 @@ export default function SettingsPage() {
               <Button
                 onClick={handleSaveProfile}
                 disabled={isSaving}
-                className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white border-0"
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0"
               >
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Changes
@@ -108,7 +108,7 @@ export default function SettingsPage() {
         <Card className="shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              <Globe className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               <CardTitle>Preferences</CardTitle>
             </div>
             <CardDescription>Configure your default settings.</CardDescription>
@@ -142,7 +142,7 @@ export default function SettingsPage() {
         <Card className="shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              <Shield className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               <CardTitle>Security</CardTitle>
             </div>
             <CardDescription>Manage your account security.</CardDescription>

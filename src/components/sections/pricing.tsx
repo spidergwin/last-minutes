@@ -24,7 +24,7 @@ export function Pricing() {
         >
           <Badge
             variant="secondary"
-            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full"
+            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full"
           >
             {pricingContent.badge}
           </Badge>
@@ -75,12 +75,12 @@ export function Pricing() {
                 <Card
                   className={`relative flex flex-col overflow-hidden transition-all duration-300 ${
                     isPopular
-                      ? "glow-border shadow-2xl shadow-indigo-500/10 border-transparent"
+                      ? "glow-border shadow-2xl shadow-amber-500/10 border-transparent"
                       : "hover:shadow-lg hover:border-border"
                   }`}
                 >
                   {isPopular && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">
                       Most Popular
                     </div>
                   )}
@@ -128,7 +128,7 @@ export function Pricing() {
                       <Button
                         className={`w-full h-12 font-semibold ${
                           isPopular
-                            ? "bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/20 border-0"
+                            ? "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/20 border-0"
                             : ""
                         }`}
                         variant={isPopular ? "default" : "outline"}

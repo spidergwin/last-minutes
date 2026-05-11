@@ -10,7 +10,7 @@ export function Languages() {
 
   return (
     <section id="languages" className="py-24 md:py-32 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/3 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/3 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
@@ -21,7 +21,7 @@ export function Languages() {
         >
           <Badge
             variant="secondary"
-            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full"
+            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full"
           >
             {languagesContent.badge}
           </Badge>
@@ -72,8 +72,8 @@ export function Languages() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h3 className="text-sm font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-6 flex items-center gap-2">
-              <span className="w-8 h-[2px] bg-indigo-500 rounded-full" />
+            <h3 className="text-sm font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-6 flex items-center gap-2">
+              <span className="w-8 h-[2px] bg-amber-500 rounded-full" />
               {languagesContent.internationalLabel}
             </h3>
             <div className="grid grid-cols-2 gap-3">
@@ -84,7 +84,7 @@ export function Languages() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.05 }}
-                  className="group flex items-center gap-3 p-3 rounded-xl border bg-card hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all duration-200 cursor-default"
+                  className="group flex items-center gap-3 p-3 rounded-xl border bg-card hover:border-amber-500/30 hover:bg-amber-500/5 transition-all duration-200 cursor-default"
                 >
                   <span className="text-xl">{lang.flag}</span>
                   <div>

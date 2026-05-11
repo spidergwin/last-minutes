@@ -19,7 +19,7 @@ export function Testimonials() {
         >
           <Badge
             variant="secondary"
-            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full"
+            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full"
           >
             {testimonialsContent.badge}
           </Badge>
@@ -43,15 +43,15 @@ export function Testimonials() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.5 }}
               >
-                <Card className="h-full border-muted hover:border-indigo-500/20 transition-colors duration-300">
+                <Card className="h-full border-muted hover:border-amber-500/20 transition-colors duration-300">
                   <CardContent className="p-6 md:p-8 flex flex-col h-full">
-                    <Quote className="w-8 h-8 text-indigo-500/20 mb-4 shrink-0" />
+                    <Quote className="w-8 h-8 text-amber-500/20 mb-4 shrink-0" />
                     <p className="text-foreground/90 leading-relaxed mb-6 flex-grow text-sm md:text-base">
                       &ldquo;{item.quote}&rdquo;
                     </p>
                     <div className="flex items-center gap-3 pt-4 border-t">
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-violet-600 text-white text-xs font-bold">
+                        <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xs font-bold">
                           {initials}
                         </AvatarFallback>
                       </Avatar>

@@ -22,7 +22,7 @@ export function FAQ() {
         >
           <Badge
             variant="secondary"
-            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full"
+            className="mb-4 py-1 px-4 text-xs font-semibold uppercase tracking-widest border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full"
           >
             {faqContent.badge}
           </Badge>
@@ -45,7 +45,7 @@ export function FAQ() {
               <AccordionItem
                 key={i}
                 value={`item-${i}`}
-                className="border rounded-xl px-6 bg-card hover:border-indigo-500/20 transition-colors data-[state=open]:border-indigo-500/30 data-[state=open]:shadow-sm"
+                className="border rounded-xl px-6 bg-card hover:border-amber-500/20 transition-colors data-[state=open]:border-amber-500/30 data-[state=open]:shadow-sm"
               >
                 <AccordionTrigger className="text-left font-semibold py-5 text-[15px] hover:no-underline">
                   {item.question}

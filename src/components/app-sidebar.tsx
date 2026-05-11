@@ -12,6 +12,7 @@ import {
   User,
   Languages,
   CreditCard,
+  Upload,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -41,6 +42,7 @@ import { useSession, signOut } from "@/lib/auth-client";
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "New Dictation", url: "/app", icon: Mic },
+  { title: "Upload", url: "/upload", icon: Upload },
   { title: "Transcripts", url: "/dashboard", icon: FileText, matchPrefix: "/dashboard" },
   { title: "Translation", url: "/app", icon: Languages },
 ];
@@ -90,7 +92,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/20">
                   <Mic className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
@@ -160,7 +162,7 @@ export function AppSidebar() {
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src={user?.image || ""} alt={user?.name || "User"} />
-                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white text-xs font-bold">
+                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xs font-bold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>

@@ -184,7 +184,7 @@ export function SignUpForm() {
           </div>
           <Button
             disabled={isLoading}
-            className="w-full h-11 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white border-0"
+            className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">

@@ -115,7 +115,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <Link href="/app">
-            <Button className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/20 border-0">
+            <Button className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/20 border-0">
               <Plus className="mr-2 h-4 w-4" />
               New Dictation
             </Button>
@@ -124,21 +124,21 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
         >
-          <Card className="shadow-sm border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-violet-500/5">
+          <Card className="shadow-sm border-amber-500/10 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardDescription className="text-indigo-600 dark:text-indigo-400 font-medium text-xs uppercase tracking-wider">
+              <CardDescription className="text-amber-600 dark:text-amber-400 font-medium text-xs uppercase tracking-wider">
                 Total Transcripts
               </CardDescription>
-              <FileText className="h-4 w-4 text-indigo-500/50" />
+              <FileText className="h-4 w-4 text-amber-500/50" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold font-[family-name:var(--font-display)]">
+              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-display)]">
                 {transcripts.length}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -161,7 +161,7 @@ export default function DashboardPage() {
               <BarChart3 className="h-4 w-4 text-muted-foreground/50" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold font-[family-name:var(--font-display)]">
+              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-display)]">
                 {totalWords.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -184,7 +184,7 @@ export default function DashboardPage() {
               <Languages className="h-4 w-4 text-muted-foreground/50" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold font-[family-name:var(--font-display)]">
+              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-display)]">
                 {Math.max(uniqueLanguages.size, 1)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -207,13 +207,13 @@ export default function DashboardPage() {
               <TrendingUp className="h-4 w-4 text-muted-foreground/50" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold font-[family-name:var(--font-display)]">
+              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-display)]">
                 {usedMinutes}<span className="text-lg text-muted-foreground font-normal">/{limitMinutes === Infinity ? "∞" : limitMinutes}</span>
               </div>
               <div className="mt-2">
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
                     style={{ width: `${usagePercent}%` }}
                   />
                 </div>
@@ -234,13 +234,13 @@ export default function DashboardPage() {
         className="grid grid-cols-1 sm:grid-cols-3 gap-3"
       >
         <Link href="/app">
-          <Card className="group cursor-pointer hover:border-indigo-500/30 hover:shadow-md transition-all duration-200">
+          <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-sm">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-sm">
                 <Mic className="w-5 h-5" />
               </div>
               <div>
-                <p className="font-semibold text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                <p className="font-semibold text-sm group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                   Start Recording
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -250,8 +250,8 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </Link>
-        <Link href="/app">
-          <Card className="group cursor-pointer hover:border-indigo-500/30 hover:shadow-md transition-all duration-200">
+        <Link href="/upload">
+          <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-sm">
                 <Upload className="w-5 h-5" />
@@ -268,7 +268,7 @@ export default function DashboardPage() {
           </Card>
         </Link>
         <Link href="/app">
-          <Card className="group cursor-pointer hover:border-indigo-500/30 hover:shadow-md transition-all duration-200">
+          <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-sm">
                 <Sparkles className="w-5 h-5" />
@@ -312,15 +312,15 @@ export default function DashboardPage() {
           <CardContent className="p-0">
             {isLoading ? (
               <div className="py-20 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto" />
                 <p className="mt-4 text-muted-foreground">
                   Loading transcripts...
                 </p>
               </div>
             ) : filteredTranscripts.length === 0 ? (
               <div className="py-24 text-center">
-                <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-8 h-8 text-indigo-500/50" />
+                <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-amber-500/50" />
                 </div>
                 <h3 className="text-lg font-semibold font-[family-name:var(--font-display)]">
                   {searchQuery ? "No results found" : "No transcripts yet"}
@@ -334,7 +334,7 @@ export default function DashboardPage() {
                   <Link href="/app">
                     <Button
                       variant="outline"
-                      className="gap-2 hover:border-indigo-500/30"
+                      className="gap-2 hover:border-amber-500/30"
                     >
                       Start your first dictation{" "}
                       <ArrowRight className="h-4 w-4" />
@@ -343,14 +343,15 @@ export default function DashboardPage() {
                 )}
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader className="bg-muted/50">
                   <TableRow>
-                    <TableHead className="pl-6">Transcript</TableHead>
-                    <TableHead>Language</TableHead>
-                    <TableHead>Words</TableHead>
+                    <TableHead className="pl-4 sm:pl-6">Transcript</TableHead>
+                    <TableHead className="hidden sm:table-cell">Language</TableHead>
+                    <TableHead className="hidden sm:table-cell">Words</TableHead>
                     <TableHead>Created</TableHead>
-                    <TableHead className="text-right pr-6">
+                    <TableHead className="text-right pr-4 sm:pr-6">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -365,13 +366,13 @@ export default function DashboardPage() {
                         exit={{ opacity: 0 }}
                         className="group"
                       >
-                        <TableCell className="font-medium pl-6 py-4">
+                        <TableCell className="font-medium pl-4 sm:pl-6 py-3 sm:py-4">
                           <Link href={`/dashboard/${transcript.id}`} className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-indigo-600">
+                            <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-600">
                               <FileText className="w-4 h-4" />
                             </div>
                             <div>
-                              <div className="font-semibold text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-sm">
+                              <div className="font-semibold text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors text-sm">
                                 {transcript.title}
                               </div>
                               <div className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]">
@@ -380,7 +381,7 @@ export default function DashboardPage() {
                             </div>
                           </Link>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden sm:table-cell">
                           <Badge
                             variant="secondary"
                             className="bg-muted/50 font-normal text-xs"
@@ -389,7 +390,7 @@ export default function DashboardPage() {
                             {transcript.sourceLanguage === "en" ? "English" : transcript.sourceLanguage}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
+                        <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">
                           {transcript.wordCount} words
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
@@ -401,7 +402,7 @@ export default function DashboardPage() {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="text-right pr-6">
+                        <TableCell className="text-right pr-4 sm:pr-6">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -437,6 +438,7 @@ export default function DashboardPage() {
                   </AnimatePresence>
                 </TableBody>
               </Table>
+              </div>
             )}
           </CardContent>
         </Card>
