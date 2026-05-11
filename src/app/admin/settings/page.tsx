@@ -1,48 +1,126 @@
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Globe, Settings2, ShieldCheck } from "lucide-react";
+
 export default function AdminSettingsPage() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8">System Settings</h1>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
+        <p className="text-muted-foreground">Configure external services and system-wide feature toggles.</p>
+      </div>
 
-      <div className="space-y-8">
+      <div className="grid gap-6">
         {/* API Configuration */}
-        <div className="bg-white p-6 rounded-lg border border-slate-200">
-          <h2 className="text-xl font-semibold mb-4">External Services</h2>
-          <div className="space-y-4">
+        <Card className="shadow-xs">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Globe className="h-5 w-5 text-blue-600" />
+              <CardTitle>External Services</CardTitle>
+            </div>
+            <CardDescription>
+              Configuration for translation and transcription engines.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
             {[
-              { name: "LibreTranslate API", url: "LIBRETRANSLATE_API_URL" },
-              { name: "Faster Whisper API", url: "FASTER_WHISPER_API_URL" },
+              { name: "LibreTranslate API URL", env: "LIBRETRANSLATE_API_URL", placeholder: "http://localhost:5000" },
+              { name: "Faster Whisper API URL", env: "FASTER_WHISPER_API_URL", placeholder: "http://localhost:8000" },
             ].map((service) => (
-              <div key={service.url}>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  {service.name}
-                </label>
-                <input
+              <div key={service.env} className="space-y-2">
+                <Label htmlFor={service.env}>{service.name}</Label>
+                <Input
+                  id={service.env}
                   type="text"
-                  defaultValue={process.env[service.url] || ""}
+                  placeholder={service.placeholder}
+                  defaultValue={process.env[service.env] || ""}
                   disabled
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-500"
+                  className="bg-muted/50"
                 />
+                <p className="text-[12px] text-muted-foreground">
+                  This value is currently managed via environment variables.
+                </p>
               </div>
             ))}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Feature Toggles */}
-        <div className="bg-white p-6 rounded-lg border border-slate-200">
-          <h2 className="text-xl font-semibold mb-4">Feature Toggles</h2>
-          <div className="space-y-4">
-            {["Enable Dictation", "Enable File Upload", "Enable Translation"].map((feature) => (
-              <label key={feature} className="flex items-center gap-3">
-                <input type="checkbox" defaultChecked className="w-4 h-4 rounded" />
-                <span className="text-sm font-medium text-slate-700">{feature}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+        <Card className="shadow-xs">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Settings2 className="h-5 w-5 text-purple-600" />
+              <CardTitle>Feature Toggles</CardTitle>
+            </div>
+            <CardDescription>
+              Enable or disable core application features.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-4">
+              {[
+                { id: "dictation", label: "Enable Live Dictation", description: "Allow users to record and transcribe audio in real-time." },
+                { id: "upload", label: "Enable File Upload", description: "Allow users to upload audio files for transcription." },
+                { id: "translation", label: "Enable Translation", description: "Allow users to translate transcripts into other languages." },
+              ].map((feature) => (
+                <div key={feature.id} className="flex items-start gap-3 space-y-0">
+                  <Checkbox id={feature.id} defaultChecked className="mt-1" />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor={feature.id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      {feature.label}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-          Save Settings
-        </button>
+        {/* Security Settings */}
+        <Card className="shadow-xs border-red-500/10">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-red-600" />
+              <CardTitle>Security & Access</CardTitle>
+            </div>
+            <CardDescription>
+              Configure system-wide security and access controls.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Maintenance Mode</Label>
+                <p className="text-sm text-muted-foreground">
+                  Disable public access to the application for maintenance.
+                </p>
+              </div>
+              <Checkbox />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>New User Registration</Label>
+                <p className="text-sm text-muted-foreground">
+                  Allow new users to sign up for an account.
+                </p>
+              </div>
+              <Checkbox defaultChecked />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end gap-4">
+          <Button variant="outline">Cancel</Button>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
+            Save System Settings
+          </Button>
+        </div>
       </div>
     </div>
   );

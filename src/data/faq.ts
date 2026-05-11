@@ -1,0 +1,47 @@
+export const faqContent = {
+  badge: "FAQ",
+  title: "Frequently asked questions",
+  description: "Everything you need to know about Last Minutes.",
+  items: [
+    {
+      question: "How accurate is the transcription?",
+      answer:
+        "Our English transcription achieves 99.2% accuracy using Deepgram's Nova-3 engine. Nigerian language accuracy varies by language — Hausa and Yoruba are our strongest at 95%+, while less-resourced languages like Tiv and Efik are continuously improving.",
+    },
+    {
+      question: "Which Nigerian languages are supported?",
+      answer:
+        "We currently support 8 Nigerian languages: Hausa, Yoruba, Igbo, Nigerian Pidgin, Edo (Ẹ̀dó), Efik, Tiv, and Fula (Fulfulde). We're actively adding more based on user demand.",
+    },
+    {
+      question: "Can I upload pre-recorded audio files?",
+      answer:
+        "Yes! Pro and Business plans support uploading audio and video files (MP3, WAV, MP4, WebM, etc.) for batch transcription. You'll get timestamped transcripts with speaker identification.",
+    },
+    {
+      question: "What export formats are available?",
+      answer:
+        "You can export transcripts as plain text (TXT), Word documents (DOCX), PDF, subtitle files (SRT & VTT for video), and structured JSON. All formats are available on the Pro plan and above.",
+    },
+    {
+      question: "How does the AI summarization work?",
+      answer:
+        "Our AI reads your full transcript and generates structured outputs: executive summaries, action items with owners, key decisions, and formatted meeting notes. Powered by OpenAI's GPT-4o-mini for fast, accurate results.",
+    },
+    {
+      question: "Is my data secure?",
+      answer:
+        "Absolutely. All data is encrypted in transit (TLS 1.3) and at rest. We don't use your transcripts to train AI models. Audio is processed in real-time and never stored on our servers — only the text transcript is saved to your account.",
+    },
+    {
+      question: "Can I cancel my subscription anytime?",
+      answer:
+        "Yes, you can cancel anytime from your dashboard. Your Pro features remain active until the end of your current billing period. We process payments securely through Paystack.",
+    },
+    {
+      question: "Do you offer team plans?",
+      answer:
+        "Our Business plan includes team collaboration features, shared workspaces, admin controls, and API access. For custom enterprise needs, contact our sales team.",
+    },
+  ],
+};

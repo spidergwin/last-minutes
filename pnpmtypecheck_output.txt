@@ -1,0 +1,9 @@
+
+> last-minutes@0.1.0 typecheck /home/gwin/projects/last-minutes
+> tsc --noEmit
+
+src/app/(app)/app/page.tsx(93,7): error TS2448: Block-scoped variable 'handleToggleMic' used before its declaration.
+src/app/(app)/app/page.tsx(93,7): error TS2454: Variable 'handleToggleMic' is used before being assigned.
+src/app/(app)/app/page.tsx(145,50): error TS2345: Argument of type '{ title: string; originalText: string; sourceLanguage: string; }' is not assignable to parameter of type '{ title: string; originalText: string; sourceLanguage: string; fileType: "audio" | "video" | "dictation"; targetLanguage?: string | undefined; fileUrl?: string | undefined; }'.
+  Property 'fileType' is missing in type '{ title: string; originalText: string; sourceLanguage: string; }' but required in type '{ title: string; originalText: string; sourceLanguage: string; fileType: "audio" | "video" | "dictation"; targetLanguage?: string | undefined; fileUrl?: string | undefined; }'.
+ ELIFECYCLE  Command failed with exit code 1.

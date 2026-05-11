@@ -1,25 +1,36 @@
 "use client";
 
-import { useTranscripts, useDeleteTranscript } from "@/hooks";
+import { useState, useMemo } from "react";
+import { useTranscripts, useDeleteTranscript, useUsage } from "@/hooks";
+import { SUBSCRIPTION_PLANS } from "@/features/billing/plans";
 import Link from "next/link";
-import { 
-  FileText, 
-  Plus, 
-  Trash2, 
-  Search, 
-  Filter, 
-  Clock, 
-  MoreVertical, 
+import {
+  FileText,
+  Plus,
+  Trash2,
+  Search,
+  Clock,
+  MoreVertical,
   ExternalLink,
-  ChevronRight,
   Languages,
-  ArrowRight
+  ArrowRight,
+  Mic,
+  Upload,
+  Sparkles,
+  TrendingUp,
+  BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Transcript } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -38,192 +49,398 @@ import {
 } from "@/components/ui/table";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
+import { useSession } from "@/lib/auth-client";
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
   const { data: transcripts = [], isLoading } = useTranscripts();
+  const { data: usageData } = useUsage();
   const deleteMutation = useDeleteTranscript();
   const queryClient = useQueryClient();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const user = session?.user;
+  const firstName = user?.name?.split(" ")[0] || "there";
+
+  const filteredTranscripts = useMemo(() => {
+    if (!searchQuery.trim()) return transcripts;
+    const query = searchQuery.toLowerCase();
+    return transcripts.filter(
+      (t) =>
+        t.title.toLowerCase().includes(query) ||
+        t.originalText.toLowerCase().includes(query)
+    );
+  }, [transcripts, searchQuery]);
+
+  const totalWords = transcripts.reduce(
+    (acc, t) => acc + (t.wordCount || 0),
+    0
+  );
+  const uniqueLanguages = new Set(
+    transcripts.map((t) => t.sourceLanguage || "en")
+  );
+
+  // Real usage data
+  const currentPlanKey = (usageData?.subscription?.plan || "FREE") as keyof typeof SUBSCRIPTION_PLANS;
+  const currentPlan = SUBSCRIPTION_PLANS[currentPlanKey];
+  const usedMinutes = usageData?.usage?.monthlyDictationMins || 0;
+  const limitMinutes = currentPlan.monthlyLimit === Infinity ? Infinity : currentPlan.monthlyLimit;
+  const usagePercent = limitMinutes === Infinity ? 0 : Math.min(100, (usedMinutes / limitMinutes) * 100);
 
   const handleDelete = async (id: string) => {
     try {
       await deleteMutation.mutateAsync(id);
       toast.success("Transcript deleted");
       queryClient.invalidateQueries({ queryKey: ["transcripts"] });
-    } catch (_error) {
+    } catch {
       toast.error("Failed to delete transcript");
     }
   };
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      {/* Welcome Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row md:items-end justify-between gap-4"
+      >
         <div className="space-y-1">
-          <h2 className="text-3xl font-bold tracking-tight">My Transcripts</h2>
+          <h2 className="text-3xl font-bold tracking-tight font-[family-name:var(--font-display)]">
+            Welcome back, {firstName} 👋
+          </h2>
           <p className="text-muted-foreground">
-            Manage and view all your voice recordings and translations.
+            Here&apos;s an overview of your transcription workspace.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/app">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
+            <Button className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/20 border-0">
               <Plus className="mr-2 h-4 w-4" />
               New Dictation
             </Button>
           </Link>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="shadow-sm border-blue-500/10 bg-blue-500/5 dark:bg-blue-500/10">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-blue-600 dark:text-blue-400 font-medium">Total Transcripts</CardDescription>
-            <CardTitle className="text-3xl font-bold">{transcripts.length}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">Last updated just now</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription className="font-medium">Total Words</CardDescription>
-            <CardTitle className="text-3xl font-bold">
-              {transcripts.reduce((acc, t) => acc + (t.wordCount || 0), 0).toLocaleString()}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">Across all transcripts</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription className="font-medium">Languages</CardDescription>
-            <CardTitle className="text-3xl font-bold">4</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">Hausa, Yoruba, Igbo, English</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="shadow-sm overflow-hidden border-muted">
-        <CardHeader className="bg-muted/30 pb-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search transcripts..." className="pl-9 h-10" />
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="h-10">
-                <Filter className="mr-2 h-4 w-4" />
-                Filter
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="py-20 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
-              <p className="mt-4 text-muted-foreground">Loading transcripts...</p>
-            </div>
-          ) : transcripts.length === 0 ? (
-            <div className="py-24 text-center">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-8 h-8 text-muted-foreground" />
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+        >
+          <Card className="shadow-sm border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-violet-500/5">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardDescription className="text-indigo-600 dark:text-indigo-400 font-medium text-xs uppercase tracking-wider">
+                Total Transcripts
+              </CardDescription>
+              <FileText className="h-4 w-4 text-indigo-500/50" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold font-[family-name:var(--font-display)]">
+                {transcripts.length}
               </div>
-              <h3 className="text-lg font-semibold">No transcripts yet</h3>
-              <p className="text-muted-foreground mb-6 max-w-xs mx-auto">
-                Once you start dictating or upload audio, your transcripts will appear here.
+              <p className="text-xs text-muted-foreground mt-1">
+                All time
               </p>
-              <Link href="/app">
-                <Button variant="outline" className="gap-2">
-                  Start your first dictation <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardDescription className="font-medium text-xs uppercase tracking-wider">
+                Total Words
+              </CardDescription>
+              <BarChart3 className="h-4 w-4 text-muted-foreground/50" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold font-[family-name:var(--font-display)]">
+                {totalWords.toLocaleString()}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Across all transcripts
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardDescription className="font-medium text-xs uppercase tracking-wider">
+                Languages Used
+              </CardDescription>
+              <Languages className="h-4 w-4 text-muted-foreground/50" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold font-[family-name:var(--font-display)]">
+                {Math.max(uniqueLanguages.size, 1)}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                18+ available
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardDescription className="font-medium text-xs uppercase tracking-wider">
+                Usage This Month
+              </CardDescription>
+              <TrendingUp className="h-4 w-4 text-muted-foreground/50" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold font-[family-name:var(--font-display)]">
+                {usedMinutes}<span className="text-lg text-muted-foreground font-normal">/{limitMinutes === Infinity ? "∞" : limitMinutes}</span>
+              </div>
+              <div className="mt-2">
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-500"
+                    style={{ width: `${usagePercent}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Minutes used ({currentPlan.name} plan)
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+      >
+        <Link href="/app">
+          <Card className="group cursor-pointer hover:border-indigo-500/30 hover:shadow-md transition-all duration-200">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-sm">
+                <Mic className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  Start Recording
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Live dictation
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/app">
+          <Card className="group cursor-pointer hover:border-indigo-500/30 hover:shadow-md transition-all duration-200">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-sm">
+                <Upload className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                  Upload Audio
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Batch transcribe
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/app">
+          <Card className="group cursor-pointer hover:border-indigo-500/30 hover:shadow-md transition-all duration-200">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-sm">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                  AI Summary
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  From any transcript
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </motion.div>
+
+      {/* Transcripts Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="shadow-sm overflow-hidden border-muted">
+          <CardHeader className="bg-muted/30 pb-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <CardTitle className="text-lg font-[family-name:var(--font-display)]">
+                Recent Transcripts
+              </CardTitle>
+              <div className="relative w-full md:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search transcripts..."
+                  className="pl-9 h-9"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
-          ) : (
-            <Table>
-              <TableHeader className="bg-muted/50">
-                <TableRow>
-                  <TableHead className="pl-6">Transcript Name</TableHead>
-                  <TableHead>Language</TableHead>
-                  <TableHead>Words</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead className="text-right pr-6">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <AnimatePresence mode="popLayout">
-                  {transcripts.map((transcript: Transcript) => (
-                    <motion.tr
-                      key={transcript.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="group"
+          </CardHeader>
+          <CardContent className="p-0">
+            {isLoading ? (
+              <div className="py-20 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto" />
+                <p className="mt-4 text-muted-foreground">
+                  Loading transcripts...
+                </p>
+              </div>
+            ) : filteredTranscripts.length === 0 ? (
+              <div className="py-24 text-center">
+                <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-indigo-500/50" />
+                </div>
+                <h3 className="text-lg font-semibold font-[family-name:var(--font-display)]">
+                  {searchQuery ? "No results found" : "No transcripts yet"}
+                </h3>
+                <p className="text-muted-foreground mb-6 max-w-xs mx-auto text-sm">
+                  {searchQuery
+                    ? `No transcripts match "${searchQuery}". Try a different search.`
+                    : "Start dictating or upload an audio file to see your transcripts here."}
+                </p>
+                {!searchQuery && (
+                  <Link href="/app">
+                    <Button
+                      variant="outline"
+                      className="gap-2 hover:border-indigo-500/30"
                     >
-                      <TableCell className="font-medium pl-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded flex items-center justify-center text-blue-600">
-                            <FileText className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="font-semibold text-foreground group-hover:text-blue-600 transition-colors">
-                              {transcript.title}
+                      Start your first dictation{" "}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <Table>
+                <TableHeader className="bg-muted/50">
+                  <TableRow>
+                    <TableHead className="pl-6">Transcript</TableHead>
+                    <TableHead>Language</TableHead>
+                    <TableHead>Words</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="text-right pr-6">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <AnimatePresence mode="popLayout">
+                    {filteredTranscripts.map((transcript: Transcript) => (
+                      <motion.tr
+                        key={transcript.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="group"
+                      >
+                        <TableCell className="font-medium pl-6 py-4">
+                          <Link href={`/dashboard/${transcript.id}`} className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-indigo-600">
+                              <FileText className="w-4 h-4" />
                             </div>
-                            <div className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]">
-                              {transcript.originalText}
+                            <div>
+                              <div className="font-semibold text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-sm">
+                                {transcript.title}
+                              </div>
+                              <div className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]">
+                                {transcript.originalText}
+                              </div>
                             </div>
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="secondary"
+                            className="bg-muted/50 font-normal text-xs"
+                          >
+                            <Languages className="mr-1 h-3 w-3" />
+                            {transcript.sourceLanguage === "en" ? "English" : transcript.sourceLanguage}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {transcript.wordCount} words
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          <div className="flex items-center gap-1.5">
+                            <Clock className="h-3.5 w-3.5" />
+                            {format(
+                              new Date(transcript.createdAt),
+                              "MMM d, yyyy"
+                            )}
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="bg-muted/50 font-normal">
-                          <Languages className="mr-1 h-3 w-3" />
-                          English
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {transcript.wordCount} words
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5" />
-                          {format(new Date(transcript.createdAt), "MMM d, yyyy")}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right pr-6">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link href={`/dashboard/${transcript.id}`} className="flex items-center cursor-pointer">
-                                <ExternalLink className="mr-2 h-4 w-4" />
-                                View Details
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
-                              onClick={() => handleDelete(transcript.id)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                        </TableCell>
+                        <TableCell className="text-right pr-6">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/dashboard/${transcript.id}`}
+                                  className="flex items-center cursor-pointer"
+                                >
+                                  <ExternalLink className="mr-2 h-4 w-4" />
+                                  View Details
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
+                                onClick={() => handleDelete(transcript.id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }

@@ -2,13 +2,24 @@ export const SUPPORTED_LANGUAGES = {
   en: { name: "English", nativeName: "English" },
   fr: { name: "French", nativeName: "Français" },
   es: { name: "Spanish", nativeName: "Español" },
+  de: { name: "German", nativeName: "Deutsch" },
+  pt: { name: "Portuguese", nativeName: "Português" },
+  it: { name: "Italian", nativeName: "Italiano" },
+  zh: { name: "Chinese", nativeName: "中文" },
+  ja: { name: "Japanese", nativeName: "日本語" },
+  ko: { name: "Korean", nativeName: "한국어" },
+  ar: { name: "Arabic", nativeName: "العربية" },
   ha: { name: "Hausa", nativeName: "Hausa" },
   yo: { name: "Yoruba", nativeName: "Yorùbá" },
   ig: { name: "Igbo", nativeName: "Igbo" },
   pid: { name: "Nigerian Pidgin", nativeName: "Naija Pidgin" },
+  bin: { name: "Edo", nativeName: "Ẹ̀dó" },
+  efi: { name: "Efik", nativeName: "Efik" },
+  tiv: { name: "Tiv", nativeName: "Tiv" },
+  ff: { name: "Fula", nativeName: "Fulfulde" },
 } as const;
 
-export const NIGERIAN_LANGUAGES = ["ha", "yo", "ig", "pid"] as const;
+export const NIGERIAN_LANGUAGES = ["ha", "yo", "ig", "pid", "bin", "efi", "tiv", "ff"] as const;
 
 export function isNigerianLanguage(langCode: string): boolean {
   return (NIGERIAN_LANGUAGES as readonly string[]).includes(langCode);

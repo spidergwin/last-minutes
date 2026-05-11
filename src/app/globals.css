@@ -27,10 +27,16 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
   
+  --font-sans: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-instrument-sans), system-ui, -apple-system, sans-serif;
+
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-wave: wave 1s ease-in-out infinite;
+  --animate-wave: wave 1.2s ease-in-out infinite;
   --animate-spotlight: spotlight 2s ease .75s 1 forwards;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-gradient: gradient-shift 8s ease infinite;
 
   @keyframes accordion-down {
     from { height: 0; }
@@ -41,65 +47,73 @@
     to { height: 0; }
   }
   @keyframes wave {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
   }
   @keyframes spotlight {
-    0% {
-      opacity: 0;
-      transform: translate(-72%, -62%) scale(0.5);
-    }
-    100% {
-      opacity: 1;
-      transform: translate(-50%, -40%) scale(1);
-    }
+    0% { opacity: 0; transform: translate(-72%, -62%) scale(0.5); }
+    100% { opacity: 1; transform: translate(-50%, -40%) scale(1); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
   }
 }
 
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.6%;
+    --foreground: 240 10% 6%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.6%;
-    --primary: 0 0% 9%;
+    --card-foreground: 240 10% 6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 6%;
+    --primary: 250 85% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 89.8%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 9%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 5% 92%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 250 85% 60%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.6%;
-    --radius: 0.5rem;
-
-    /* Microphone accent color */
-    --mic-accent: 220 90% 56%;
-    --mic-accent-hover: 220 90% 50%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 250 85% 60%;
+    --radius: 0.625rem;
+    --mic-accent: 250 85% 60%;
+    --mic-accent-hover: 250 85% 52%;
   }
 
   .dark {
-    --background: 0 0% 3.6%;
-    --foreground: 0 0% 98.2%;
-    --card: 0 0% 10.2%;
-    --card-foreground: 0 0% 98.2%;
-    --primary: 0 0% 98.2%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98.2%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 98.2%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 9%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --background: 240 10% 4%;
+    --foreground: 0 0% 96%;
+    --card: 240 10% 7%;
+    --card-foreground: 0 0% 96%;
+    --popover: 240 10% 7%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 250 85% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 13%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 240 5% 13%;
+    --muted-foreground: 240 4% 55%;
+    --accent: 250 85% 65%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 5% 16%;
+    --input: 240 5% 16%;
+    --ring: 250 85% 65%;
   }
 }
 
@@ -109,6 +123,10 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
 }
 
@@ -119,19 +137,62 @@ html {
 
 /* Typography components */
 @layer components {
-  /* Note: Tailwind v4 handles these better without @apply on arbitrary values if defined in @theme,
-     but for now we keep the classes as requested if they are used. */
   .font-mono-transcript {
     @apply font-mono text-sm leading-relaxed tracking-tight;
   }
 
-  /* Microphone button */
   .btn-mic {
-    @apply relative inline-flex items-center justify-center rounded-full p-3 font-semibold text-white shadow-lg transition-all duration-200 bg-blue-500 hover:bg-blue-600 active:scale-95;
+    @apply relative inline-flex items-center justify-center rounded-full p-3 font-semibold text-white shadow-lg transition-all duration-200 active:scale-95;
+    background: hsl(var(--primary));
+  }
+
+  .btn-mic:hover {
+    background: hsl(var(--mic-accent-hover));
   }
 
   .btn-mic.listening {
     @apply animate-pulse bg-red-500 hover:bg-red-600;
+  }
+
+  /* Gradient text utility */
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(250 85% 60%), hsl(280 85% 60%), hsl(320 85% 55%));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  /* Glow effect for popular pricing card */
+  .glow-border {
+    position: relative;
+  }
+  .glow-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, hsl(250 85% 60%), hsl(280 85% 60%), hsl(250 85% 60%));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  /* Grid pattern background */
+  .bg-grid {
+    background-image: 
+      linear-gradient(to right, hsl(var(--border) / 0.3) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.3) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* Dot pattern background */
+  .bg-dots {
+    background-image: radial-gradient(hsl(var(--border) / 0.4) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 }
 

@@ -39,7 +39,8 @@ export function useTranscripts() {
     queryFn: async () => {
       const response = await fetch("/api/transcripts");
       if (!response.ok) throw new Error("Failed to fetch transcripts");
-      return response.json();
+      const json = await response.json();
+      return json.data ?? [];
     },
   });
 }
@@ -50,7 +51,8 @@ export function useTranscript(id: string) {
     queryFn: async () => {
       const response = await fetch(`/api/transcripts/${id}`);
       if (!response.ok) throw new Error("Failed to fetch transcript");
-      return response.json();
+      const json = await response.json();
+      return json.data;
     },
     enabled: !!id,
   });
@@ -83,6 +85,98 @@ export function useDeleteTranscript() {
 
       if (!response.ok) {
         throw new Error("Failed to delete transcript");
+      }
+
+      return response.json();
+    },
+  });
+}
+
+// ============= Usage Hook =============
+
+interface UsageData {
+  usage: {
+    monthlyDictationMins: number;
+    monthlyUploadMins: number;
+    monthlyTranslations: number;
+    totalDictationMins: number;
+    totalUploadMins: number;
+    totalTranslations: number;
+  };
+  subscription: {
+    plan: string;
+    status: string;
+  };
+  monthlyTranscripts: number;
+}
+
+export function useUsage() {
+  return useQuery<UsageData>({
+    queryKey: ["usage"],
+    queryFn: async () => {
+      const response = await fetch("/api/usage");
+      if (!response.ok) throw new Error("Failed to fetch usage");
+      return response.json();
+    },
+  });
+}
+
+// ============= Summarize Hook =============
+
+interface SummarizeParams {
+  transcriptId: string;
+  type: "EXECUTIVE_SUMMARY" | "ACTION_ITEMS" | "KEY_DECISIONS" | "MEETING_NOTES" | "CUSTOM";
+  customPrompt?: string;
+}
+
+export function useSummarize() {
+  return useMutation({
+    mutationFn: async (params: SummarizeParams) => {
+      const response = await fetch("/api/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to generate summary");
+      }
+
+      return response.json();
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+    onSuccess: () => {
+      toast.success("Summary generated");
+    },
+  });
+}
+
+// ============= Update Transcript Hook =============
+
+interface UpdateTranscriptParams {
+  id: string;
+  data: {
+    title?: string;
+    originalText?: string;
+    targetLanguage?: string;
+    isPublic?: boolean;
+  };
+}
+
+export function useUpdateTranscript() {
+  return useMutation({
+    mutationFn: async ({ id, data }: UpdateTranscriptParams) => {
+      const response = await fetch(`/api/transcripts/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update transcript");
       }
 
       return response.json();

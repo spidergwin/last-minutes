@@ -7,23 +7,7 @@ export const DICTATION_CONFIG = {
   maxTranscriptLength: 50000,
 };
 
-export async function saveDictationToFile(text: string, filename: string = "transcript.txt") {
-  const element = document.createElement("a");
-  element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
-  element.setAttribute("download", filename);
 
-  element.style.display = "none";
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-}
-
-export function exportAsPDF(title: string, text: string, translation?: string) {
-  // Placeholder for PDF export - would use jsPDF or similar
-  console.log("PDF export requested for:", title);
-}
 
 export function segmentTextForTranslation(text: string, maxChunkSize: number = 500): string[] {
   const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];

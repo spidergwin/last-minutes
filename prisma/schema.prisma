@@ -13,23 +13,23 @@ datasource db {
 // ============= Authentication Models =============
 
 model User {
-  id                 String    @id @default(cuid())
-  email              String    @unique
-  name               String?
-  image              String?
-  emailVerified      Boolean   @default(false)
-  role               UserRole  @default(USER)
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  image         String?
+  emailVerified Boolean  @default(false)
+  role          UserRole @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relations
-  accounts           Account[]
-  sessions           Session[]
-  transcripts        Transcript[]
-  usage              Usage?
-  subscription       Subscription?
-  auditLogs          AuditLog[]
-  translationStats   TranslationStat[]
+  accounts         Account[]
+  sessions         Session[]
+  transcripts      Transcript[]
+  usage            Usage?
+  subscription     Subscription?
+  auditLogs        AuditLog[]
+  translationStats TranslationStat[]
 
   @@index([email])
   @@index([role])
@@ -42,83 +42,113 @@ enum UserRole {
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  password              String?
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
   @@index([userId])
 }
 
 model Session {
   id        String   @id @default(cuid())
-  sessionToken String? @unique
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
   userId    String
-  expires   DateTime
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
-model VerificationToken {
+model Verification {
+  id         String    @id @default(cuid())
   identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
 }
 
 // ============= Main Business Models =============
 
 model Transcript {
-  id                 String   @id @default(cuid())
-  userId             String
-  title              String
-  originalText       String   @db.Text
-  translatedText     String?  @db.Text
-  sourceLanguage     String   @default("en")
-  targetLanguage     String?
-  duration           Int      // in seconds
-  wordCount          Int      @default(0)
-  fileUrl            String?
-  fileType           String?  // "audio", "video", "dictation"
-  transcribedAt      DateTime @default(now())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  isPublic           Boolean  @default(false)
+  id             String   @id @default(cuid())
+  userId         String
+  title          String
+  originalText   String   @db.Text
+  translatedText String?  @db.Text
+  sourceLanguage String   @default("en")
+  targetLanguage String?
+  duration       Int // in seconds
+  wordCount      Int      @default(0)
+  fileUrl        String?
+  fileType       String? // "audio", "video", "dictation"
+  transcribedAt  DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  isPublic       Boolean  @default(false)
+  segments       Json? // Word-level timestamps + speaker labels
+  speakers       String[] // Identified speakers
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  summaries Summary[]
 
   @@index([userId])
   @@index([createdAt])
   @@index([sourceLanguage])
 }
 
+model Summary {
+  id           String      @id @default(cuid())
+  transcriptId String
+  type         SummaryType
+  content      String      @db.Text
+  metadata     Json?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  transcript Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
+
+  @@index([transcriptId])
+  @@index([type])
+}
+
+enum SummaryType {
+  EXECUTIVE_SUMMARY
+  ACTION_ITEMS
+  KEY_DECISIONS
+  MEETING_NOTES
+  CUSTOM
+}
+
 model Usage {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  monthlyDictationMins  Int      @default(0)
-  monthlyUploadMins     Int      @default(0)
-  monthlyTranslations   Int      @default(0)
-  totalDictationMins    Int      @default(0)
-  totalUploadMins       Int      @default(0)
-  totalTranslations     Int      @default(0)
-  lastResetDate         DateTime @default(now())
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  monthlyDictationMins Int      @default(0)
+  monthlyUploadMins    Int      @default(0)
+  monthlyTranslations  Int      @default(0)
+  totalDictationMins   Int      @default(0)
+  totalUploadMins      Int      @default(0)
+  totalTranslations    Int      @default(0)
+  lastResetDate        DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -126,16 +156,16 @@ model Usage {
 }
 
 model Subscription {
-  id               String             @id @default(cuid())
-  userId           String             @unique
-  plan             SubscriptionPlan   @default(FREE)
-  status           SubscriptionStatus @default(ACTIVE)
-  stripeId         String?            @unique
-  stripePriceId    String?
+  id                     String             @id @default(cuid())
+  userId                 String             @unique
+  plan                   SubscriptionPlan   @default(FREE)
+  status                 SubscriptionStatus @default(ACTIVE)
+  stripeId               String?            @unique
+  stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
-  monthlyLimit     Int                @default(0)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  monthlyLimit           Int                @default(0)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -165,9 +195,9 @@ model TranslationStat {
   sourceLang      String
   targetLang      String
   wordCount       Int
-  translationTime Int      // in ms
+  translationTime Int // in ms
   success         Boolean  @default(true)
-  provider        String   // "libretranslate" | "argos"
+  provider        String // "libretranslate" | "argos"
   createdAt       DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

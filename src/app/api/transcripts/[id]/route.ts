@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateTranscriptSchema } from "@/lib/validations";
 import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
@@ -8,7 +9,12 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const userId = "user_id_placeholder"; // TODO: Get from auth
+    
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
     const transcript = await db.transcript.findUnique({
       where: { id },
@@ -43,7 +49,11 @@ export async function PUT(
     const body = await request.json();
     const validInput = updateTranscriptSchema.parse(body);
 
-    const userId = "user_id_placeholder"; // TODO: Get from auth
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
     const transcript = await db.transcript.findUnique({
       where: { id },
@@ -80,7 +90,12 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const userId = "user_id_placeholder"; // TODO: Get from auth
+    
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
     const transcript = await db.transcript.findUnique({
       where: { id },

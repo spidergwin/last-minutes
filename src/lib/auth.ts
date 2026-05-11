@@ -7,20 +7,24 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   secret: process.env.BETTER_AUTH_SECRET!,
-  trustedOrigins: process.env.BETTER_AUTH_TRUST_HOST === "true" ? ["http://localhost:3000"] : [],
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    process.env.BETTER_AUTH_URL || "",
+  ].filter(Boolean),
   emailAndPassword: {
     enabled: true,
-    autoSignUpEmail: true,
   },
   socialProviders: {
-    github: {
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
-    },
     google: {
-      clientId: process.env.GOOGLE_ID!,
-      clientSecret: process.env.GOOGLE_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      enabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
     },
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // refresh daily
   },
   logger: {
     disabled: process.env.NODE_ENV === "production",

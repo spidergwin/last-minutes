@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createTranscriptSchema } from "@/lib/validations";
 import { db } from "@/lib/db";
 import { getWordCount } from "@/lib/utils";
+import { auth } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Get user from auth
-    const userId = "user_id_placeholder";
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
     const transcripts = await db.transcript.findMany({
       where: { userId },
@@ -31,8 +35,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validInput = createTranscriptSchema.parse(body);
 
-    // TODO: Get user from auth
-    const userId = "user_id_placeholder";
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
     const wordCount = getWordCount(validInput.originalText);
 
