@@ -51,7 +51,7 @@ export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly();
 
   return (
-    <div className="flex w-full">
+    <div className="flex w-full flex-wrap">
       {!readOnly && (
         <>
           <ToolbarGroup>

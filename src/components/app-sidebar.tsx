@@ -41,10 +41,9 @@ import { useSession, signOut } from "@/lib/auth-client";
 
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Transcripts", url: "/transcripts", icon: FileText },
   { title: "New Dictation", url: "/app", icon: Mic },
   { title: "Upload", url: "/upload", icon: Upload },
-  { title: "Translation", url: "/app", icon: Languages },
+  { title: "Transcripts", url: "/transcripts", icon: FileText },
 ];
 
 const settingsItems = [

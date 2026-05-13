@@ -226,7 +226,7 @@ export default function TranscriptDetailPage({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="lg:col-span-2 space-y-6"
+          className="lg:col-span-2 space-y-6 min-w-0 w-full"
         >
           {/* Transcript Editor */}
           <Card className="shadow-sm overflow-hidden">

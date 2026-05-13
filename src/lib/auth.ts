@@ -10,6 +10,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://10.94.237.31:3000",
     process.env.BETTER_AUTH_URL || "",
   ].filter(Boolean),
   emailAndPassword: {

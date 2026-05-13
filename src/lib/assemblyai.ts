@@ -31,15 +31,20 @@ export async function submitTranscription(options: {
     throw new Error("AssemblyAI client not configured. Set ASSEMBLYAI_API_KEY.");
   }
 
+  const isLanguageDetection = options.languageDetection ?? !options.languageCode;
+
   const config: Record<string, unknown> = {
     speaker_labels: options.speakerLabels ?? true,
-    language_detection: options.languageDetection ?? !options.languageCode,
+    language_detection: isLanguageDetection,
     punctuate: true,
     format_text: true,
   };
 
-  if (options.languageCode) {
+  if (isLanguageDetection) {
+    config.speech_models = ["universal-3-pro", "universal-2"];
+  } else if (options.languageCode) {
     config.language_code = options.languageCode;
+    config.speech_model = "universal-3-pro"; // Use best available model
   }
 
   if (options.audioUrl) {

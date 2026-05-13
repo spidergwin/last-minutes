@@ -95,24 +95,24 @@ export function Navbar() {
                 </SheetDescription>
               </SheetHeader>
               <div className="flex flex-col justify-between flex-1 mt-4">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-2">
                   {mainNav.map((item) => (
                     <a
                       key={item.name}
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
-                      className="text-base font-medium py-3 px-3 rounded-lg hover:bg-muted transition-colors"
+                      className="text-lg font-medium py-4 px-4 rounded-xl hover:bg-muted transition-colors"
                     >
                       {item.name}
                     </a>
                   ))}
                 </div>
-                <div className="flex flex-col gap-2 pt-6 border-t">
+                <div className="flex flex-col gap-3 pt-6 pb-8 px-3 border-t">
                   <Link href="/signin" onClick={() => setMobileOpen(false)}>
-                    <Button variant="outline" className="w-full">Sign In</Button>
+                    <Button variant="outline" size="lg" className="w-full text-base">Sign In</Button>
                   </Link>
                   <Link href="/signup" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0">
+                    <Button size="lg" className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 text-base">
                       Get Started
                     </Button>
                   </Link>
