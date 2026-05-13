@@ -23,6 +23,15 @@
   --color-mic-accent: hsl(var(--mic-accent));
   --color-mic-accent-hover: hsl(var(--mic-accent-hover));
   --color-brand: var(--brand);
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
   
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -94,6 +103,15 @@
     --mic-accent: 25 95% 53%;
     --mic-accent-hover: 25 95% 45%;
     --brand: oklch(0.705 0.191 47.604);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 20 10% 6%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 5% 93%;
+    --sidebar-accent-foreground: 20 10% 6%;
+    --sidebar-border: 30 6% 90%;
+    --sidebar-ring: 25 95% 53%;
   }
 
   .dark {
@@ -117,6 +135,15 @@
     --input: 20 5% 16%;
     --ring: 25 95% 58%;
     --brand: oklch(0.75 0.18 50);
+
+    --sidebar-background: 20 10% 6%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 25 95% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 20 5% 12%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 20 5% 16%;
+    --sidebar-ring: 25 95% 58%;
   }
 }
 

@@ -14,7 +14,7 @@ export const paystack = PAYSTACK_SECRET_KEY
 export const SUBSCRIPTION_PLANS = {
   PRO: {
     plan_code: process.env.PAYSTACK_PLAN_PRO || "PLN_placeholder_pro",
-    name: "Pro Professional",
+    name: "Pro",
     amount: 500000, // 5000 NGN in kobo
     interval: "monthly",
   },

@@ -41,7 +41,7 @@ export const faqContent = {
     {
       question: "Do you offer team plans?",
       answer:
-        "Our Business plan includes team collaboration features, shared workspaces, admin controls, and API access. For custom enterprise needs, contact our sales team.",
+        "Our Business plan includes team collaboration features, shared workspaces, admin controls, and dedicated account management. For custom enterprise needs, contact our sales team.",
     },
   ],
 };

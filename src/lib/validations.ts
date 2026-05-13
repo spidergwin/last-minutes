@@ -29,7 +29,7 @@ export const createTranscriptSchema = z.object({
   sourceLanguage: z.string().default("en"),
   targetLanguage: z.string().optional(),
   fileUrl: z.string().url().optional(),
-  fileType: z.enum(["audio", "video", "dictation"]).default("dictation"),
+  fileType: z.enum(["audio", "video", "dictation", "url"]).default("dictation"),
 });
 
 export const updateTranscriptSchema = z.object({

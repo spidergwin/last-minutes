@@ -25,7 +25,7 @@ interface UseFileUploadReturn {
   reset: () => void;
 }
 
-const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB for free tier
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 const ALLOWED_TYPES = new Set([
   "audio/mpeg",
   "audio/mp3",
@@ -105,19 +105,19 @@ export function useFileUpload(): UseFileUploadReturn {
 
         const data = await response.json();
 
-        if (data.status === "completed" && data.data) {
+        if (data.data?.completed) {
           if (pollingRef.current) {
             clearInterval(pollingRef.current);
             pollingRef.current = null;
           }
           setResult(data.data);
           setState("completed");
-        } else if (data.status === "error") {
+        } else if (data.data?.status === "error" || data.error) {
           if (pollingRef.current) {
             clearInterval(pollingRef.current);
             pollingRef.current = null;
           }
-          setError(data.error || "Transcription failed");
+          setError(data.error || data.data?.error || "Transcription failed");
           setState("error");
         }
         // else still processing, continue polling

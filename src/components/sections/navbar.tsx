@@ -82,7 +82,7 @@ export function Navbar() {
                 <Menu className="w-5 h-5" />
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[340px]">
+            <SheetContent side="right" className="w-[300px] sm:w-[340px] flex flex-col">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2.5">
                   <div className="w-7 h-7 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center shadow-sm">
@@ -94,27 +94,29 @@ export function Navbar() {
                   Speech-to-text, simplified.
                 </SheetDescription>
               </SheetHeader>
-              <div className="flex flex-col gap-1 mt-6">
-                {mainNav.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="text-base font-medium py-3 px-3 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    {item.name}
-                  </a>
-                ))}
-              </div>
-              <div className="flex flex-col gap-2 mt-6 pt-6 border-t">
-                <Link href="/signin" onClick={() => setMobileOpen(false)}>
-                  <Button variant="outline" className="w-full">Sign In</Button>
-                </Link>
-                <Link href="/signup" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0">
-                    Get Started
-                  </Button>
-                </Link>
+              <div className="flex flex-col justify-between flex-1 mt-4">
+                <div className="flex flex-col gap-1">
+                  {mainNav.map((item) => (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="text-base font-medium py-3 px-3 rounded-lg hover:bg-muted transition-colors"
+                    >
+                      {item.name}
+                    </a>
+                  ))}
+                </div>
+                <div className="flex flex-col gap-2 pt-6 border-t">
+                  <Link href="/signin" onClick={() => setMobileOpen(false)}>
+                    <Button variant="outline" className="w-full">Sign In</Button>
+                  </Link>
+                  <Link href="/signup" onClick={() => setMobileOpen(false)}>
+                    <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0">
+                      Get Started
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </SheetContent>
           </Sheet>

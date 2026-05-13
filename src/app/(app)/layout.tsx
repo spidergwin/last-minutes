@@ -10,6 +10,7 @@ import { useUsage } from "@/hooks";
 
 const routeTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
+  "/transcripts": "Transcripts",
   "/app": "Dictation Workspace",
   "/upload": "Upload & Transcribe",
   "/settings": "Settings",
@@ -22,7 +23,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   // Match route titles, including dynamic routes
   let pageTitle = routeTitles[pathname] || "Workspace";
-  if (pathname.startsWith("/dashboard/") && pathname !== "/dashboard") {
+  if (pathname.startsWith("/transcripts/") && pathname !== "/transcripts") {
+    pageTitle = "Transcript";
+  } else if (pathname.startsWith("/dashboard/") && pathname !== "/dashboard") {
     pageTitle = "Transcript";
   }
 
@@ -49,7 +52,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <ThemeToggle />
           </div>
         </header>
-        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
+        <div className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 lg:p-8 min-w-0">
           {children}
         </div>
       </SidebarInset>

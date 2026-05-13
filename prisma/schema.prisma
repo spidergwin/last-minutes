@@ -97,7 +97,7 @@ model Transcript {
   duration       Int // in seconds
   wordCount      Int      @default(0)
   fileUrl        String?
-  fileType       String? // "audio", "video", "dictation"
+  fileType       String? // "audio", "video", "dictation", "url"
   transcribedAt  DateTime @default(now())
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

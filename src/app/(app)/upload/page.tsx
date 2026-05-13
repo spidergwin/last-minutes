@@ -24,7 +24,9 @@ import {
   Waves,
   FileText,
   ArrowRight,
+  Link2,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const SUPPORTED_FORMATS = [
   { label: "MP3", type: "audio" },
@@ -61,6 +63,13 @@ export default function UploadPage() {
   const [language, setLanguage] = useState<string>("auto");
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // URL transcription state
+  const [audioUrl, setAudioUrl] = useState("");
+  const [urlState, setUrlState] = useState<"idle" | "processing" | "completed" | "error">("idle");
+  const [urlError, setUrlError] = useState<string | null>(null);
+  const [urlResult, setUrlResult] = useState<any>(null);
+  const urlPollRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -114,14 +123,105 @@ export default function UploadPage() {
       const transcriptId = res?.data?.id;
       toast.success("Transcript saved!");
       if (transcriptId) {
-        router.push(`/dashboard/${transcriptId}`);
+        router.push(`/transcripts/${transcriptId}`);
       } else {
-        router.push("/dashboard");
+        router.push("/transcripts");
       }
     } catch {
       toast.error("Failed to save transcript");
     }
   }, [result, selectedFile, createTranscriptMutation, router]);
+
+  // URL transcription handler
+  const handleUrlSubmit = useCallback(async () => {
+    if (!audioUrl.trim()) return;
+
+    try {
+      new URL(audioUrl);
+    } catch {
+      setUrlError("Please enter a valid URL.");
+      return;
+    }
+
+    setUrlState("processing");
+    setUrlError(null);
+    setUrlResult(null);
+
+    try {
+      const res = await fetch("/api/transcription/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          audio_url: audioUrl,
+          language: language === "auto" ? undefined : language,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to submit URL");
+      }
+
+      // Poll for result
+      const pollInterval = setInterval(async () => {
+        try {
+          const pollRes = await fetch(`/api/transcription/upload?jobId=${data.jobId}`);
+          const pollData = await pollRes.json();
+
+          if (pollData.data?.completed) {
+            clearInterval(pollInterval);
+            setUrlResult(pollData.data);
+            setUrlState("completed");
+          } else if (pollData.data?.status === "error") {
+            clearInterval(pollInterval);
+            setUrlError("Transcription failed. Please try a different URL.");
+            setUrlState("error");
+          }
+        } catch {
+          clearInterval(pollInterval);
+          setUrlError("Lost connection while processing.");
+          setUrlState("error");
+        }
+      }, 3000);
+
+      urlPollRef.current = pollInterval;
+    } catch (err: any) {
+      setUrlError(err.message || "Something went wrong");
+      setUrlState("error");
+    }
+  }, [audioUrl, language]);
+
+  const handleUrlSaveAndView = useCallback(async () => {
+    if (!urlResult) return;
+
+    try {
+      const res = await createTranscriptMutation.mutateAsync({
+        title: `URL — ${new URL(audioUrl).hostname} — ${new Date().toLocaleDateString("en-NG", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`,
+        originalText: urlResult.text,
+        sourceLanguage: urlResult.language || "en",
+        fileType: "url",
+      });
+
+      const transcriptId = res?.data?.id;
+      toast.success("Transcript saved!");
+      if (transcriptId) {
+        router.push(`/transcripts/${transcriptId}`);
+      } else {
+        router.push("/transcripts");
+      }
+    } catch {
+      toast.error("Failed to save transcript");
+    }
+  }, [urlResult, audioUrl, createTranscriptMutation, router]);
+
+  const resetUrl = useCallback(() => {
+    if (urlPollRef.current) clearInterval(urlPollRef.current);
+    setAudioUrl("");
+    setUrlState("idle");
+    setUrlError(null);
+    setUrlResult(null);
+  }, []);
 
   const isUploading = state === "uploading";
   const isProcessing = state === "processing";
@@ -142,7 +242,7 @@ export default function UploadPage() {
           Upload & Transcribe
         </h2>
         <p className="text-muted-foreground">
-          Upload an audio or video file to automatically transcribe it with AI.
+          Upload a file or paste a link to automatically transcribe audio and video with AI.
         </p>
       </motion.div>
 
@@ -159,7 +259,7 @@ export default function UploadPage() {
               <CardTitle className="text-base">Upload File</CardTitle>
             </div>
             <CardDescription>
-              Supported formats: MP3, WAV, M4A, OGG, FLAC, MP4, WebM, MOV · Max 25MB
+              Supported formats: MP3, WAV, M4A, OGG, FLAC, MP4, WebM, MOV · Max 100MB
             </CardDescription>
           </CardHeader>
 
@@ -460,11 +560,123 @@ export default function UploadPage() {
         </Card>
       </motion.div>
 
-      {/* Tips Section */}
+      {/* URL Transcription Card */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
+      >
+        <Card className="shadow-sm overflow-hidden">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Link2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <CardTitle className="text-base">Transcribe from URL</CardTitle>
+            </div>
+            <CardDescription>
+              Paste a direct link to an audio or video file (MP3, WAV, MP4, etc.)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {urlState === "idle" || urlState === "error" ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder="https://example.com/audio.mp3"
+                    value={audioUrl}
+                    onChange={(e) => { setAudioUrl(e.target.value); setUrlError(null); }}
+                    className="flex-1"
+                    onKeyDown={(e) => e.key === "Enter" && handleUrlSubmit()}
+                  />
+                  <Button
+                    onClick={handleUrlSubmit}
+                    disabled={!audioUrl.trim()}
+                    className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0 gap-1.5 shrink-0"
+                  >
+                    <Waves className="h-4 w-4" />
+                    Transcribe
+                  </Button>
+                </div>
+                {urlError && (
+                  <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    {urlError}
+                  </div>
+                )}
+              </>
+            ) : urlState === "processing" ? (
+              <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/20 p-4">
+                <div className="flex items-end gap-[2px] h-4">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-[2.5px] bg-amber-500 rounded-full animate-wave origin-bottom"
+                      style={{
+                        height: `${Math.random() * 60 + 40}%`,
+                        animationDelay: `${i * 0.1}s`,
+                        animationDuration: `${0.6 + Math.random() * 0.4}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Transcribing from URL...</p>
+                  <p className="text-xs text-muted-foreground truncate max-w-xs">{audioUrl}</p>
+                </div>
+              </div>
+            ) : urlState === "completed" && urlResult ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Transcription complete!</p>
+                    <p className="text-xs text-emerald-600/70 dark:text-emerald-400/70">
+                      {urlResult.text.split(/\s+/).filter(Boolean).length} words transcribed
+                      {urlResult.duration ? ` from ${Math.round(urlResult.duration)}s of audio` : ""}
+                    </p>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-border/60 bg-card overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/40 bg-muted/20">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-xs font-medium">Preview</span>
+                    </div>
+                  </div>
+                  <div className="p-4 max-h-48 overflow-y-auto scrollbar-thin">
+                    <p className="text-sm leading-relaxed text-foreground/80 whitespace-pre-wrap">
+                      {urlResult.text.length > 800 ? urlResult.text.slice(0, 800) + "..." : urlResult.text}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={handleUrlSaveAndView}
+                    disabled={createTranscriptMutation.isPending}
+                    className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0 gap-2"
+                  >
+                    {createTranscriptMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ArrowRight className="h-4 w-4" />
+                    )}
+                    Save & View Transcript
+                  </Button>
+                  <Button variant="outline" onClick={resetUrl} className="gap-2">
+                    <RotateCcw className="h-4 w-4" />
+                    Try Another URL
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Tips Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
       >
         <Card className="shadow-sm">
           <CardContent className="p-5">
@@ -483,11 +695,11 @@ export default function UploadPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-500 mt-0.5">•</span>
-                Select the correct language for non-English content
+                For URL transcription, use direct links to audio/video files (not streaming pages)
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-500 mt-0.5">•</span>
-                Files under 5MB will be processed instantly
+                Select the correct language for non-English content
               </li>
             </ul>
           </CardContent>

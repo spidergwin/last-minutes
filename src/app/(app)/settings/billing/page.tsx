@@ -1,7 +1,7 @@
 "use client";
 
 import { useUsage } from "@/hooks";
-import { SUBSCRIPTION_PLANS } from "@/features/billing/plans";
+import { SUBSCRIPTION_PLANS, formatPrice } from "@/features/billing/plans";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +63,7 @@ export default function BillingPage() {
           <CardContent className="space-y-4">
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-bold font-[family-name:var(--font-display)]">
-                ${currentPlan.price}
+                {formatPrice(currentPlan.price, currentPlan.currency)}
               </span>
               <span className="text-muted-foreground">/month</span>
             </div>
@@ -120,16 +120,19 @@ export default function BillingPage() {
             <CardDescription>Choose the plan that fits your needs.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               {(Object.entries(SUBSCRIPTION_PLANS) as [string, typeof SUBSCRIPTION_PLANS[keyof typeof SUBSCRIPTION_PLANS]][]).map(
                 ([key, plan]) => {
                   const isCurrentPlan = key === currentPlanKey;
+                  const isPro = key === "PRO";
                   return (
                     <div
                       key={key}
                       className={`relative rounded-xl border p-5 transition-all ${
                         isCurrentPlan
                           ? "border-amber-500/40 bg-amber-500/5 shadow-md"
+                          : isPro
+                          ? "border-amber-500/20 shadow-sm"
                           : "border-border hover:border-amber-500/20 hover:shadow-sm"
                       }`}
                     >
@@ -138,11 +141,16 @@ export default function BillingPage() {
                           Current
                         </Badge>
                       )}
+                      {isPro && !isCurrentPlan && (
+                        <Badge className="absolute -top-2.5 right-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 text-[10px]">
+                          Recommended
+                        </Badge>
+                      )}
                       <h3 className="font-semibold font-[family-name:var(--font-display)]">
                         {plan.name}
                       </h3>
                       <div className="mt-2 flex items-baseline gap-0.5">
-                        <span className="text-2xl font-bold">${plan.price}</span>
+                        <span className="text-2xl font-bold">{formatPrice(plan.price, plan.currency)}</span>
                         <span className="text-xs text-muted-foreground">/mo</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
@@ -157,9 +165,9 @@ export default function BillingPage() {
                         ))}
                       </ul>
                       <Button
-                        variant={isCurrentPlan ? "secondary" : "outline"}
+                        variant={isCurrentPlan ? "secondary" : isPro ? "default" : "outline"}
                         size="sm"
-                        className="w-full mt-4"
+                        className={`w-full mt-4 ${isPro && !isCurrentPlan ? "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0" : ""}`}
                         disabled={isCurrentPlan}
                       >
                         {isCurrentPlan ? "Current Plan" : "Upgrade"}

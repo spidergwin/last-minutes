@@ -1,54 +1,59 @@
 export const SUBSCRIPTION_PLANS = {
   FREE: {
-    name: "Free",
-    monthlyLimit: 60, // minutes
+    name: "Free Trial",
+    monthlyLimit: 15, // minutes
+    trialDays: 7,
     price: 0,
+    currency: "₦",
     features: [
+      "15 minutes of transcription",
       "Live dictation",
-      "Download transcripts",
-      "Limited translations",
-      "Basic analytics",
+      "English language only",
+      "TXT export",
     ],
   },
-  STARTER: {
-    name: "Starter",
-    monthlyLimit: 300,
-    price: 9.99,
-    features: [
-      "All Free features",
-      "File transcription",
-      "Unlimited translations",
-      "Priority support",
-    ],
-  },
-  PROFESSIONAL: {
-    name: "Professional",
-    monthlyLimit: 1000,
-    price: 29.99,
-    features: [
-      "All Starter features",
-      "Team collaboration",
-      "Advanced analytics",
-      "API access",
-      "Custom export formats",
-    ],
-  },
-  ENTERPRISE: {
-    name: "Enterprise",
+  PRO: {
+    name: "Pro",
     monthlyLimit: Infinity,
-    price: 99.99,
+    trialDays: 0,
+    price: 5000,
+    currency: "₦",
     features: [
-      "All Professional features",
-      "Dedicated support",
-      "Custom integrations",
-      "SLA guarantee",
-      "On-premise option",
+      "Unlimited transcription minutes",
+      "Real-time streaming + file uploads",
+      "All 18+ languages including Nigerian",
+      "AI summaries & action items",
+      "DOCX, PDF, SRT, VTT export",
+      "Speaker diarization",
+      "Unlimited translations",
+      "Priority email support",
+    ],
+  },
+  BUSINESS: {
+    name: "Business",
+    monthlyLimit: Infinity,
+    trialDays: 0,
+    price: 15000,
+    currency: "₦",
+    features: [
+      "Everything in Pro",
+      "Team collaboration workspace",
+      "Admin dashboard & analytics",
+      "Custom vocabulary & templates",
+      "SSO & SAML authentication",
+      "Dedicated account manager",
+      "SLA guarantees",
+      "Onboarding & training",
     ],
   },
 } as const;
 
 export function getPlanKey(plan: string): keyof typeof SUBSCRIPTION_PLANS {
-  return (plan.toUpperCase() || "FREE") as keyof typeof SUBSCRIPTION_PLANS;
+  const normalized = plan.toUpperCase();
+  // Map legacy plan names
+  if (normalized === "PROFESSIONAL" || normalized === "STARTER") return "PRO";
+  if (normalized === "ENTERPRISE") return "BUSINESS";
+  return (normalized || "FREE") as keyof typeof SUBSCRIPTION_PLANS;
 }
 
 export function getPlan(planKey: keyof typeof SUBSCRIPTION_PLANS) {
@@ -58,4 +63,8 @@ export function getPlan(planKey: keyof typeof SUBSCRIPTION_PLANS) {
 export function canUseFeature(plan: keyof typeof SUBSCRIPTION_PLANS, feature: string): boolean {
   const planData = SUBSCRIPTION_PLANS[plan];
   return (planData.features as readonly string[]).includes(feature);
+}
+
+export function formatPrice(price: number, currency: string = "₦"): string {
+  return `${currency}${price.toLocaleString()}`;
 }

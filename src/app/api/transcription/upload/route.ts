@@ -1,18 +1,45 @@
 /**
- * API route for batch file transcription using AssemblyAI.
- * Handles audio/video file uploads and returns a job ID for polling.
+ * API route for batch file/URL transcription using AssemblyAI.
+ * Handles audio/video file uploads and URL submissions, returns a job ID for polling.
  *
  * Flow:
- * 1. Client uploads audio/video file
- * 2. Server validates file type and size
- * 3. Submits to AssemblyAI for processing
- * 4. Returns job ID immediately
- * 5. Client polls /api/transcription/upload/[jobId] for status
+ * 1. Client uploads file or submits URL
+ * 2. Server validates and submits to AssemblyAI
+ * 3. Returns job ID immediately
+ * 4. Client polls GET /api/transcription/upload?jobId=xxx for status
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { submitTranscription, waitForTranscription } from "@/lib/assemblyai";
+import { submitTranscription, waitForTranscription, getTranscriptionResult } from "@/lib/assemblyai";
 import { checkRateLimit } from "@/lib/ratelimit";
+
+/**
+ * GET handler — poll for transcription status
+ */
+export async function GET(request: NextRequest) {
+  const jobId = request.nextUrl.searchParams.get("jobId");
+
+  if (!jobId) {
+    return NextResponse.json(
+      { error: "Missing jobId parameter." },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await getTranscriptionResult(jobId);
+    return NextResponse.json({ success: true, data: result });
+  } catch (error: unknown) {
+    console.error("Poll transcription error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to poll transcription status",
+      },
+      { status: 500 }
+    );
+  }
+}
 
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 const ALLOWED_TYPES = new Set([
@@ -48,6 +75,54 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const contentType = request.headers.get("content-type") || "";
+
+    // Handle JSON body (URL-based transcription)
+    if (contentType.includes("application/json")) {
+      const body = await request.json();
+      const audioUrl = body.audio_url as string | undefined;
+      const languageCode = body.language as string | undefined;
+      const waitForResult = body.wait === true;
+
+      if (!audioUrl) {
+        return NextResponse.json(
+          { error: "No audio_url provided." },
+          { status: 400 }
+        );
+      }
+
+      // Basic URL validation
+      try {
+        new URL(audioUrl);
+      } catch {
+        return NextResponse.json(
+          { error: "Invalid URL provided." },
+          { status: 400 }
+        );
+      }
+
+      // Submit URL directly to AssemblyAI
+      const job = await submitTranscription({
+        audioUrl,
+        languageCode: languageCode || undefined,
+        speakerLabels: true,
+        languageDetection: !languageCode,
+      });
+
+      if (waitForResult) {
+        const result = await waitForTranscription(job.id, 120_000);
+        return NextResponse.json({ success: true, data: result });
+      }
+
+      return NextResponse.json({
+        success: true,
+        jobId: job.id,
+        status: job.status,
+        message: "Transcription submitted from URL. Poll for results using the jobId.",
+      });
+    }
+
+    // Handle FormData body (file upload)
     const formData = await request.formData();
     const audioFile = formData.get("file") as File | null;
     const languageCode = formData.get("language") as string | null;
@@ -94,7 +169,7 @@ export async function POST(request: NextRequest) {
 
     // If client wants to wait for result (for shorter files)
     if (waitForResult) {
-      const result = await waitForTranscription(job.id, 120_000); // 2 min timeout for wait mode
+      const result = await waitForTranscription(job.id, 120_000);
       return NextResponse.json({
         success: true,
         data: result,

@@ -2,16 +2,5 @@
 > last-minutes@0.1.0 typecheck /home/gwin/projects/last-minutes
 > tsc --noEmit
 
-src/app/api/admin/stats/route.ts(28,13): error TS2561: Object literal may only specify known properties, but 'expiresAt' does not exist in type 'SessionWhereInput'. Did you mean to write 'expires'?
-src/app/api/export/[transcriptId]/route.ts(40,9): error TS2353: Object literal may only specify known properties, and 'summaries' does not exist in type 'TranscriptInclude<$Extensions.DefaultArgs>'.
-src/app/api/summarize/route.ts(71,30): error TS2339: Property 'summary' does not exist on type 'PrismaClient<PrismaClientOptions, never, $Extensions.DefaultArgs>'.
-src/features/export/docx.ts(2,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
-src/features/export/docx.ts(46,28): error TS7006: Parameter 'line' implicitly has an 'any' type.
-src/features/export/docx.ts(78,19): error TS7006: Parameter 'line' implicitly has an 'any' type.
-src/features/export/docx.ts(92,20): error TS7006: Parameter 'line' implicitly has an 'any' type.
-src/features/export/json.ts(1,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
-src/features/export/pdf.ts(2,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
-src/features/export/service.ts(1,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
-src/features/export/srt.ts(1,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
-src/features/export/txt.ts(1,22): error TS2305: Module '"@prisma/client"' has no exported member 'Summary'.
+src/app/(app)/upload/page.tsx(203,9): error TS2322: Type '"url"' is not assignable to type '"audio" | "video" | "dictation"'.
  ELIFECYCLE  Command failed with exit code 1.
