@@ -146,7 +146,7 @@ export function TranscriptEditor({ initialContent, onSave, readOnly = false }: T
         <EditorContainer variant="default" className="min-h-[300px] max-h-[60vh]">
           <Editor
             variant="default"
-            className="px-6 sm:px-8 pt-4 pb-32 text-[15px] leading-[1.8] text-foreground/90"
+            className="text-[15px] leading-[1.8] text-foreground/90"
             placeholder="Start editing your transcript..."
           />
         </EditorContainer>
