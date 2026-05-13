@@ -1,6 +1,0 @@
-
-> last-minutes@0.1.0 typecheck /home/gwin/projects/last-minutes
-> tsc --noEmit
-
-src/app/(app)/upload/page.tsx(203,9): error TS2322: Type '"url"' is not assignable to type '"audio" | "video" | "dictation"'.
- ELIFECYCLE  Command failed with exit code 1.
