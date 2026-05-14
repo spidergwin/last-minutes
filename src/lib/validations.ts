@@ -30,6 +30,9 @@ export const createTranscriptSchema = z.object({
   targetLanguage: z.string().optional(),
   fileUrl: z.string().url().optional(),
   fileType: z.enum(["audio", "video", "dictation", "url"]).default("dictation"),
+  segments: z.array(z.any()).optional(),   // Speaker-diarized utterances
+  speakers: z.array(z.string()).optional(), // Unique speaker labels
+  duration: z.number().optional(),          // Audio duration in seconds
 });
 
 export const updateTranscriptSchema = z.object({
@@ -119,6 +122,8 @@ export const transcriptSchema = z.object({
   wordCount: z.number().default(0),
   fileUrl: z.string().nullable().optional(),
   fileType: z.string().nullable().optional(),
+  segments: z.array(z.any()).nullable().optional(),   // Speaker-diarized utterances
+  speakers: z.array(z.string()).nullable().optional(), // Unique speaker labels
   transcribedAt: z.union([z.string(), z.date()]),
   createdAt: z.union([z.string(), z.date()]),
   updatedAt: z.union([z.string(), z.date()]),

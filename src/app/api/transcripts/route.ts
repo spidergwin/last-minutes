@@ -53,7 +53,9 @@ export async function POST(request: NextRequest) {
         fileUrl: validInput.fileUrl,
         fileType: validInput.fileType,
         wordCount,
-        duration: 0, // Would calculate from audio
+        duration: validInput.duration ?? 0,
+        segments: validInput.segments ?? undefined,
+        speakers: validInput.speakers ?? [],
       },
     });
 

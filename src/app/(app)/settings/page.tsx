@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { User, Shield, Globe, Loader2 } from "lucide-react";
+import { User, Shield, Globe, Loader2, Calendar, ArrowRight, Link2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { SUPPORTED_LANGUAGES } from "@/features/translation/utils";
 
@@ -170,6 +171,44 @@ export default function SettingsPage() {
                 Active
               </Badge>
             </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Integrations */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card className="shadow-sm">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Link2 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <CardTitle>Integrations</CardTitle>
+            </div>
+            <CardDescription>Connect external services to your account.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Link
+              href="/settings/integrations"
+              className="flex items-center justify-between rounded-xl border border-border/60 bg-card hover:bg-muted/20 p-4 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    Calendar & Meeting Bot
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Connect Google Calendar and configure auto-join meeting recording.
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
           </CardContent>
         </Card>
       </motion.div>

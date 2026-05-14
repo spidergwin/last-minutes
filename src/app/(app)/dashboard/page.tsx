@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranscripts, useDeleteTranscript, useUsage } from "@/hooks";
 import { SUBSCRIPTION_PLANS } from "@/features/billing/plans";
 import Link from "next/link";
@@ -19,6 +19,9 @@ import {
   Sparkles,
   TrendingUp,
   BarChart3,
+  Video,
+  Calendar,
+  Bot,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -48,8 +51,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { motion, AnimatePresence } from "framer-motion";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { useSession } from "@/lib/auth-client";
+
+interface UpcomingMeeting {
+  id: string;
+  title: string;
+  startTime: string;
+  platform: string | null;
+  meetingUrl: string | null;
+  botStatus: string;
+}
+
+const PLATFORM_LABELS: Record<string, string> = {
+  zoom: "Zoom",
+  google_meet: "Meet",
+  teams: "Teams",
+  webex: "Webex",
+};
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -58,6 +77,19 @@ export default function DashboardPage() {
   const deleteMutation = useDeleteTranscript();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const [upcomingMeetings, setUpcomingMeetings] = useState<UpcomingMeeting[]>([]);
+
+  // Fetch upcoming meetings for the card
+  useEffect(() => {
+    fetch("/api/calendar/events")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (json?.data?.meetings) {
+          setUpcomingMeetings(json.data.meetings.slice(0, 3));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const user = session?.user;
   const firstName = user?.name?.split(" ")[0] || "there";
@@ -285,6 +317,86 @@ export default function DashboardPage() {
           </Card>
         </Link>
       </motion.div>
+
+      {/* Upcoming Meetings Card */}
+      {upcomingMeetings.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.27 }}
+        >
+          <Card className="shadow-sm border-amber-500/10">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <CardTitle className="text-base font-[family-name:var(--font-display)]">
+                    Upcoming Meetings
+                  </CardTitle>
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] px-2 py-0.5 font-normal"
+                  >
+                    {upcomingMeetings.length}
+                  </Badge>
+                </div>
+                <Link href="/meetings">
+                  <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-7">
+                    View All
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {upcomingMeetings.map((meeting) => (
+                <Link
+                  key={meeting.id}
+                  href="/meetings"
+                  className="flex items-center justify-between rounded-xl border border-border/60 bg-card hover:bg-muted/20 p-3 transition-all group"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 flex items-center justify-center shrink-0">
+                      <Video className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                        {meeting.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(meeting.startTime), "EEE, MMM d 'at' h:mm a")}
+                        {" · "}
+                        {formatDistanceToNow(new Date(meeting.startTime), {
+                          addSuffix: true,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {meeting.platform && (
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] px-2 py-0.5 font-normal"
+                      >
+                        {PLATFORM_LABELS[meeting.platform] || meeting.platform}
+                      </Badge>
+                    )}
+                    {meeting.botStatus !== "idle" && (
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] px-2 py-0.5 font-normal bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                      >
+                        <Bot className="h-2.5 w-2.5 mr-1" />
+                        {meeting.botStatus}
+                      </Badge>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Transcripts Table */}
       <motion.div

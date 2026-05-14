@@ -4,6 +4,7 @@ import { generateSummaryRequestSchema } from "@/features/summarization/schemas";
 import { generateSummary } from "@/features/summarization/service";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { formatAsConversation, normalizeSpeakerLabel, isMeetingTranscript, TranscriptSegment } from "@/lib/format-transcript";
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,8 +56,18 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Build the text to summarize — use speaker-labeled format when available
+    let textForSummary = transcript.originalText;
+    const speakers = transcript.speakers as string[] | null;
+    const segments = transcript.segments as TranscriptSegment[] | null;
+
+    if (isMeetingTranscript(speakers) && segments && segments.length > 0) {
+      // Re-format with speaker labels for the AI to understand who said what
+      textForSummary = formatAsConversation(segments);
+    }
+
     // Generate summary
-    const summaryText = await generateSummary(transcript.originalText, type, customPrompt);
+    const summaryText = await generateSummary(textForSummary, type, customPrompt);
 
     // Try to parse as JSON if we expect JSON
     let parsedContent;

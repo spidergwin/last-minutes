@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useStreamingTranscription } from "@/hooks/useStreamingTranscription";
 import { useDictationStore } from "@/store/dictation";
 import { useTranslate, useCreateTranscript } from "@/hooks";
+import { autoFormatTranscript, normalizeSpeakerLabel, isMeetingTranscript, getSpeakerColor } from "@/lib/format-transcript";
 import { 
   Mic, 
   StopCircle, 
@@ -47,7 +48,7 @@ export default function DictationWorkspace() {
     setError
   } = useDictationStore();
 
-  const { startStreaming, stopStreaming, isSupported, error: streamingError, isConnecting } = useStreamingTranscription();
+  const { startStreaming, stopStreaming, getTranscriptData, isSupported, error: streamingError, isConnecting, segments: liveSegments, currentSpeaker } = useStreamingTranscription();
   const translateMutation = useTranslate();
   const createTranscriptMutation = useCreateTranscript();
   const [translatedText, setTranslatedText] = useState("");
@@ -142,17 +143,45 @@ export default function DictationWorkspace() {
       return;
     }
     try {
+      // Get structured data from the streaming session
+      const transcriptData = getTranscriptData();
+      const speakers = transcriptData.speakers.map(s => normalizeSpeakerLabel(s));
+      const hasSpeakers = speakers.length > 1;
+
+      // Format segments into meeting conversation if multiple speakers detected
+      const formattedSegments = transcriptData.segments.map(seg => ({
+        speaker: normalizeSpeakerLabel(seg.speaker),
+        text: seg.text,
+        start: Math.round(seg.start * 1000), // Convert to ms
+        end: Math.round(seg.end * 1000),
+        confidence: seg.words?.[0]?.confidence,
+        words: seg.words?.map(w => ({
+          text: w.punctuated_word || w.word,
+          start: Math.round(w.start * 1000),
+          end: Math.round(w.end * 1000),
+          confidence: w.confidence,
+          speaker: normalizeSpeakerLabel(w.speaker),
+        })),
+      }));
+
+      const originalText = hasSpeakers && formattedSegments.length > 0
+        ? autoFormatTranscript(formattedSegments, speakers)
+        : transcript;
+
       await createTranscriptMutation.mutateAsync({
         title: `Dictation — ${new Date().toLocaleDateString("en-NG", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`,
-        originalText: transcript,
+        originalText,
         sourceLanguage: "en",
         fileType: "dictation",
+        segments: formattedSegments.length > 0 ? formattedSegments : undefined,
+        speakers: hasSpeakers ? speakers : undefined,
+        duration: transcriptData.duration || undefined,
       });
       toast.success("Transcript saved to your library");
     } catch {
       toast.error("Failed to save transcript");
     }
-  }, [transcript, createTranscriptMutation]);
+  }, [transcript, createTranscriptMutation, getTranscriptData]);
 
   const handleCopy = useCallback((text: string) => {
     navigator.clipboard.writeText(text);
@@ -285,7 +314,30 @@ export default function DictationWorkspace() {
           <div className="flex-1 overflow-y-auto scrollbar-thin relative">
             {transcript || interimTranscript ? (
               <div className="p-5 text-[15px] leading-[1.8] text-foreground/90">
-                {transcript}
+                {/* Show speaker-labeled segments if available during live recording */}
+                {liveSegments.length > 0 && new Set(liveSegments.map(s => s.speaker).filter(s => s !== undefined)).size > 1 ? (
+                  <div className="space-y-3">
+                    {liveSegments.map((seg, i) => {
+                      const label = normalizeSpeakerLabel(seg.speaker);
+                      const color = getSpeakerColor(String(seg.speaker ?? 0));
+                      const prevSpeaker = i > 0 ? liveSegments[i - 1].speaker : null;
+                      const isNewSpeaker = seg.speaker !== prevSpeaker;
+                      return (
+                        <div key={i}>
+                          {isNewSpeaker && (
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`inline-flex h-2 w-2 rounded-full ${color.dot}`} />
+                              <span className={`text-xs font-semibold ${color.text}`}>{label}</span>
+                            </div>
+                          )}
+                          <p className="pl-4">{seg.text}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <>{transcript}</>
+                )}
                 <AnimatePresence>
                   {interimTranscript && (
                     <motion.span
@@ -335,6 +387,15 @@ export default function DictationWorkspace() {
                   <span>English</span>
                 </>
               )}
+              {liveSegments.length > 0 && (() => {
+                const uniqueSpeakers = new Set(liveSegments.map(s => s.speaker).filter(s => s !== undefined)).size;
+                return uniqueSpeakers > 1 ? (
+                  <>
+                    <span className="text-border">·</span>
+                    <span>{uniqueSpeakers} speakers</span>
+                  </>
+                ) : null;
+              })()}
             </div>
             <div className="flex items-center gap-2">
               {!isListening && transcript && (

@@ -13,6 +13,7 @@ import {
   Languages,
   CreditCard,
   Upload,
+  Video,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -43,6 +44,7 @@ const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "New Dictation", url: "/app", icon: Mic },
   { title: "Upload", url: "/upload", icon: Upload },
+  { title: "Meetings", url: "/meetings", icon: Video },
   { title: "Transcripts", url: "/transcripts", icon: FileText },
 ];
 

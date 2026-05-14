@@ -1,11 +1,16 @@
 "use client";
 
-import { use, useState, useCallback } from "react";
+import { use, useState, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useTranscript, useDeleteTranscript, useSummarize, useUpdateTranscript } from "@/hooks";
+import { isMeetingTranscript } from "@/lib/format-transcript";
 
 const TranscriptEditor = dynamic(
   () => import('@/components/transcript-editor').then(mod => ({ default: mod.TranscriptEditor })),
+  { ssr: false, loading: () => <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600" /></div> }
+);
+const MeetingTranscriptView = dynamic(
+  () => import('@/components/meeting-transcript-view').then(mod => ({ default: mod.MeetingTranscriptView })),
   { ssr: false, loading: () => <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600" /></div> }
 );
 import { useRouter } from "next/navigation";
@@ -32,6 +37,9 @@ import {
   Check,
   X,
   BarChart3,
+  Users,
+  MessageSquare,
+  Type,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -53,6 +61,13 @@ export default function TranscriptDetailPage({
   const [editTitle, setEditTitle] = useState("");
   const [summaryType, setSummaryType] = useState<string>("EXECUTIVE_SUMMARY");
   const [summaryResult, setSummaryResult] = useState<any>(null);
+
+  // Meeting detection — auto-select conversation view when speakers data exists
+  const hasMeetingData = useMemo(
+    () => isMeetingTranscript(transcript?.speakers as string[] | undefined),
+    [transcript?.speakers]
+  );
+  const [viewMode, setViewMode] = useState<'conversation' | 'editor'>('conversation');
 
   const handleCopy = useCallback(() => {
     if (transcript?.originalText) {
@@ -228,30 +243,74 @@ export default function TranscriptDetailPage({
           transition={{ delay: 0.05 }}
           className="lg:col-span-2 space-y-6 min-w-0 w-full"
         >
-          {/* Transcript Editor */}
+          {/* Transcript — Conversation View or Editor */}
           <Card className="shadow-sm overflow-hidden">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                  <CardTitle className="text-base">Transcript</CardTitle>
+                  {hasMeetingData ? (
+                    <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  ) : (
+                    <FileText className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  )}
+                  <CardTitle className="text-base">
+                    {hasMeetingData ? 'Meeting Transcript' : 'Transcript'}
+                  </CardTitle>
+                  {hasMeetingData && (
+                    <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-normal gap-1 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20">
+                      <Users className="h-2.5 w-2.5" />
+                      {(transcript.speakers as string[])?.length} speakers
+                    </Badge>
+                  )}
                 </div>
-                <Badge variant="secondary" className="text-xs font-normal">
-                  <Languages className="mr-1 h-3 w-3" />
-                  {SUPPORTED_LANGUAGES[transcript.sourceLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || "English"}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  {hasMeetingData && (
+                    <div className="flex items-center rounded-lg border border-border/60 p-0.5">
+                      <Button
+                        variant={viewMode === 'conversation' ? 'secondary' : 'ghost'}
+                        size="sm"
+                        className="h-7 text-xs px-2.5 gap-1"
+                        onClick={() => setViewMode('conversation')}
+                      >
+                        <MessageSquare className="h-3 w-3" />
+                        Conversation
+                      </Button>
+                      <Button
+                        variant={viewMode === 'editor' ? 'secondary' : 'ghost'}
+                        size="sm"
+                        className="h-7 text-xs px-2.5 gap-1"
+                        onClick={() => setViewMode('editor')}
+                      >
+                        <Type className="h-3 w-3" />
+                        Editor
+                      </Button>
+                    </div>
+                  )}
+                  <Badge variant="secondary" className="text-xs font-normal">
+                    <Languages className="mr-1 h-3 w-3" />
+                    {SUPPORTED_LANGUAGES[transcript.sourceLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || "English"}
+                  </Badge>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <TranscriptEditor
-                initialContent={transcript.originalText}
-                onSave={async (content: string) => {
-                  await updateMutation.mutateAsync({
-                    id: transcript.id,
-                    data: { originalText: content },
-                  });
-                }}
-              />
+              {hasMeetingData && viewMode === 'conversation' ? (
+                <MeetingTranscriptView
+                  segments={(transcript.segments as any[]) ?? []}
+                  speakers={(transcript.speakers as string[]) ?? []}
+                  duration={transcript.duration || undefined}
+                />
+              ) : (
+                <TranscriptEditor
+                  initialContent={transcript.originalText}
+                  onSave={async (content: string) => {
+                    await updateMutation.mutateAsync({
+                      id: transcript.id,
+                      data: { originalText: content },
+                    });
+                  }}
+                />
+              )}
             </CardContent>
           </Card>
 
@@ -332,7 +391,8 @@ export default function TranscriptDetailPage({
                   value:
                     SUPPORTED_LANGUAGES[transcript.sourceLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || transcript.sourceLanguage,
                 },
-                { label: "Type", value: transcript.fileType || "dictation" },
+                { label: "Type", value: hasMeetingData ? "meeting" : (transcript.fileType || "dictation") },
+                ...(hasMeetingData ? [{ label: "Speakers", value: `${(transcript.speakers as string[])?.length || 0} detected` }] : []),
                 {
                   label: "Created",
                   value: format(new Date(transcript.createdAt), "MMM d, yyyy"),

@@ -11,6 +11,18 @@ interface TranscriptionResult {
   utterances?: Array<{ text: string; start: number; end: number; speaker: string }>;
   audio_duration?: number;
   language_code?: string;
+  // Meeting-specific data from AssemblyAI
+  segments?: Array<{
+    speaker: string;
+    text: string;
+    start: number;
+    end: number;
+    confidence?: number;
+    words?: Array<{ text: string; start: number; end: number; confidence?: number; speaker?: string }>;
+  }>;
+  speakers?: string[];
+  confidence?: number;
+  duration?: number;
 }
 
 interface UseFileUploadReturn {

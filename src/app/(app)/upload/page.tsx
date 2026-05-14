@@ -6,6 +6,7 @@ import { useCreateTranscript } from "@/hooks";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { SUPPORTED_LANGUAGES } from "@/features/translation/utils";
 import { toast } from "sonner";
+import { autoFormatTranscript, isMeetingTranscript, normalizeSpeakerLabel } from "@/lib/format-transcript";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -110,14 +111,24 @@ export default function UploadPage() {
   const handleSaveAndView = useCallback(async () => {
     if (!result) return;
 
+    // Format text intelligently based on whether speakers were detected
+    const hasSpeakers = isMeetingTranscript(result.speakers);
+    const normalizedSpeakers = result.speakers?.map(s => normalizeSpeakerLabel(s)) ?? [];
+    const formattedText = hasSpeakers && result.segments
+      ? autoFormatTranscript(result.segments, normalizedSpeakers)
+      : result.text;
+
     try {
       const res = await createTranscriptMutation.mutateAsync({
         title: selectedFile
           ? `Upload — ${selectedFile.name.replace(/\.[^/.]+$/, "")}`
           : `Upload — ${new Date().toLocaleDateString("en-NG", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`,
-        originalText: result.text,
+        originalText: formattedText,
         sourceLanguage: result.language_code || "en",
         fileType: selectedFile?.type?.startsWith("video") ? "video" : "audio",
+        segments: result.segments ?? undefined,
+        speakers: normalizedSpeakers.length > 0 ? normalizedSpeakers : undefined,
+        duration: result.duration ?? result.audio_duration ?? undefined,
       });
 
       const transcriptId = res?.data?.id;
@@ -195,12 +206,22 @@ export default function UploadPage() {
   const handleUrlSaveAndView = useCallback(async () => {
     if (!urlResult) return;
 
+    // Format text intelligently based on whether speakers were detected
+    const hasSpeakers = isMeetingTranscript(urlResult.speakers);
+    const normalizedSpeakers = urlResult.speakers?.map((s: string) => normalizeSpeakerLabel(s)) ?? [];
+    const formattedText = hasSpeakers && urlResult.segments
+      ? autoFormatTranscript(urlResult.segments, normalizedSpeakers)
+      : urlResult.text;
+
     try {
       const res = await createTranscriptMutation.mutateAsync({
         title: `URL — ${new URL(audioUrl).hostname} — ${new Date().toLocaleDateString("en-NG", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`,
-        originalText: urlResult.text,
+        originalText: formattedText,
         sourceLanguage: urlResult.language || "en",
         fileType: "url",
+        segments: urlResult.segments ?? undefined,
+        speakers: normalizedSpeakers.length > 0 ? normalizedSpeakers : undefined,
+        duration: urlResult.duration ?? undefined,
       });
 
       const transcriptId = res?.data?.id;
@@ -442,7 +463,8 @@ export default function UploadPage() {
                       </p>
                       <p className="text-xs text-emerald-600/70 dark:text-emerald-400/70">
                         {result.text.split(/\s+/).filter(Boolean).length} words transcribed
-                        {result.audio_duration ? ` from ${Math.round(result.audio_duration)}s of audio` : ""}
+                        {result.audio_duration || result.duration ? ` from ${Math.round(result.audio_duration || result.duration || 0)}s of audio` : ""}
+                        {isMeetingTranscript(result.speakers) && ` · ${result.speakers!.length} speakers detected`}
                       </p>
                     </div>
                   </div>
