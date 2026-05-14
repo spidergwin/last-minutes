@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -83,6 +83,18 @@ function formatMeetingDate(dateStr: string): string {
 }
 
 export default function MeetingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    }>
+      <MeetingsPageContent />
+    </Suspense>
+  );
+}
+
+function MeetingsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
