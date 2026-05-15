@@ -1,24 +1,24 @@
 export const heroContent = {
-  badge: "AI-Powered Transcription Platform",
+  badge: "The Intelligent Voice Platform",
   title: {
-    line1: "Capture Every",
-    highlight: "Spoken Word",
-    line2: "with Precision",
+    line1: "Never Miss What",
+    highlight: "Matters",
+    line2: "in Conversation",
   },
   description:
-    "Enterprise-grade speech-to-text with first-class support for Nigerian languages. Real-time streaming, AI-powered summaries, and multi-format exports — built for professionals who demand accuracy.",
+    "Intelligent transcription that understands nuance, respects accessibility, and works everywhere. With first-class support for Nigerian languages and real-time AI insights — built for professionals who demand precision.",
   cta: {
     primary: { text: "Start Free Trial", href: "/signup" },
     secondary: { text: "Watch Demo", href: "#features" },
   },
   trustIndicators: [
     "No credit card required",
-    "8+ Nigerian languages",
-    "99.2% accuracy on English",
+    "50+ languages supported",
+    "99.2% accuracy",
   ],
   stats: [
     { value: "50K+", label: "Minutes transcribed" },
-    { value: "8+", label: "Nigerian languages" },
+    { value: "50+", label: "Languages supported" },
     { value: "99.2%", label: "Accuracy rate" },
   ],
 } as const;

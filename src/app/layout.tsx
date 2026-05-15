@@ -17,18 +17,20 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Last Minutes — AI-Powered Speech-to-Text for Nigeria",
+  title: "Last Minutes — The Intelligent Voice Platform",
   description:
-    "Professional-grade transcription with deep support for Nigerian languages. Real-time streaming, AI summaries, and multi-format exports.",
+    "Never miss what matters in conversation. Intelligent transcription with first-class support for Nigerian languages, real-time AI insights, and multi-format exports.",
   keywords: [
-    "speech to text",
+    "voice platform",
     "transcription",
+    "speech intelligence",
     "Nigerian languages",
     "Hausa",
     "Yoruba",
     "Igbo",
     "meeting notes",
     "AI summarization",
+    "conversation intelligence",
   ],
   icons: {
     icon: [
@@ -39,9 +41,9 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Last Minutes — AI-Powered Speech-to-Text for Nigeria",
+    title: "Last Minutes — The Intelligent Voice Platform",
     description:
-      "Professional-grade transcription with deep support for Nigerian languages.",
+      "Never miss what matters in conversation. Intelligent transcription with first-class Nigerian language support.",
     type: "website",
     locale: "en_NG",
   },

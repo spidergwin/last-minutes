@@ -6,7 +6,7 @@ export const faqContent = {
     {
       question: "How accurate is the transcription?",
       answer:
-        "Our English transcription achieves 99.2% accuracy using Deepgram's Nova-3 engine. Nigerian language accuracy varies by language — Hausa and Yoruba are our strongest at 95%+, while less-resourced languages like Tiv and Efik are continuously improving.",
+        "Our English transcription achieves 99.2% accuracy with industry-leading speech recognition. Nigerian language accuracy varies — Hausa and Yoruba are our strongest at 95%+, while less-resourced languages like Tiv and Efik are continuously improving.",
     },
     {
       question: "Which Nigerian languages are supported?",
@@ -26,7 +26,7 @@ export const faqContent = {
     {
       question: "How does the AI summarization work?",
       answer:
-        "Our AI reads your full transcript and generates structured outputs: executive summaries, action items with owners, key decisions, and formatted meeting notes. Powered by OpenAI's GPT-4o-mini for fast, accurate results.",
+        "Our AI reads your full transcript and generates structured outputs: executive summaries, action items with owners, key decisions, and formatted meeting notes — all in seconds.",
     },
     {
       question: "Is my data secure?",
@@ -36,7 +36,7 @@ export const faqContent = {
     {
       question: "Can I cancel my subscription anytime?",
       answer:
-        "Yes, you can cancel anytime from your dashboard. Your Pro features remain active until the end of your current billing period. We process payments securely through Paystack.",
+        "Yes, you can cancel anytime from your dashboard. Your Pro features remain active until the end of your current billing period. All payments are processed securely with industry-standard encryption.",
     },
     {
       question: "Do you offer team plans?",

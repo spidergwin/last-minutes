@@ -1,13 +1,13 @@
 export const featuresContent = {
   badge: "Capabilities",
-  title: "Everything you need to capture ideas",
+  title: "Your conversations, perfectly understood",
   description:
-    "From live dictation to batch file processing, Last Minutes handles your entire transcription workflow with professional-grade accuracy.",
+    "From live dictation to batch file processing — capture, transcribe, and transform every spoken word into searchable, shareable intelligence.",
   items: [
     {
       title: "Real-Time Streaming",
       description:
-        "Speak and see words appear instantly. Powered by Deepgram's Nova-3 engine for ultra-low latency streaming transcription.",
+        "Speak and see words appear instantly. Ultra-low latency streaming transcription that keeps up with the pace of real conversation.",
       icon: "Mic" as const,
       accent: "from-indigo-500 to-violet-500",
       span: "md:col-span-2",
@@ -15,7 +15,7 @@ export const featuresContent = {
     {
       title: "File Transcription",
       description:
-        "Upload audio or video files and get professional transcripts with speaker diarization and timestamps.",
+        "Upload audio or video files and get professional transcripts with speaker identification and precise timestamps.",
       icon: "FileAudio" as const,
       accent: "from-violet-500 to-purple-500",
       span: "md:col-span-1",
@@ -31,7 +31,7 @@ export const featuresContent = {
     {
       title: "Nigerian Language Support",
       description:
-        "First-class support for Hausa, Yoruba, Igbo, Pidgin, Edo, Efik, Tiv, and Fulfulde — plus 10+ international languages.",
+        "First-class support for Hausa, Yoruba, Igbo, Pidgin, Edo, Efik, Tiv, and Fulfulde — plus 10+ international languages. AI that respects every voice and accent.",
       icon: "Globe" as const,
       accent: "from-emerald-500 to-teal-500",
       span: "md:col-span-2",
@@ -40,13 +40,13 @@ export const featuresContent = {
 };
 
 export const benefitsContent = {
-  title: "Built for professionals",
+  title: "For creators, researchers, and anyone who speaks",
   items: [
     {
       step: "01",
       title: "Secure & Private",
       description:
-        "All data encrypted in transit and at rest. Your transcripts stay private with enterprise-grade security.",
+        "All data encrypted in transit and at rest. Your transcripts stay private — we never use your data to train models.",
       icon: "Shield" as const,
     },
     {
@@ -60,7 +60,7 @@ export const benefitsContent = {
       step: "03",
       title: "Smart Translation",
       description:
-        "Translate transcripts across 18+ languages with OpenAI-powered contextual accuracy.",
+        "Translate transcripts across 18+ languages with contextual accuracy that preserves meaning, not just words.",
       icon: "Languages" as const,
     },
   ],

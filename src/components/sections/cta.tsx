@@ -20,11 +20,14 @@ export function CTA() {
         viewport={{ once: true }}
         className="max-w-4xl mx-auto text-center px-4 relative z-10"
       >
+        <p className="text-white/60 text-sm font-medium uppercase tracking-widest mb-6">
+          You speak. We listen. We understand.
+        </p>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-white font-[family-name:var(--font-display)]">
-          Ready to capture your thoughts?
+          Never miss what matters in conversation
         </h2>
         <p className="text-lg md:text-xl mb-10 text-white/80 max-w-2xl mx-auto">
-          Join professionals across Nigeria using {siteConfig.name} to streamline transcription, translation, and meeting workflows.
+          Join professionals using {siteConfig.name} to capture, understand, and transform every spoken word into actionable intelligence.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/signup">

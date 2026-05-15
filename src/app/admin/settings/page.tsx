@@ -27,8 +27,10 @@ export default function AdminSettingsPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             {[
-              { name: "LibreTranslate API URL", env: "LIBRETRANSLATE_API_URL", placeholder: "http://localhost:5000" },
-              { name: "Faster Whisper API URL", env: "FASTER_WHISPER_API_URL", placeholder: "http://localhost:8000" },
+              { name: "Deepgram API Key", env: "DEEPGRAM_API_KEY", placeholder: "Your Deepgram API key" },
+              { name: "AssemblyAI API Key", env: "ASSEMBLYAI_API_KEY", placeholder: "Your AssemblyAI API key" },
+              { name: "OpenAI API Key", env: "OPENAI_API_KEY", placeholder: "sk-..." },
+              { name: "Recall.ai API Key", env: "RECALL_API_KEY", placeholder: "Your Recall.ai API key" },
             ].map((service) => (
               <div key={service.env} className="space-y-2">
                 <Label htmlFor={service.env}>{service.name}</Label>

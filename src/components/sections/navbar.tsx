@@ -91,7 +91,7 @@ export function Navbar() {
                   {siteConfig.name}
                 </SheetTitle>
                 <SheetDescription className="text-xs">
-                  Speech-to-text, simplified.
+                  You speak. We listen. We understand.
                 </SheetDescription>
               </SheetHeader>
               <div className="flex flex-col justify-between flex-1 mt-4">

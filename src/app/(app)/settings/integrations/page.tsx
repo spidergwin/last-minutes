@@ -272,27 +272,27 @@ export default function IntegrationsPage() {
                 <div>
                   <p className="text-sm font-medium">Recording Mode</p>
                   <p className="text-xs text-muted-foreground">
-                    Audio-only recording to minimize bandwidth and costs.
+                    Optimized for fast, accurate transcription.
                   </p>
                 </div>
                 <Badge variant="secondary" className="text-xs">
                   <Video className="h-3 w-3 mr-1" />
-                  Audio Only
+                  Optimized
                 </Badge>
               </div>
 
-              {/* Transcription engine */}
+              {/* Transcription quality */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">Transcription Engine</p>
+                  <p className="text-sm font-medium">Transcription Quality</p>
                   <p className="text-xs text-muted-foreground">
-                    Uses AssemblyAI for high-accuracy speaker-diarized
-                    transcription.
+                    High-accuracy speaker-diarized transcription with
+                    automatic speaker detection.
                   </p>
                 </div>
                 <Badge variant="secondary" className="text-xs">
                   <Settings2 className="h-3 w-3 mr-1" />
-                  AssemblyAI
+                  Advanced AI
                 </Badge>
               </div>
             </div>

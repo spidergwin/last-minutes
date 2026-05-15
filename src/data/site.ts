@@ -1,14 +1,15 @@
 export const siteConfig = {
   name: "Last Minutes",
-  tagline: "Capture Every Spoken Word",
+  tagline: "You speak. We listen. We understand.",
   description:
-    "Professional-grade speech-to-text platform with deep support for Nigerian languages. Transcribe, translate, summarize, and export — powered by AI.",
+    "The intelligent voice platform for professionals who demand precision. Capture, understand, and transform conversations across 50+ languages — with first-class support for Nigerian languages.",
   url: "https://lastminutes.app",
   ogImage: "/og.png",
   creator: "Last Minutes Team",
   keywords: [
-    "speech to text",
+    "voice platform",
     "transcription",
+    "speech intelligence",
     "Nigerian languages",
     "Hausa",
     "Yoruba",
@@ -16,7 +17,8 @@ export const siteConfig = {
     "Pidgin English",
     "meeting notes",
     "AI summarization",
-    "voice to text",
+    "multilingual transcription",
+    "conversation intelligence",
   ],
   social: {
     twitter: "https://twitter.com/lastminutesapp",
