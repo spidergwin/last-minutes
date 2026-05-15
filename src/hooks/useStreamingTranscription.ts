@@ -102,9 +102,10 @@ export function useStreamingTranscription() {
    * Build WebSocket URL with transcription parameters.
    */
   const buildWsUrl = useCallback((apiKey: string): string => {
+    const isMulti = language === "multi";
     const params = new URLSearchParams({
-      model: "nova-3",
-      language: language.split("-")[0] || "en",
+      model: isMulti ? "nova-2-general" : "nova-3", // Deepgram suggests nova-2 for multi, or nova-3 handles it if model is omitted, but let's use nova-2-general for explicit multi-language code switching
+      ...(isMulti ? { language: "multi" } : { language: language.split("-")[0] || "en" }),
       smart_format: "true",
       punctuate: "true",
       diarize: "true",

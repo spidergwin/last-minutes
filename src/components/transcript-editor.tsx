@@ -19,6 +19,7 @@ import { FixedToolbarKit } from '@/components/editor/plugins/fixed-toolbar-kit';
 import { TrailingBlockPlugin } from 'platejs';
 import { Editor, EditorContainer } from '@/components/ui/editor';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Check, Loader2 } from 'lucide-react';
 
 interface TranscriptEditorProps {
@@ -170,6 +171,15 @@ export function TranscriptEditor({ initialContent, onSave, readOnly = false }: T
               Saved
             </Badge>
           )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-6 text-[10px] px-2 ml-2" 
+            onClick={() => handleSave(slateValueToText(editor.children as any[]))}
+            disabled={saveState === 'saving'}
+          >
+            Save Transcript
+          </Button>
         </div>
       </div>
     </div>

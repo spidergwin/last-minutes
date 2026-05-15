@@ -145,12 +145,12 @@ export default function DictationWorkspace() {
     try {
       // Get structured data from the streaming session
       const transcriptData = getTranscriptData();
-      const speakers = transcriptData.speakers.map(s => normalizeSpeakerLabel(s));
-      const hasSpeakers = speakers.length > 1;
+      const speakers = transcriptData.speakers.map(s => normalizeSpeakerLabel(String(s ?? 0)));
+      const hasSpeakers = speakers.length > 0;
 
       // Format segments into meeting conversation if multiple speakers detected
       const formattedSegments = transcriptData.segments.map(seg => ({
-        speaker: normalizeSpeakerLabel(seg.speaker),
+        speaker: normalizeSpeakerLabel(String(seg.speaker ?? 0)),
         text: seg.text,
         start: Math.round(seg.start * 1000), // Convert to ms
         end: Math.round(seg.end * 1000),
@@ -160,7 +160,7 @@ export default function DictationWorkspace() {
           start: Math.round(w.start * 1000),
           end: Math.round(w.end * 1000),
           confidence: w.confidence,
-          speaker: normalizeSpeakerLabel(w.speaker),
+          speaker: normalizeSpeakerLabel(String(w.speaker ?? 0)),
         })),
       }));
 
@@ -315,10 +315,10 @@ export default function DictationWorkspace() {
             {transcript || interimTranscript ? (
               <div className="p-5 text-[15px] leading-[1.8] text-foreground/90">
                 {/* Show speaker-labeled segments if available during live recording */}
-                {liveSegments.length > 0 && new Set(liveSegments.map(s => s.speaker).filter(s => s !== undefined)).size > 1 ? (
+                {liveSegments.length > 0 && new Set(liveSegments.map(s => s.speaker).filter(s => s !== undefined)).size > 0 ? (
                   <div className="space-y-3">
                     {liveSegments.map((seg, i) => {
-                      const label = normalizeSpeakerLabel(seg.speaker);
+                      const label = normalizeSpeakerLabel(String(seg.speaker ?? 0));
                       const color = getSpeakerColor(String(seg.speaker ?? 0));
                       const prevSpeaker = i > 0 ? liveSegments[i - 1].speaker : null;
                       const isNewSpeaker = seg.speaker !== prevSpeaker;
@@ -389,10 +389,10 @@ export default function DictationWorkspace() {
               )}
               {liveSegments.length > 0 && (() => {
                 const uniqueSpeakers = new Set(liveSegments.map(s => s.speaker).filter(s => s !== undefined)).size;
-                return uniqueSpeakers > 1 ? (
+                return uniqueSpeakers > 0 ? (
                   <>
                     <span className="text-border">·</span>
-                    <span>{uniqueSpeakers} speakers</span>
+                    <span>{uniqueSpeakers} speaker{uniqueSpeakers !== 1 ? 's' : ''}</span>
                   </>
                 ) : null;
               })()}

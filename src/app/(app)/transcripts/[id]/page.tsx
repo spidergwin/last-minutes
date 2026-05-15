@@ -246,7 +246,7 @@ export default function TranscriptDetailPage({
           {/* Transcript — Conversation View or Editor */}
           <Card className="shadow-sm overflow-hidden">
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   {hasMeetingData ? (
                     <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -263,7 +263,7 @@ export default function TranscriptDetailPage({
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center flex-wrap gap-2">
                   {hasMeetingData && (
                     <div className="flex items-center rounded-lg border border-border/60 p-0.5">
                       <Button
@@ -299,6 +299,20 @@ export default function TranscriptDetailPage({
                   segments={(transcript.segments as any[]) ?? []}
                   speakers={(transcript.speakers as string[]) ?? []}
                   duration={transcript.duration || undefined}
+                  onRenameSpeaker={async (oldName, newName) => {
+                    const newSpeakers = (transcript.speakers as string[]).map(s => s === oldName ? newName : s);
+                    const newSegments = (transcript.segments as any[]).map(seg => 
+                      seg.speaker === oldName ? { ...seg, speaker: newName } : seg
+                    );
+                    // Sync the editor text by replacing the speaker name globally (escape regex special chars)
+                    const safeOldName = oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const newOriginalText = transcript.originalText.replace(new RegExp(`${safeOldName}:`, 'g'), `${newName}:`);
+                    
+                    await updateMutation.mutateAsync({
+                      id: transcript.id,
+                      data: { speakers: newSpeakers, segments: newSegments, originalText: newOriginalText }
+                    });
+                  }}
                 />
               ) : (
                 <TranscriptEditor

@@ -17,6 +17,7 @@ export const SUPPORTED_LANGUAGES = {
   efi: { name: "Efik", nativeName: "Efik" },
   tiv: { name: "Tiv", nativeName: "Tiv" },
   ff: { name: "Fula", nativeName: "Fulfulde" },
+  multi: { name: "Multi-language (Code-switching)", nativeName: "Auto (Eng/Pidgin/Igbo)" },
 } as const;
 
 export const NIGERIAN_LANGUAGES = ["ha", "yo", "ig", "pid", "bin", "efi", "tiv", "ff"] as const;
