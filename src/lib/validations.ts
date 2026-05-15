@@ -40,6 +40,9 @@ export const updateTranscriptSchema = z.object({
   originalText: z.string().min(1).optional(),
   targetLanguage: z.string().optional(),
   isPublic: z.boolean().optional(),
+  segments: z.array(z.any()).optional(),
+  speakers: z.array(z.string()).optional(),
+  duration: z.number().optional(),
 });
 
 export type CreateTranscriptInput = z.infer<typeof createTranscriptSchema>;

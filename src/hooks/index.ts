@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Transcript, CreateTranscriptInput } from "@/lib/validations";
+import { Transcript, CreateTranscriptInput, UpdateTranscriptInput } from "@/lib/validations";
 
 interface TranslateParams {
   text: string;
@@ -158,12 +158,7 @@ export function useSummarize() {
 
 interface UpdateTranscriptParams {
   id: string;
-  data: {
-    title?: string;
-    originalText?: string;
-    targetLanguage?: string;
-    isPublic?: boolean;
-  };
+  data: UpdateTranscriptInput;
 }
 
 export function useUpdateTranscript() {
