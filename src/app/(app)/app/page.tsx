@@ -227,7 +227,7 @@ export default function DictationWorkspace() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)] max-w-6xl mx-auto">
+    <div className="flex flex-col h-full min-h-[360px] max-w-6xl mx-auto">
       {/* Error Banner */}
       <AnimatePresence>
         {(error || streamingError) && (
