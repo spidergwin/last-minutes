@@ -50,7 +50,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow } from "date-fns";
 import { useSession } from "@/lib/auth-client";
 
@@ -132,11 +131,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Welcome Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-end justify-between gap-4"
-      >
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 fade-up">
         <div className="space-y-1">
           <h2 className="text-3xl font-bold tracking-tight font-[family-name:var(--font-display)]">
             Welcome back, {firstName} 👋
@@ -153,16 +148,12 @@ export default function DashboardPage() {
             </Button>
           </Link>
         </div>
-      </motion.div>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-        >
-          <Card className="shadow-sm border-amber-500/10 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
+        <div className="fade-up-1">
+          <Card className="shadow-sm border-amber-500/10 bg-gradient-to-br from-amber-500/5 to-orange-500/5 overflow-hidden">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardDescription className="text-amber-600 dark:text-amber-400 font-medium text-xs uppercase tracking-wider">
                 Total Transcripts
@@ -178,14 +169,10 @@ export default function DashboardPage() {
               </p>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="shadow-sm">
+        <div className="fade-up-1">
+          <Card className="shadow-sm overflow-hidden">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardDescription className="font-medium text-xs uppercase tracking-wider">
                 Total Words
@@ -201,14 +188,10 @@ export default function DashboardPage() {
               </p>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          <Card className="shadow-sm">
+        <div className="fade-up-2">
+          <Card className="shadow-sm overflow-hidden">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardDescription className="font-medium text-xs uppercase tracking-wider">
                 Languages Used
@@ -224,14 +207,10 @@ export default function DashboardPage() {
               </p>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="shadow-sm">
+        <div className="fade-up-2">
+          <Card className="shadow-sm overflow-hidden">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardDescription className="font-medium text-xs uppercase tracking-wider">
                 Usage This Month
@@ -255,18 +234,13 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
 
       {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-3"
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 fade-up-3">
         <Link href="/app">
-          <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200">
+          <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200 overflow-hidden">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-sm">
                 <Mic className="w-5 h-5" />
@@ -283,7 +257,7 @@ export default function DashboardPage() {
           </Card>
         </Link>
         <Link href="/upload">
-          <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200">
+          <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200 overflow-hidden">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-sm">
                 <Upload className="w-5 h-5" />
@@ -300,7 +274,7 @@ export default function DashboardPage() {
           </Card>
         </Link>
         <Link href="/app">
-          <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200">
+          <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200 overflow-hidden">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-sm">
                 <Sparkles className="w-5 h-5" />
@@ -316,16 +290,12 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </Link>
-      </motion.div>
+      </div>
 
       {/* Upcoming Meetings Card */}
       {upcomingMeetings.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.27 }}
-        >
-          <Card className="shadow-sm border-amber-500/10">
+        <div className="fade-up-3">
+          <Card className="shadow-sm border-amber-500/10 overflow-hidden">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -395,15 +365,11 @@ export default function DashboardPage() {
               ))}
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       )}
 
       {/* Transcripts Table */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
+      <div className="fade-up-4">
         <Card className="shadow-sm overflow-hidden border-muted">
           <CardHeader className="bg-muted/30 pb-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -469,15 +435,8 @@ export default function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <AnimatePresence mode="popLayout">
-                    {filteredTranscripts.map((transcript: Transcript) => (
-                      <motion.tr
-                        key={transcript.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="group"
-                      >
+                  {filteredTranscripts.map((transcript: Transcript) => (
+                    <TableRow key={transcript.id} className="group">
                         <TableCell className="font-medium pl-4 sm:pl-6 py-3 sm:py-4">
                           <Link href={`/transcripts/${transcript.id}`} className="flex items-center gap-3 min-w-0">
                             <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-600 shrink-0">
@@ -545,16 +504,15 @@ export default function DashboardPage() {
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
-                      </motion.tr>
+                      </TableRow>
                     ))}
-                  </AnimatePresence>
                 </TableBody>
               </Table>
               </div>
             )}
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }

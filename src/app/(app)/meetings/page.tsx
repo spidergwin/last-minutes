@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isToday, isTomorrow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -222,11 +222,7 @@ function MeetingsPageContent() {
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-12">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
-      >
+      <div className="flex items-center justify-between fade-up">
         <div className="space-y-1">
           <h2 className="text-3xl font-bold tracking-tight font-[family-name:var(--font-display)]">
             Meetings
@@ -247,15 +243,11 @@ function MeetingsPageContent() {
             Sync
           </Button>
         )}
-      </motion.div>
+      </div>
 
       {/* Calendar Connection Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-      >
-        <Card className="shadow-sm">
+      <div className="fade-up-1">
+        <Card className="shadow-sm overflow-hidden">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -314,16 +306,12 @@ function MeetingsPageContent() {
             )}
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Meeting Bot Add-on Info */}
       {hasCalendar && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="shadow-sm border-amber-500/20 bg-amber-500/5">
+        <div className="fade-up-2">
+          <Card className="shadow-sm border-amber-500/20 bg-amber-500/5 overflow-hidden">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
@@ -339,7 +327,7 @@ function MeetingsPageContent() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       )}
 
       {/* Loading State */}
@@ -351,12 +339,8 @@ function MeetingsPageContent() {
 
       {/* Today's Meetings */}
       {!isLoading && hasCalendar && todaysMeetings.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          <Card className="shadow-sm">
+        <div className="fade-up-3">
+          <Card className="shadow-sm overflow-hidden">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -378,17 +362,13 @@ function MeetingsPageContent() {
               ))}
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       )}
 
       {/* Upcoming Meetings */}
       {!isLoading && hasCalendar && upcomingMeetings.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="shadow-sm">
+        <div className="fade-up-4">
+          <Card className="shadow-sm overflow-hidden">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -410,17 +390,13 @@ function MeetingsPageContent() {
               ))}
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       )}
 
       {/* Empty state */}
       {!isLoading && hasCalendar && meetings.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          <Card className="shadow-sm">
+        <div className="fade-up-3">
+          <Card className="shadow-sm overflow-hidden">
             <CardContent className="py-12 text-center">
               <Video className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm font-medium text-muted-foreground">No upcoming meetings</p>
@@ -433,7 +409,7 @@ function MeetingsPageContent() {
               </Button>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       )}
     </div>
   );

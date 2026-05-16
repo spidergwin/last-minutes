@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, Zap, Check, TrendingUp, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
 
 export default function BillingPage() {
   const { data: usageData, isLoading } = useUsage();
@@ -29,26 +28,18 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-1"
-      >
+      <div className="space-y-1 fade-up">
         <h2 className="text-3xl font-bold tracking-tight font-[family-name:var(--font-display)]">
           Billing & Usage
         </h2>
         <p className="text-muted-foreground">
           Manage your subscription and track usage.
         </p>
-      </motion.div>
+      </div>
 
       {/* Current Plan */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-      >
-        <Card className="shadow-sm border-amber-500/10 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
+      <div className="fade-up-1">
+        <Card className="shadow-sm border-amber-500/10 bg-gradient-to-br from-amber-500/5 to-orange-500/5 overflow-hidden">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -103,15 +94,11 @@ export default function BillingPage() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Plan Comparison */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <Card className="shadow-sm">
+      <div className="fade-up-2">
+        <Card className="shadow-sm overflow-hidden">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -179,7 +166,7 @@ export default function BillingPage() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }

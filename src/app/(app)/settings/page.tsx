@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { User, Shield, Globe, Loader2, Calendar, ArrowRight, Link2 } from "lucide-react";
-import { motion } from "framer-motion";
 import { SUPPORTED_LANGUAGES } from "@/features/translation/utils";
 
 export default function SettingsPage() {
@@ -37,26 +36,18 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-1"
-      >
+      <div className="space-y-1 fade-up">
         <h2 className="text-3xl font-bold tracking-tight font-[family-name:var(--font-display)]">
           Settings
         </h2>
         <p className="text-muted-foreground">
           Manage your account and preferences.
         </p>
-      </motion.div>
+      </div>
 
       {/* Profile */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-      >
-        <Card className="shadow-sm">
+      <div className="fade-up-1">
+        <Card className="shadow-sm overflow-hidden">
           <CardHeader>
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -98,15 +89,11 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Preferences */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <Card className="shadow-sm">
+      <div className="fade-up-2">
+        <Card className="shadow-sm overflow-hidden">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Globe className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -132,15 +119,11 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Security */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-      >
-        <Card className="shadow-sm">
+      <div className="fade-up-3">
+        <Card className="shadow-sm overflow-hidden">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -173,15 +156,11 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Integrations */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Card className="shadow-sm">
+      <div className="fade-up-4">
+        <Card className="shadow-sm overflow-hidden">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Link2 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -211,7 +190,7 @@ export default function SettingsPage() {
             </Link>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -102,11 +101,7 @@ export default function IntegrationsPage() {
   return (
     <div className="space-y-6 max-w-3xl mx-auto pb-12">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-1"
-      >
+      <div className="space-y-1 fade-up">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
           <Link
             href="/settings"
@@ -124,15 +119,11 @@ export default function IntegrationsPage() {
         <p className="text-muted-foreground">
           Connect external services to enhance your meeting workflow.
         </p>
-      </motion.div>
+      </div>
 
       {/* Google Calendar */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-      >
-        <Card className="shadow-sm">
+      <div className="fade-up-1">
+        <Card className="shadow-sm overflow-hidden">
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 flex items-center justify-center">
@@ -222,15 +213,11 @@ export default function IntegrationsPage() {
             )}
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Meeting Bot Configuration */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <Card className="shadow-sm">
+      <div className="fade-up-2">
+        <Card className="shadow-sm overflow-hidden">
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 flex items-center justify-center">
@@ -255,42 +242,42 @@ export default function IntegrationsPage() {
           <CardContent className="space-y-4">
             <div className="rounded-xl border border-border/60 bg-muted/20 p-4 space-y-4">
               {/* Bot display name */}
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
                   <p className="text-sm font-medium">Bot Display Name</p>
                   <p className="text-xs text-muted-foreground">
                     The name shown when the bot joins your meetings.
                   </p>
                 </div>
-                <Badge variant="outline" className="font-mono text-xs">
+                <Badge variant="outline" className="font-mono text-xs shrink-0">
                   Last Minutes Notetaker
                 </Badge>
               </div>
 
               {/* Recording mode */}
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
                   <p className="text-sm font-medium">Recording Mode</p>
                   <p className="text-xs text-muted-foreground">
                     Optimized for fast, accurate transcription.
                   </p>
                 </div>
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs shrink-0">
                   <Video className="h-3 w-3 mr-1" />
                   Optimized
                 </Badge>
               </div>
 
               {/* Transcription quality */}
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
                   <p className="text-sm font-medium">Transcription Quality</p>
                   <p className="text-xs text-muted-foreground">
                     High-accuracy speaker-diarized transcription with
                     automatic speaker detection.
                   </p>
                 </div>
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs shrink-0">
                   <Settings2 className="h-3 w-3 mr-1" />
                   Advanced AI
                 </Badge>
@@ -324,15 +311,11 @@ export default function IntegrationsPage() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Supported Platforms */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-      >
-        <Card className="shadow-sm">
+      <div className="fade-up-3">
+        <Card className="shadow-sm overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base">Supported Platforms</CardTitle>
             <CardDescription>
@@ -374,7 +357,7 @@ export default function IntegrationsPage() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }

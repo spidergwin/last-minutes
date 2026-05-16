@@ -7,7 +7,7 @@ import { useFileUpload } from "@/hooks/useFileUpload";
 import { SUPPORTED_LANGUAGES } from "@/features/translation/utils";
 import { toast } from "sonner";
 import { autoFormatTranscript, isMeetingTranscript, normalizeSpeakerLabel } from "@/lib/format-transcript";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -254,25 +254,17 @@ export default function UploadPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-1"
-      >
+      <div className="space-y-1 fade-up">
         <h2 className="text-3xl font-bold tracking-tight font-[family-name:var(--font-display)]">
           Upload & Transcribe
         </h2>
         <p className="text-muted-foreground">
           Upload a file or paste a link to automatically transcribe audio and video with AI.
         </p>
-      </motion.div>
+      </div>
 
       {/* Main Upload Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-      >
+      <div className="fade-up-1">
         <Card className="shadow-sm overflow-hidden">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -286,14 +278,7 @@ export default function UploadPage() {
 
           <CardContent className="space-y-4">
             {/* Drop Zone */}
-            <AnimatePresence mode="wait">
               {!hasFile && !isUploading && !isProcessing && !isCompleted ? (
-                <motion.div
-                  key="dropzone"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
                   <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -364,18 +349,11 @@ export default function UploadPage() {
                       </>
                     )}
                   </div>
-                </motion.div>
               ) : null}
-            </AnimatePresence>
 
             {/* Selected File Info */}
-            <AnimatePresence>
               {hasFile && !isCompleted && (
-                <motion.div
-                  key="file-info"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                <div
                   className="rounded-xl border border-border/60 bg-muted/20 p-4"
                 >
                   <div className="flex items-center gap-3">
@@ -440,20 +418,12 @@ export default function UploadPage() {
                       </span>
                     </div>
                   )}
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
 
             {/* Completed Result */}
-            <AnimatePresence>
               {isCompleted && result && (
-                <motion.div
-                  key="completed"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="space-y-4"
-                >
+                <div className="space-y-4">
                   {/* Success Header */}
                   <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -508,20 +478,12 @@ export default function UploadPage() {
                       Upload Another
                     </Button>
                   </div>
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
 
             {/* Error state with retry */}
-            <AnimatePresence>
               {isError && selectedFile && (
-                <motion.div
-                  key="error-retry"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="rounded-xl border border-red-500/20 bg-red-500/5 p-4"
-                >
+                <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
                   <div className="flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                     <div className="flex-1">
@@ -542,17 +504,12 @@ export default function UploadPage() {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
 
             {/* Language Selection & Upload Button */}
             {canUpload && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2"
-              >
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
                 <div className="flex items-center gap-2 flex-1">
                   <span className="text-sm text-muted-foreground whitespace-nowrap">Language:</span>
                   <Select value={language} onValueChange={setLanguage}>
@@ -576,18 +533,14 @@ export default function UploadPage() {
                   <Upload className="h-4 w-4" />
                   Start Transcription
                 </Button>
-              </motion.div>
+              </div>
             )}
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* URL Transcription Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+      <div className="fade-up-2">
         <Card className="shadow-sm overflow-hidden">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -692,14 +645,10 @@ export default function UploadPage() {
             ) : null}
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Tips Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-      >
+      <div className="fade-up-3">
         <Card className="shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center gap-2 mb-3">
@@ -726,7 +675,7 @@ export default function UploadPage() {
             </ul>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }

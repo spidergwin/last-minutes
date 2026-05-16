@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Mic, Menu } from "lucide-react";
+import { Mic, Menu, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
@@ -15,10 +15,12 @@ import {
 } from "@/components/ui/sheet";
 import { mainNav } from "@/data/navigation";
 import { siteConfig } from "@/data/site";
+import { useSession } from "@/lib/auth-client";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -61,19 +63,33 @@ export function Navbar() {
         {/* Right Actions */}
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Link href="/signin" className="hidden sm:inline-flex">
-            <Button variant="ghost" size="sm" className="text-sm font-medium">
-              Sign In
-            </Button>
-          </Link>
-          <Link href="/signup" className="hidden sm:inline-flex">
-            <Button
-              size="sm"
-              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/20 border-0"
-            >
-              Get Started
-            </Button>
-          </Link>
+          {session ? (
+            <Link href="/dashboard" className="hidden sm:inline-flex">
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/20 border-0 gap-2"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/signin" className="hidden sm:inline-flex">
+                <Button variant="ghost" size="sm" className="text-sm font-medium">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/signup" className="hidden sm:inline-flex">
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/20 border-0"
+                >
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
 
           {/* Mobile Menu — Sheet */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -108,14 +124,25 @@ export function Navbar() {
                   ))}
                 </div>
                 <div className="flex flex-col gap-3 pt-6 pb-8 px-3 border-t">
-                  <Link href="/signin" onClick={() => setMobileOpen(false)}>
-                    <Button variant="outline" size="lg" className="w-full text-base">Sign In</Button>
-                  </Link>
-                  <Link href="/signup" onClick={() => setMobileOpen(false)}>
-                    <Button size="lg" className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 text-base">
-                      Get Started
-                    </Button>
-                  </Link>
+                  {session ? (
+                    <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+                      <Button size="lg" className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 text-base gap-2">
+                        <LayoutDashboard className="w-5 h-5" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link href="/signin" onClick={() => setMobileOpen(false)}>
+                        <Button variant="outline" size="lg" className="w-full text-base">Sign In</Button>
+                      </Link>
+                      <Link href="/signup" onClick={() => setMobileOpen(false)}>
+                        <Button size="lg" className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 text-base">
+                          Get Started
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>

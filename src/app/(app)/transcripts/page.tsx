@@ -44,7 +44,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 
 export default function TranscriptsPage() {
@@ -76,11 +75,7 @@ export default function TranscriptsPage() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-end justify-between gap-4"
-      >
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 fade-up">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight font-[family-name:var(--font-display)]">
             Transcripts
@@ -101,14 +96,10 @@ export default function TranscriptsPage() {
             </Button>
           </Link>
         </div>
-      </motion.div>
+      </div>
 
       {/* Search & Filter Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-      >
+      <div className="fade-up-1">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -118,7 +109,7 @@ export default function TranscriptsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      </motion.div>
+      </div>
 
       {/* Results count */}
       {searchQuery && (
@@ -128,11 +119,7 @@ export default function TranscriptsPage() {
       )}
 
       {/* Transcripts List */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+      <div className="fade-up-2">
         <Card className="shadow-sm overflow-hidden">
           <CardContent className="p-0">
             {isLoading ? (
@@ -181,15 +168,8 @@ export default function TranscriptsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <AnimatePresence mode="popLayout">
-                      {filteredTranscripts.map((transcript: Transcript) => (
-                        <motion.tr
-                          key={transcript.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="group"
-                        >
+                    {filteredTranscripts.map((transcript: Transcript) => (
+                      <TableRow key={transcript.id} className="group">
                           <TableCell className="font-medium pl-4 sm:pl-6 py-3 sm:py-4">
                             <Link href={`/transcripts/${transcript.id}`} className="flex items-center gap-3 min-w-0">
                               <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-600 shrink-0">
@@ -244,16 +224,15 @@ export default function TranscriptsPage() {
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
-                        </motion.tr>
+                        </TableRow>
                       ))}
-                    </AnimatePresence>
                   </TableBody>
                 </Table>
               </div>
             )}
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }

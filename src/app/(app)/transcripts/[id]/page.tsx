@@ -41,7 +41,7 @@ import {
   MessageSquare,
   Type,
 } from "lucide-react";
-import { motion } from "framer-motion";
+
 import Link from "next/link";
 
 export default function TranscriptDetailPage({
@@ -165,11 +165,7 @@ export default function TranscriptDetailPage({
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 fade-up">
         <div className="flex items-center gap-3">
           <Link href="/transcripts">
             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg">
@@ -233,15 +229,12 @@ export default function TranscriptDetailPage({
             <Trash2 className="h-3.5 w-3.5" /> Delete
           </Button>
         </div>
-      </motion.div>
+      </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="lg:col-span-2 space-y-6 min-w-0 w-full"
+        <div
+          className="lg:col-span-2 space-y-6 min-w-0 w-full fade-up-1"
         >
           {/* Transcript — Conversation View or Editor */}
           <Card className="shadow-sm overflow-hidden">
@@ -374,15 +367,10 @@ export default function TranscriptDetailPage({
               )}
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
         {/* Sidebar — Metadata & Export */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="space-y-6"
-        >
+        <div className="space-y-6 fade-up-2">
           {/* Metadata */}
           <Card className="shadow-sm">
             <CardHeader className="pb-3">
@@ -453,7 +441,7 @@ export default function TranscriptDetailPage({
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
