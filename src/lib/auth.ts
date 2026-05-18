@@ -12,6 +12,7 @@ export const auth = betterAuth({
     "http://localhost:3001",
     "http://10.94.237.31:3000",
     "exp://",
+    "lastminutes://",
     "lastminutemobileapp://",
     process.env.BETTER_AUTH_URL || "",
   ].filter(Boolean),
