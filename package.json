@@ -17,6 +17,7 @@
     "@ai-sdk/react": "3",
     "@ariakit/react": "^0.4.26",
     "@base-ui/react": "^1.2.0",
+    "@better-auth/expo": "^1.6.11",
     "@deepgram/sdk": "^5.1.0",
     "@emoji-mart/data": "1.2.1",
     "@faker-js/faker": "^10.4.0",
