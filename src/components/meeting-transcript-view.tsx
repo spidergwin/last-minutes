@@ -21,6 +21,8 @@ interface MeetingTranscriptViewProps {
   duration?: number;
   /** Called when a speaker is renamed. Key = old label, value = new label */
   onRenameSpeaker?: (oldName: string, newName: string) => void;
+  /** Called when a segment's text is edited */
+  onEditSegmentText?: (index: number, newText: string) => void;
 }
 
 export function MeetingTranscriptView({
@@ -28,6 +30,7 @@ export function MeetingTranscriptView({
   speakers,
   duration,
   onRenameSpeaker,
+  onEditSegmentText,
 }: MeetingTranscriptViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null);
@@ -176,7 +179,19 @@ export function MeetingTranscriptView({
                   </div>
                 )}
                 <div className={`pl-5 ${isNewSpeaker ? '' : 'mt-0.5'}`}>
-                  <p className="text-sm leading-relaxed text-foreground/90">{segment.text}</p>
+                  <div
+                    className="text-sm leading-relaxed text-foreground/90 outline-none focus:ring-1 focus:ring-ring rounded-sm px-1 -ml-1 transition-colors hover:bg-muted/50 cursor-text"
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) => {
+                      const newText = e.currentTarget.textContent || '';
+                      if (newText !== segment.text) {
+                        onEditSegmentText?.(idx, newText);
+                      }
+                    }}
+                  >
+                    {segment.text}
+                  </div>
                 </div>
               </motion.div>
             );

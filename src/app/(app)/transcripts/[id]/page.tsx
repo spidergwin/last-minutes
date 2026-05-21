@@ -67,7 +67,7 @@ export default function TranscriptDetailPage({
     () => isMeetingTranscript(transcript?.speakers as string[] | undefined),
     [transcript?.speakers]
   );
-  const [viewMode, setViewMode] = useState<'conversation' | 'editor'>('conversation');
+
 
   const handleCopy = useCallback(() => {
     if (transcript?.originalText) {
@@ -257,28 +257,7 @@ export default function TranscriptDetailPage({
                   )}
                 </div>
                 <div className="flex items-center flex-wrap gap-2">
-                  {hasMeetingData && (
-                    <div className="flex items-center rounded-lg border border-border/60 p-0.5">
-                      <Button
-                        variant={viewMode === 'conversation' ? 'secondary' : 'ghost'}
-                        size="sm"
-                        className="h-7 text-xs px-2.5 gap-1"
-                        onClick={() => setViewMode('conversation')}
-                      >
-                        <MessageSquare className="h-3 w-3" />
-                        Conversation
-                      </Button>
-                      <Button
-                        variant={viewMode === 'editor' ? 'secondary' : 'ghost'}
-                        size="sm"
-                        className="h-7 text-xs px-2.5 gap-1"
-                        onClick={() => setViewMode('editor')}
-                      >
-                        <Type className="h-3 w-3" />
-                        Editor
-                      </Button>
-                    </div>
-                  )}
+
                   <Badge variant="secondary" className="text-xs font-normal">
                     <Languages className="mr-1 h-3 w-3" />
                     {SUPPORTED_LANGUAGES[transcript.sourceLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || "English"}
@@ -287,7 +266,7 @@ export default function TranscriptDetailPage({
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              {hasMeetingData && viewMode === 'conversation' ? (
+              {hasMeetingData ? (
                 <MeetingTranscriptView
                   segments={(transcript.segments as any[]) ?? []}
                   speakers={(transcript.speakers as string[]) ?? []}
@@ -297,14 +276,44 @@ export default function TranscriptDetailPage({
                     const newSegments = (transcript.segments as any[]).map(seg => 
                       seg.speaker === oldName ? { ...seg, speaker: newName } : seg
                     );
-                    // Sync the editor text by replacing the speaker name globally (escape regex special chars)
-                    const safeOldName = oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const newOriginalText = transcript.originalText.replace(new RegExp(`${safeOldName}:`, 'g'), `${newName}:`);
+                    
+                    const newOriginalText = newSegments
+                      .map(seg => {
+                        let speakerName = seg.speaker;
+                        if (typeof speakerName === 'number' || (typeof speakerName === 'string' && /^\d+$/.test(speakerName))) {
+                           const code = parseInt(speakerName.toString(), 10);
+                           speakerName = `Speaker ${String.fromCharCode(65 + code)}`;
+                        }
+                        return `${speakerName}: ${seg.text}`;
+                      })
+                      .join('\n\n');
                     
                     await updateMutation.mutateAsync({
                       id: transcript.id,
                       data: { speakers: newSpeakers, segments: newSegments, originalText: newOriginalText }
                     });
+                    queryClient.invalidateQueries({ queryKey: ["transcript", transcript.id] });
+                  }}
+                  onEditSegmentText={async (index, newText) => {
+                    const newSegments = [...(transcript.segments as any[])];
+                    newSegments[index] = { ...newSegments[index], text: newText };
+                    
+                    const newOriginalText = newSegments
+                      .map(seg => {
+                        let speakerName = seg.speaker;
+                        if (typeof speakerName === 'number' || (typeof speakerName === 'string' && /^\d+$/.test(speakerName))) {
+                           const code = parseInt(speakerName.toString(), 10);
+                           speakerName = `Speaker ${String.fromCharCode(65 + code)}`;
+                        }
+                        return `${speakerName}: ${seg.text}`;
+                      })
+                      .join('\n\n');
+                    
+                    await updateMutation.mutateAsync({
+                      id: transcript.id,
+                      data: { segments: newSegments, originalText: newOriginalText }
+                    });
+                    queryClient.invalidateQueries({ queryKey: ["transcript", transcript.id] });
                   }}
                 />
               ) : (
