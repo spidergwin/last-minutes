@@ -3,7 +3,7 @@
 import { use, useState, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useTranscript, useDeleteTranscript, useSummarize, useUpdateTranscript } from "@/hooks";
-import { isMeetingTranscript } from "@/lib/format-transcript";
+import { isMeetingTranscript, normalizeSpeakerLabel } from "@/lib/format-transcript";
 
 const TranscriptEditor = dynamic(
   () => import('@/components/transcript-editor').then(mod => ({ default: mod.TranscriptEditor })),
@@ -272,20 +272,15 @@ export default function TranscriptDetailPage({
                   speakers={(transcript.speakers as string[]) ?? []}
                   duration={transcript.duration || undefined}
                   onRenameSpeaker={async (oldName, newName) => {
-                    const newSpeakers = (transcript.speakers as string[]).map(s => s === oldName ? newName : s);
+                    const newSpeakers = (transcript.speakers as string[]).map(s => 
+                      normalizeSpeakerLabel(s) === oldName ? newName : s
+                    );
                     const newSegments = (transcript.segments as any[]).map(seg => 
-                      seg.speaker === oldName ? { ...seg, speaker: newName } : seg
+                      normalizeSpeakerLabel(seg.speaker) === oldName ? { ...seg, speaker: newName } : seg
                     );
                     
                     const newOriginalText = newSegments
-                      .map(seg => {
-                        let speakerName = seg.speaker;
-                        if (typeof speakerName === 'number' || (typeof speakerName === 'string' && /^\d+$/.test(speakerName))) {
-                           const code = parseInt(speakerName.toString(), 10);
-                           speakerName = `Speaker ${String.fromCharCode(65 + code)}`;
-                        }
-                        return `${speakerName}: ${seg.text}`;
-                      })
+                      .map(seg => `${normalizeSpeakerLabel(seg.speaker)}: ${seg.text}`)
                       .join('\n\n');
                     
                     await updateMutation.mutateAsync({
@@ -299,14 +294,7 @@ export default function TranscriptDetailPage({
                     newSegments[index] = { ...newSegments[index], text: newText };
                     
                     const newOriginalText = newSegments
-                      .map(seg => {
-                        let speakerName = seg.speaker;
-                        if (typeof speakerName === 'number' || (typeof speakerName === 'string' && /^\d+$/.test(speakerName))) {
-                           const code = parseInt(speakerName.toString(), 10);
-                           speakerName = `Speaker ${String.fromCharCode(65 + code)}`;
-                        }
-                        return `${speakerName}: ${seg.text}`;
-                      })
+                      .map(seg => `${normalizeSpeakerLabel(seg.speaker)}: ${seg.text}`)
                       .join('\n\n');
                     
                     await updateMutation.mutateAsync({

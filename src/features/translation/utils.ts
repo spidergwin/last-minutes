@@ -9,18 +9,14 @@ export const SUPPORTED_LANGUAGES = {
   ja: { name: "Japanese", nativeName: "日本語" },
   ko: { name: "Korean", nativeName: "한국어" },
   ar: { name: "Arabic", nativeName: "العربية" },
-  ha: { name: "Hausa", nativeName: "Hausa" },
-  yo: { name: "Yoruba", nativeName: "Yorùbá" },
-  ig: { name: "Igbo", nativeName: "Igbo" },
-  pid: { name: "Nigerian Pidgin", nativeName: "Naija Pidgin" },
-  bin: { name: "Edo", nativeName: "Ẹ̀dó" },
-  efi: { name: "Efik", nativeName: "Efik" },
-  tiv: { name: "Tiv", nativeName: "Tiv" },
-  ff: { name: "Fula", nativeName: "Fulfulde" },
-  multi: { name: "Multi-language (Code-switching)", nativeName: "Auto (Eng/Pidgin/Igbo)" },
+  ha: { name: "Hausa (Coming Soon)", nativeName: "Hausa" },
+  yo: { name: "Yoruba (Coming Soon)", nativeName: "Yorùbá" },
+  ig: { name: "Igbo (Coming Soon)", nativeName: "Igbo" },
+  pid: { name: "Nigerian Pidgin (Coming Soon)", nativeName: "Naija Pidgin" },
+  multi: { name: "Multi-language (Code-switching - Coming Soon)", nativeName: "Auto (Eng/Pidgin/Igbo)" },
 } as const;
 
-export const NIGERIAN_LANGUAGES = ["ha", "yo", "ig", "pid", "bin", "efi", "tiv", "ff"] as const;
+export const NIGERIAN_LANGUAGES = ["ha", "yo", "ig", "pid"] as const;
 
 export function isNigerianLanguage(langCode: string): boolean {
   return (NIGERIAN_LANGUAGES as readonly string[]).includes(langCode);

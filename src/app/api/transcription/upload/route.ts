@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { submitTranscription, waitForTranscription, getTranscriptionResult } from "@/lib/assemblyai";
+import { isNigerianLanguage } from "@/features/translation/utils";
 import { checkRateLimit } from "@/lib/ratelimit";
 
 /**
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+const MAX_FILE_SIZE = 2.5 * 1024 * 1024 * 1024; // 2.5GB
 const ALLOWED_TYPES = new Set([
   "audio/mpeg",
   "audio/mp3",
@@ -101,7 +102,16 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Submit URL directly to AssemblyAI
+      const isNigerian = languageCode ? isNigerianLanguage(languageCode) : false;
+
+      if (isNigerian) {
+        return NextResponse.json(
+          { error: "Nigerian language support is coming soon! We are actively working on self-hosting dedicated models. Please stay tuned." },
+          { status: 400 }
+        );
+      }
+
+      // Route to AssemblyAI for global languages
       const job = await submitTranscription({
         audioUrl,
         languageCode: languageCode || undefined,
@@ -159,7 +169,16 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await audioFile.arrayBuffer();
     const audioBuffer = Buffer.from(arrayBuffer);
 
-    // Submit to AssemblyAI
+    const isNigerian = languageCode ? isNigerianLanguage(languageCode) : false;
+
+    if (isNigerian) {
+      return NextResponse.json(
+        { error: "Nigerian language support is coming soon! We are actively working on self-hosting dedicated models. Please stay tuned." },
+        { status: 400 }
+      );
+    }
+
+    // Route to AssemblyAI for global languages
     const job = await submitTranscription({
       audioData: audioBuffer,
       languageCode: languageCode || undefined,

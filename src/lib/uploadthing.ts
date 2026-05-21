@@ -12,7 +12,19 @@ export const ourFileRouter = {
       name: file.name,
       size: file.size,
       type: file.type,
-      url: file.ufsUrl,
+      url: file.ufsUrl || file.url,
+    })),
+  transcriptUploader: f({
+    audio: { maxFileSize: "4GB" },
+    video: { maxFileSize: "4GB" },
+  })
+    .middleware(() => ({}))
+    .onUploadComplete(({ file }) => ({
+      key: file.key,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      url: file.ufsUrl || file.url,
     })),
 } satisfies FileRouter;
 

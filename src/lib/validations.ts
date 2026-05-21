@@ -56,7 +56,7 @@ export const fileUploadSchema = z.object({
 });
 
 export const fileValidation = {
-  maxSize: 100 * 1024 * 1024, // 100MB
+  maxSize: 2.5 * 1024 * 1024 * 1024, // 2.5GB
   allowedAudioTypes: ["audio/mpeg", "audio/wav", "audio/mp4"],
   allowedVideoTypes: ["video/mp4", "video/webm"],
   getAllowedTypes() {
@@ -87,10 +87,11 @@ export const SUPPORTED_LANGUAGES = {
   en: "English",
   fr: "French",
   es: "Spanish",
-  ha: "Hausa",
-  yo: "Yoruba",
-  ig: "Igbo",
-  pid: "Nigerian Pidgin",
+  ha: "Hausa (Coming Soon)",
+  yo: "Yoruba (Coming Soon)",
+  ig: "Igbo (Coming Soon)",
+  pid: "Nigerian Pidgin (Coming Soon)",
+  multi: "Multi-language (Code-switching - Coming Soon)",
 } as const;
 
 export const NIGERIAN_LANGUAGES = ["ha", "yo", "ig", "pid"] as const;

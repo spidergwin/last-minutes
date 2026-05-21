@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { uploadFiles } from "./use-upload-file";
 
 type UploadState = "idle" | "validating" | "uploading" | "processing" | "completed" | "error";
 
@@ -37,7 +38,7 @@ interface UseFileUploadReturn {
   reset: () => void;
 }
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_FILE_SIZE = 2.5 * 1024 * 1024 * 1024; // 2.5GB
 const ALLOWED_TYPES = new Set([
   "audio/mpeg",
   "audio/mp3",
@@ -91,7 +92,7 @@ export function useFileUpload(): UseFileUploadReturn {
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      setError(`File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`);
+      setError(`File too large. Maximum size is 2.5GB.`);
       setState("error");
       return;
     }
@@ -160,67 +161,56 @@ export function useFileUpload(): UseFileUploadReturn {
     setProgress(0);
     setError(null);
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    if (language) formData.append("language", language);
-    // For short files (< 5MB), wait for result directly
-    const waitForResult = selectedFile.size < 5 * 1024 * 1024;
-    if (waitForResult) formData.append("wait", "true");
+    const waitForResult = selectedFile.size < 5 * 1024 * 1024; // Wait for result for < 5MB
 
-    return new Promise<void>((resolve) => {
-      const xhr = new XMLHttpRequest();
-      xhrRef.current = xhr;
-
-      xhr.upload.addEventListener("progress", (e) => {
-        if (e.lengthComputable) {
-          const percent = Math.round((e.loaded / e.total) * 100);
-          setProgress(percent);
-        }
+    try {
+      // 1. Upload to UploadThing
+      const res = await uploadFiles("transcriptUploader", {
+        files: [selectedFile],
+        onUploadProgress: ({ progress }) => {
+          setProgress(progress);
+        },
       });
 
-      xhr.addEventListener("load", () => {
-        xhrRef.current = null;
-        try {
-          const data = JSON.parse(xhr.responseText);
-          if (xhr.status >= 400) {
-            setError(data.error || "Upload failed");
-            setState("error");
-            resolve();
-            return;
-          }
+      if (!res || res.length === 0) {
+        throw new Error("File upload to cloud failed.");
+      }
 
-          if (data.data) {
-            // Direct result (waited for completion)
-            setResult(data.data);
-            setState("completed");
-          } else if (data.jobId) {
-            // Need to poll for result
-            setJobId(data.jobId);
-            pollForResult(data.jobId);
-          }
-        } catch {
-          setError("Failed to process server response");
-          setState("error");
-        }
-        resolve();
+      const uploadedFileUrl = res[0].url;
+
+      // 2. Submit URL to Transcription API
+      setState("processing");
+      const submitRes = await fetch("/api/transcription/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          audio_url: uploadedFileUrl,
+          language: language || undefined,
+          wait: waitForResult,
+        }),
       });
 
-      xhr.addEventListener("error", () => {
-        xhrRef.current = null;
-        setError("Upload failed. Please check your connection and try again.");
+      const data = await submitRes.json();
+
+      if (!submitRes.ok || !data.success) {
+        setError(data.error || "Transcription submission failed.");
         setState("error");
-        resolve();
-      });
+        return;
+      }
 
-      xhr.addEventListener("abort", () => {
-        xhrRef.current = null;
-        setState("idle");
-        resolve();
-      });
-
-      xhr.open("POST", "/api/transcription/upload");
-      xhr.send(formData);
-    });
+      if (data.data) {
+        // Direct result (waited for completion)
+        setResult(data.data);
+        setState("completed");
+      } else if (data.jobId) {
+        // Need to poll for result
+        setJobId(data.jobId);
+        pollForResult(data.jobId);
+      }
+    } catch (err: any) {
+      setError(err.message || "Upload failed. Please check your connection and try again.");
+      setState("error");
+    }
   }, [selectedFile, pollForResult]);
 
   return {
