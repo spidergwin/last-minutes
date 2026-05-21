@@ -44,7 +44,7 @@ export async function submitTranscription(options: {
     config.speech_models = ["universal-3-pro", "universal-2"];
   } else if (options.languageCode) {
     config.language_code = options.languageCode;
-    config.speech_model = "universal-3-pro"; // Use best available model
+    config.speech_models = ["universal-3-pro"]; // Use best available model
   }
 
   if (options.audioUrl) {
