@@ -1,9 +1,3 @@
-/**
- * GET /api/calendar/callback
- * Handles the OAuth callback from Google after user grants calendar access.
- * Exchanges the code for tokens and saves the calendar connection.
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { exchangeCodeForTokens } from "@/lib/google-calendar";
 import { db } from "@/lib/db";
@@ -14,11 +8,10 @@ export async function GET(request: NextRequest) {
     const state = request.nextUrl.searchParams.get("state");
     const error = request.nextUrl.searchParams.get("error");
 
-    // Handle user denying access
     if (error) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       return NextResponse.redirect(
-        `${appUrl}/meetings?error=calendar_denied`
+        `${appUrl}/settings/integrations?error=google_denied`
       );
     }
 
@@ -29,7 +22,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Decode state to get userId
     let userId: string;
     try {
       const statePayload = JSON.parse(
@@ -44,10 +36,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Exchange code for tokens
-    const tokens = await exchangeCodeForTokens(code);
+    const redirectUri = `${request.nextUrl.origin}/api/google/callback`;
+    const tokens = await exchangeCodeForTokens(code, redirectUri);
 
-    // Upsert the calendar connection
+    // Save tokens to CalendarConnection
     await db.calendarConnection.upsert({
       where: {
         userId_provider: {
@@ -73,16 +65,38 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Redirect back to meetings page with success
+    // Save tokens to GoogleDriveConnection as well!
+    await db.googleDriveConnection.upsert({
+      where: {
+        userId: userId,
+      },
+      create: {
+        userId,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        tokenExpiry: tokens.expiryDate,
+        email: tokens.email,
+        enabled: true,
+      },
+      update: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken ?? undefined,
+        tokenExpiry: tokens.expiryDate,
+        email: tokens.email,
+        enabled: true,
+      },
+    });
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    // We redirect to integrations page with success
     return NextResponse.redirect(
-      `${appUrl}/meetings?connected=google`
+      `${appUrl}/settings/integrations?connected=google`
     );
   } catch (error) {
-    console.error("Calendar callback error:", error);
+    console.error("Google callback error:", error);
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     return NextResponse.redirect(
-      `${appUrl}/meetings?error=calendar_failed`
+      `${appUrl}/settings/integrations?error=google_failed`
     );
   }
 }

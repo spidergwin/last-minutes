@@ -154,9 +154,9 @@ function MeetingsPageContent() {
     }
   }, []);
 
-  // Connect Google Calendar
+  // Connect Google Workspace
   const handleConnect = useCallback(() => {
-    window.location.href = "/api/calendar/connect";
+    window.location.href = "/api/google/connect";
   }, []);
 
   // Disconnect calendar
@@ -291,16 +291,16 @@ function MeetingsPageContent() {
                 <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 flex items-center justify-center">
                   <Calendar className="w-8 h-8 text-amber-500" />
                 </div>
-                <p className="text-sm font-medium mb-1">No calendar connected</p>
+                <p className="text-sm font-medium mb-1">No Google account connected</p>
                 <p className="text-xs text-muted-foreground mb-4">
-                  Connect your Google Calendar to see your upcoming meetings
+                  Connect your Google account to see your upcoming meetings
                 </p>
                 <Button
                   onClick={handleConnect}
                   className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0 gap-2"
                 >
                   <Calendar className="h-4 w-4" />
-                  Connect Google Calendar
+                  Connect Google Workspace
                 </Button>
               </div>
             )}

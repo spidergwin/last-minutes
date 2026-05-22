@@ -1,0 +1,11 @@
+
+> last-minutes@0.1.0 typecheck /home/gwin/projects/lastminutes/last-minutes
+> tsc --noEmit
+
+src/app/api/transcription/upload/route.ts(36,80): error TS2551: Property 'audio_url' does not exist on type '{ id: string; status: string; completed: boolean; text?: undefined; segments?: undefined; speakers?: undefined; language?: undefined; audioUrl?: undefined; duration?: undefined; confidence?: undefined; wordCount?: undefined; } | { ...; }'. Did you mean 'audioUrl'?
+  Property 'audio_url' does not exist on type '{ id: string; status: string; completed: boolean; text?: undefined; segments?: undefined; speakers?: undefined; language?: undefined; audioUrl?: undefined; duration?: undefined; confidence?: undefined; wordCount?: undefined; }'.
+src/app/api/transcription/upload/route.ts(38,34): error TS2551: Property 'audio_url' does not exist on type '{ id: string; status: string; completed: boolean; text?: undefined; segments?: undefined; speakers?: undefined; language?: undefined; audioUrl?: undefined; duration?: undefined; confidence?: undefined; wordCount?: undefined; } | { ...; }'. Did you mean 'audioUrl'?
+  Property 'audio_url' does not exist on type '{ id: string; status: string; completed: boolean; text?: undefined; segments?: undefined; speakers?: undefined; language?: undefined; audioUrl?: undefined; duration?: undefined; confidence?: undefined; wordCount?: undefined; }'.
+src/app/api/transcription/upload/route.ts(40,28): error TS2551: Property 'audio_url' does not exist on type '{ id: string; status: string; completed: boolean; text?: undefined; segments?: undefined; speakers?: undefined; language?: undefined; audioUrl?: undefined; duration?: undefined; confidence?: undefined; wordCount?: undefined; } | { ...; }'. Did you mean 'audioUrl'?
+  Property 'audio_url' does not exist on type '{ id: string; status: string; completed: boolean; text?: undefined; segments?: undefined; speakers?: undefined; language?: undefined; audioUrl?: undefined; duration?: undefined; confidence?: undefined; wordCount?: undefined; }'.
+ ELIFECYCLE  Command failed with exit code 1.

@@ -60,7 +60,7 @@ export default function IntegrationsPage() {
   }, [fetchConnections]);
 
   const handleConnect = () => {
-    window.location.href = "/api/calendar/connect";
+    window.location.href = "/api/google/connect";
   };
 
   const handleDisconnect = async (provider: string) => {
@@ -130,10 +130,10 @@ export default function IntegrationsPage() {
                 <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-base">Google Calendar</CardTitle>
+                <CardTitle className="text-base">Google Workspace</CardTitle>
                 <CardDescription>
-                  Sync your calendar events to automatically detect meetings
-                  with Zoom, Google Meet, or Teams links.
+                  Connect your Google account to automatically sync calendar meetings
+                  and upload large recordings directly to your Google Drive.
                 </CardDescription>
               </div>
               {hasCalendar && (
@@ -200,14 +200,14 @@ export default function IntegrationsPage() {
             ) : (
               <div className="text-center py-6">
                 <p className="text-sm text-muted-foreground mb-4">
-                  No Google Calendar connected yet.
+                  No Google account connected yet.
                 </p>
                 <Button
                   onClick={handleConnect}
                   className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white border-0 gap-2"
                 >
                   <Link2 className="h-4 w-4" />
-                  Connect Google Calendar
+                  Connect Google Workspace
                 </Button>
               </div>
             )}

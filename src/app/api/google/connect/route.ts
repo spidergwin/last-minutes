@@ -1,9 +1,3 @@
-/**
- * GET /api/calendar/connect
- * Initiates Google Calendar OAuth flow.
- * Redirects the user to Google's consent screen.
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getCalendarAuthUrl } from "@/lib/google-calendar";
@@ -16,21 +10,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Generate a state token to prevent CSRF
-    // Encode the userId in the state so we can link it on callback
     const statePayload = JSON.stringify({
       userId: session.user.id,
       nonce: crypto.randomBytes(16).toString("hex"),
     });
     const state = Buffer.from(statePayload).toString("base64url");
 
-    const authUrl = getCalendarAuthUrl(state);
+    const redirectUri = `${request.nextUrl.origin}/api/google/callback`;
+    const authUrl = getCalendarAuthUrl(state, redirectUri);
 
     return NextResponse.redirect(authUrl);
   } catch (error) {
-    console.error("Calendar connect error:", error);
+    console.error("Google connect error:", error);
     return NextResponse.json(
-      { error: "Failed to initiate calendar connection" },
+      { error: "Failed to initiate Google connection" },
       { status: 500 }
     );
   }

@@ -1,22 +1,18 @@
 import * as React from 'react';
 
-import type { OurFileRouter } from '@/lib/uploadthing';
-import type {
-  ClientUploadedFileData,
-  UploadFilesOptions,
-} from 'uploadthing/types';
-
-import { generateReactHelpers } from '@uploadthing/react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-export type UploadedFile<T = unknown> = ClientUploadedFileData<T>;
+export interface UploadedFile {
+  key: string;
+  url: string;
+  name: string;
+  size: number;
+  type: string;
+  appUrl?: string;
+}
 
-interface UseUploadFileProps
-  extends Pick<
-    UploadFilesOptions<OurFileRouter['editorUploader']>,
-    'headers' | 'onUploadBegin' | 'onUploadProgress' | 'skipPolling'
-  > {
+interface UseUploadFileProps {
   onUploadComplete?: (file: UploadedFile) => void;
   onUploadError?: (error: unknown) => void;
 }
@@ -24,31 +20,100 @@ interface UseUploadFileProps
 export function useUploadFile({
   onUploadComplete,
   onUploadError,
-  ...props
 }: UseUploadFileProps = {}) {
   const [uploadedFile, setUploadedFile] = React.useState<UploadedFile>();
   const [uploadingFile, setUploadingFile] = React.useState<File>();
   const [progress, setProgress] = React.useState<number>(0);
   const [isUploading, setIsUploading] = React.useState(false);
 
-  async function uploadThing(file: File) {
+  async function uploadFile(file: File) {
     setIsUploading(true);
     setUploadingFile(file);
 
     try {
-      const res = await uploadFiles('editorUploader', {
-        ...props,
-        files: [file],
-        onUploadProgress: ({ progress }) => {
-          setProgress(Math.min(progress, 100));
-        },
+      // 1. Initiate upload
+      const initiateRes = await fetch('/api/upload/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type,
+          fileSize: file.size,
+        }),
       });
 
-      setUploadedFile(res[0]);
+      const initiateData = await initiateRes.json();
+      if (!initiateRes.ok || !initiateData.success) {
+        throw new Error(initiateData.error || 'Failed to initialize upload.');
+      }
 
-      onUploadComplete?.(res[0]);
+      const { uploadUrl, key, type } = initiateData;
+      let { publicUrl } = initiateData;
 
-      return uploadedFile;
+      // 2. Upload directly to provider via PUT with progress tracking
+      const putResponseText = await new Promise<string>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const percentage = Math.round((event.loaded * 100) / event.total);
+            setProgress(Math.min(percentage, 100));
+          }
+        });
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(xhr.responseText);
+          } else {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        });
+
+        xhr.addEventListener('error', () =>
+          reject(new Error('Network error during upload.'))
+        );
+        xhr.addEventListener('abort', () =>
+          reject(new Error('Upload aborted.'))
+        );
+
+        xhr.open('PUT', uploadUrl, true);
+        xhr.setRequestHeader('Content-Type', file.type);
+        xhr.send(file);
+      });
+
+      // 3. Handle Google Drive specific logic
+      if (type === "drive") {
+        try {
+          const driveFile = JSON.parse(putResponseText);
+          const fileId = driveFile.id;
+          
+          const publicRes = await fetch("/api/drive/public", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fileId }),
+          });
+          const publicData = await publicRes.json();
+          if (!publicRes.ok || !publicData.success) {
+             throw new Error(publicData.error || "Failed to make Drive file public.");
+          }
+          publicUrl = publicData.publicUrl;
+        } catch (e) {
+          throw new Error("Failed to process Google Drive upload.");
+        }
+      }
+
+      const result: UploadedFile = {
+        key,
+        url: publicUrl,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      };
+
+      setUploadedFile(result);
+      onUploadComplete?.(result);
+
+      return result;
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 
@@ -58,36 +123,9 @@ export function useUploadFile({
           : 'Something went wrong, please try again later.';
 
       toast.error(message);
-
       onUploadError?.(error);
 
-      // Mock upload for unauthenticated users
-      // toast.info('User not logged in. Mocking upload process.');
-      const mockUploadedFile = {
-        key: 'mock-key-0',
-        appUrl: `https://mock-app-url.com/${file.name}`,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        url: URL.createObjectURL(file),
-      } as UploadedFile;
-
-      // Simulate upload progress
-      let progress = 0;
-
-      const simulateProgress = async () => {
-        while (progress < 100) {
-          await new Promise((resolve) => setTimeout(resolve, 50));
-          progress += 2;
-          setProgress(Math.min(progress, 100));
-        }
-      };
-
-      await simulateProgress();
-
-      setUploadedFile(mockUploadedFile);
-
-      return mockUploadedFile;
+      return undefined;
     } finally {
       setProgress(0);
       setIsUploading(false);
@@ -99,13 +137,10 @@ export function useUploadFile({
     isUploading,
     progress,
     uploadedFile,
-    uploadFile: uploadThing,
+    uploadFile,
     uploadingFile,
   };
 }
-
-export const { uploadFiles, useUploadThing } =
-  generateReactHelpers<OurFileRouter>();
 
 export function getErrorMessage(err: unknown) {
   const unknownError = 'Something went wrong, please try again later.';

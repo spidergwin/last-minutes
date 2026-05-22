@@ -9,25 +9,24 @@ import { db } from "./db";
 // Google OAuth2 configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
-const GOOGLE_REDIRECT_URI =
-  process.env.NEXT_PUBLIC_APP_URL
-    ? `${process.env.NEXT_PUBLIC_APP_URL}/api/calendar/callback`
-    : "http://localhost:3000/api/calendar/callback";
+// We will pass the redirect URI dynamically from the request
+// to prevent redirect_uri_mismatch errors in different environments.
 
 // Calendar-specific scopes (in addition to standard auth scopes)
 const CALENDAR_SCOPES = [
   "https://www.googleapis.com/auth/calendar.readonly",
   "https://www.googleapis.com/auth/calendar.events.readonly",
+  "https://www.googleapis.com/auth/drive.file",
 ];
 
 /**
  * Create an OAuth2 client for Google APIs.
  */
-export function createOAuth2Client() {
+export function createOAuth2Client(redirectUri?: string) {
   return new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    GOOGLE_REDIRECT_URI
+    redirectUri || (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api/calendar/callback` : "http://localhost:3000/api/calendar/callback")
   );
 }
 
@@ -35,8 +34,8 @@ export function createOAuth2Client() {
  * Generate the OAuth authorization URL for calendar access.
  * Uses `access_type: offline` to get a refresh token.
  */
-export function getCalendarAuthUrl(state: string): string {
-  const oauth2Client = createOAuth2Client();
+export function getCalendarAuthUrl(state: string, redirectUri: string): string {
+  const oauth2Client = createOAuth2Client(redirectUri);
 
   return oauth2Client.generateAuthUrl({
     access_type: "offline",
@@ -49,8 +48,8 @@ export function getCalendarAuthUrl(state: string): string {
 /**
  * Exchange an authorization code for access/refresh tokens.
  */
-export async function exchangeCodeForTokens(code: string) {
-  const oauth2Client = createOAuth2Client();
+export async function exchangeCodeForTokens(code: string, redirectUri: string) {
+  const oauth2Client = createOAuth2Client(redirectUri);
   const { tokens } = await oauth2Client.getToken(code);
 
   // Get the user's email from the token

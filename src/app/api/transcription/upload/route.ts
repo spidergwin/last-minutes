@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { submitTranscription, waitForTranscription, getTranscriptionResult } from "@/lib/assemblyai";
 import { isNigerianLanguage } from "@/features/translation/utils";
 import { checkRateLimit } from "@/lib/ratelimit";
+import { deleteS3Object } from "@/lib/s3";
 
 /**
  * GET handler — poll for transcription status
@@ -29,6 +30,21 @@ export async function GET(request: NextRequest) {
 
   try {
     const result = await getTranscriptionResult(jobId);
+
+    // Strategy B: Programmatic Deletion
+    // Delete the source audio file from S3 to save storage once processing is done.
+    if ((result.status === "completed" || result.status === "error") && result.audioUrl) {
+      const publicDomain = process.env.R2_PUBLIC_DOMAIN;
+      if (publicDomain && result.audioUrl.startsWith(publicDomain)) {
+        // Extract the unique S3 object key from the URL
+        const key = result.audioUrl.replace(`${publicDomain}/`, "");
+        if (key) {
+          // Fire and forget deletion to avoid blocking the response
+          deleteS3Object(key).catch((err) => console.error("Failed to cleanup S3:", err));
+        }
+      }
+    }
+
     return NextResponse.json({ success: true, data: result });
   } catch (error: unknown) {
     console.error("Poll transcription error:", error);

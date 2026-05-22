@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { uploadFiles } from "./use-upload-file";
 
 type UploadState = "idle" | "validating" | "uploading" | "processing" | "completed" | "error";
 
@@ -164,27 +163,90 @@ export function useFileUpload(): UseFileUploadReturn {
     const waitForResult = selectedFile.size < 5 * 1024 * 1024; // Wait for result for < 5MB
 
     try {
-      // 1. Upload to UploadThing
-      const res = await uploadFiles("transcriptUploader", {
-        files: [selectedFile],
-        onUploadProgress: ({ progress }) => {
-          setProgress(progress);
-        },
+      // 1. Initiate upload (gets Google Drive resumable URL or R2 presigned URL)
+      const initiateRes = await fetch("/api/upload/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: selectedFile.name,
+          contentType: selectedFile.type,
+          fileSize: selectedFile.size,
+        }),
       });
 
-      if (!res || res.length === 0) {
-        throw new Error("File upload to cloud failed.");
+      const initiateData = await initiateRes.json();
+      if (!initiateRes.ok || !initiateData.success) {
+        throw new Error(initiateData.error || "Failed to initialize upload.");
       }
 
-      const uploadedFileUrl = res[0].url;
+      const { uploadUrl, type } = initiateData;
+      let { publicUrl } = initiateData;
 
-      // 2. Submit URL to Transcription API
+      // 2. Upload file directly to the provider via PUT request
+      const putResponseText = await new Promise<string>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhrRef.current = xhr;
+
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            const percentage = Math.round((event.loaded * 100) / event.total);
+            setProgress(percentage);
+          }
+        });
+
+        xhr.addEventListener("load", () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(xhr.responseText);
+          } else {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        });
+
+        xhr.addEventListener("error", () => {
+          reject(new Error("Network error during upload."));
+        });
+
+        xhr.addEventListener("abort", () => {
+          reject(new Error("Upload aborted."));
+        });
+
+        xhr.open("PUT", uploadUrl, true);
+        
+        // For Google Drive resumable upload, we don't always need Content-Type in the PUT,
+        // but it's safe to add.
+        xhr.setRequestHeader("Content-Type", selectedFile.type);
+        xhr.send(selectedFile);
+      });
+
+      // 3. Handle Google Drive specific logic to get the public URL
+      if (type === "drive") {
+        try {
+          const driveFile = JSON.parse(putResponseText);
+          const fileId = driveFile.id;
+          
+          const publicRes = await fetch("/api/drive/public", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fileId }),
+          });
+          const publicData = await publicRes.json();
+          if (!publicRes.ok || !publicData.success) {
+             throw new Error(publicData.error || "Failed to make Drive file public.");
+          }
+          publicUrl = publicData.publicUrl;
+        } catch (e) {
+          console.error("Failed to parse drive response or make public:", e);
+          throw new Error("Failed to process Google Drive upload.");
+        }
+      }
+
+      // 4. Submit URL to Transcription API
       setState("processing");
       const submitRes = await fetch("/api/transcription/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          audio_url: uploadedFileUrl,
+          audio_url: publicUrl,
           language: language || undefined,
           wait: waitForResult,
         }),
@@ -208,8 +270,10 @@ export function useFileUpload(): UseFileUploadReturn {
         pollForResult(data.jobId);
       }
     } catch (err: any) {
-      setError(err.message || "Upload failed. Please check your connection and try again.");
-      setState("error");
+      if (err.message !== "Upload aborted.") {
+        setError(err.message || "Upload failed. Please check your connection and try again.");
+        setState("error");
+      }
     }
   }, [selectedFile, pollForResult]);
 
