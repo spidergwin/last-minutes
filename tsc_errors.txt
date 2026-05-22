@@ -2,5 +2,5 @@
 > last-minutes@0.1.0 typecheck /home/gwin/projects/lastminutes/last-minutes
 > tsc --noEmit
 
-src/app/api/uploadthing/route.ts(9,5): error TS2353: Object literal may only specify known properties, and 'uploadthingId' does not exist in type 'RouteHandlerConfig'.
- ELIFECYCLE  Command failed with exit code 1.
+src/app/api/user/storage/route.ts(3,10): error TS2305: Module '"@/lib/db"' has no exported member 'prisma'.
+ ELIFECYCLE  Command failed with exit code 2.

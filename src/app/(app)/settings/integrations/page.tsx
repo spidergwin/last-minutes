@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Calendar,
   Loader2,
@@ -26,6 +28,7 @@ import {
   Settings2,
   Shield,
   Zap,
+  HardDrive,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -41,6 +44,8 @@ export default function IntegrationsPage() {
   const [connections, setConnections] = useState<CalendarConnection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [uploadToken, setUploadToken] = useState("");
+  const [isSavingStorage, setIsSavingStorage] = useState(false);
 
   const fetchConnections = useCallback(async () => {
     try {
@@ -93,6 +98,23 @@ export default function IntegrationsPage() {
       toast.error("Failed to sync calendar");
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleSaveStorage = async () => {
+    setIsSavingStorage(true);
+    try {
+      const res = await fetch("/api/user/storage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uploadThingToken: uploadToken }),
+      });
+      if (!res.ok) throw new Error("Failed to save storage settings");
+      toast.success("Storage settings updated");
+    } catch {
+      toast.error("Failed to update storage settings");
+    } finally {
+      setIsSavingStorage(false);
     }
   };
 
@@ -358,6 +380,50 @@ export default function IntegrationsPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Custom Storage */}
+      <div className="fade-up-4">
+        <Card className="shadow-sm overflow-hidden">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/10 to-violet-500/10 flex items-center justify-center">
+                <HardDrive className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-base">Custom Storage</CardTitle>
+                <CardDescription>
+                  Bring your own storage to host your transcribed files and recordings.
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="uploadToken">UploadThing Token (v7)</Label>
+                <Input
+                  id="uploadToken"
+                  type="password"
+                  value={uploadToken}
+                  onChange={(e) => setUploadToken(e.target.value)}
+                  placeholder="eyJ..."
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your UploadThing token starts with eyJ. Keep this secure.
+                </p>
+              </div>
+              <Button
+                onClick={handleSaveStorage}
+                disabled={isSavingStorage}
+                className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white border-0 gap-2"
+              >
+                {isSavingStorage && <Loader2 className="h-4 w-4 animate-spin" />}
+                Save Storage Settings
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
     </div>
   );
 }

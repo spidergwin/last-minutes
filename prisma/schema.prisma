@@ -21,8 +21,7 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  uploadThingSecret String?
-  uploadThingAppId  String?
+  uploadThingToken String?
 
   // Relations
   accounts            Account[]
