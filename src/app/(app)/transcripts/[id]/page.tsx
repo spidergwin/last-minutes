@@ -37,11 +37,10 @@ import {
   Check,
   X,
   BarChart3,
-  Users,
   MessageSquare,
   Type,
 } from "lucide-react";
-
+import { AudioPlayer } from "@/components/audio-player";
 import Link from "next/link";
 
 export default function TranscriptDetailPage({
@@ -233,9 +232,12 @@ export default function TranscriptDetailPage({
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Content */}
-        <div
-          className="lg:col-span-2 space-y-6 min-w-0 w-full fade-up-1"
-        >
+        <div className="lg:col-span-2 space-y-6 min-w-0 w-full fade-up-1">
+          {/* Audio Player */}
+          {transcript.fileUrl && (
+            <AudioPlayer url={transcript.fileUrl} />
+          )}
+
           {/* Transcript — Conversation View or Editor */}
           <Card className="shadow-sm overflow-hidden">
             <CardHeader className="pb-3">

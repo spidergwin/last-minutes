@@ -44,6 +44,7 @@ interface StreamingTranscriptionState {
   currentSpeaker: number | null;
   duration: number;
   error: string | null;
+  audioBlob: Blob | null;
 }
 
 // Audio processing constants
@@ -60,6 +61,7 @@ export function useStreamingTranscription() {
   const streamRef = useRef<MediaStream | null>(null);
   const segmentsRef = useRef<TranscriptionSegment[]>([]);
   const startTimeRef = useRef<number>(0);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const [state, setState] = useState<StreamingTranscriptionState>({
     isConnected: false,
@@ -68,6 +70,7 @@ export function useStreamingTranscription() {
     currentSpeaker: null,
     duration: 0,
     error: null,
+    audioBlob: null,
   });
 
   const {
@@ -127,10 +130,11 @@ export function useStreamingTranscription() {
   const startStreaming = useCallback(async () => {
     if (state.isConnected || state.isConnecting) return;
 
-    setState((prev) => ({ ...prev, isConnecting: true, error: null }));
+    setState((prev) => ({ ...prev, isConnecting: true, error: null, audioBlob: null }));
     setStoreError(null);
     segmentsRef.current = [];
     startTimeRef.current = Date.now();
+    audioChunksRef.current = [];
 
     try {
       // Step 1: Get temporary API key
@@ -147,6 +151,29 @@ export function useStreamingTranscription() {
         },
       });
       streamRef.current = stream;
+
+      // Initialize MediaRecorder to capture actual audio file
+      try {
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+        const mediaRecorder = new MediaRecorder(stream, { mimeType });
+        mediaRecorderRef.current = mediaRecorder;
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(audioChunksRef.current, { type: mimeType });
+          setState((prev) => ({ ...prev, audioBlob: blob }));
+        };
+
+        mediaRecorder.start(1000);
+      } catch (err) {
+        console.error("Failed to start MediaRecorder:", err);
+        // Continue with transcription even if recording fails
+      }
 
       // Step 3: Set up AudioContext for PCM encoding
       const audioContext = new AudioContext({ sampleRate: AUDIO_SAMPLE_RATE });
@@ -346,6 +373,11 @@ export function useStreamingTranscription() {
       audioContextRef.current = null;
     }
 
+    // Stop MediaRecorder
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+
     // Stop media stream tracks (release microphone)
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -399,6 +431,7 @@ export function useStreamingTranscription() {
     currentSpeaker: state.currentSpeaker,
     duration: state.duration,
     error: state.error,
+    audioBlob: state.audioBlob,
     isSupported:
       typeof window !== "undefined" &&
       !!navigator.mediaDevices?.getUserMedia &&

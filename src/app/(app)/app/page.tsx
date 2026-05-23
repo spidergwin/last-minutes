@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useStreamingTranscription } from "@/hooks/useStreamingTranscription";
 import { useDictationStore } from "@/store/dictation";
-import { useTranslate, useCreateTranscript } from "@/hooks";
+import { useTranslate, useCreateTranscript, useTranscripts } from "@/hooks";
 import { autoFormatTranscript, normalizeSpeakerLabel, isMeetingTranscript, getSpeakerColor } from "@/lib/format-transcript";
 import {
   Mic,
@@ -21,8 +21,12 @@ import {
   ChevronDown,
   Clock,
   Waves,
-  X
+  Waves,
+  X,
+  Plus,
+  ArrowRight
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { SUPPORTED_LANGUAGES } from "@/features/translation/utils";
 import { Button } from "@/components/ui/button";
@@ -48,9 +52,10 @@ export default function DictationWorkspace() {
     setError
   } = useDictationStore();
 
-  const { startStreaming, stopStreaming, getTranscriptData, isSupported, error: streamingError, isConnecting, segments: liveSegments, currentSpeaker } = useStreamingTranscription();
+  const { startStreaming, stopStreaming, getTranscriptData, isSupported, error: streamingError, isConnecting, segments: liveSegments, currentSpeaker, audioBlob } = useStreamingTranscription();
   const translateMutation = useTranslate();
   const createTranscriptMutation = useCreateTranscript();
+  const { data: recentTranscripts, isLoading: isLoadingTranscripts } = useTranscripts();
   const [translatedText, setTranslatedText] = useState("");
   const [showTranslation, setShowTranslation] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -168,20 +173,73 @@ export default function DictationWorkspace() {
         ? autoFormatTranscript(formattedSegments, speakers)
         : transcript;
 
+      // Upload audio if available
+      let fileUrl: string | undefined;
+      if (audioBlob) {
+        toast.loading("Uploading audio...", { id: "upload-toast" });
+        try {
+          const file = new File([audioBlob], `dictation-${Date.now()}.webm`, { type: audioBlob.type });
+          const initiateRes = await fetch("/api/upload/initiate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: file.name,
+              contentType: file.type,
+              fileSize: file.size,
+            }),
+          });
+          const initiateData = await initiateRes.json();
+          if (initiateRes.ok && initiateData.success) {
+            const { uploadUrl, type, publicUrl: initialPublicUrl } = initiateData;
+            fileUrl = initialPublicUrl;
+
+            const putRes = await fetch(uploadUrl, {
+              method: "PUT",
+              headers: { "Content-Type": file.type },
+              body: file,
+            });
+            
+            if (type === "drive") {
+              const putResponseText = await putRes.text();
+              const driveFile = JSON.parse(putResponseText);
+              const fileId = driveFile.id;
+              
+              const publicRes = await fetch("/api/drive/public", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fileId }),
+              });
+              const publicData = await publicRes.json();
+              if (publicRes.ok && publicData.success) {
+                fileUrl = publicData.publicUrl;
+              }
+            }
+          }
+          toast.dismiss("upload-toast");
+        } catch (e) {
+          console.error("Audio upload failed", e);
+          toast.dismiss("upload-toast");
+          toast.error("Audio upload failed, saving text only.");
+        }
+      }
+
       await createTranscriptMutation.mutateAsync({
         title: `Dictation — ${new Date().toLocaleDateString("en-NG", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`,
         originalText,
         sourceLanguage: "en",
         fileType: "dictation",
+        fileUrl,
         segments: formattedSegments.length > 0 ? formattedSegments : undefined,
         speakers: hasSpeakers ? speakers : undefined,
         duration: transcriptData.duration || undefined,
       });
       toast.success("Transcript saved to your library");
+      reset();
+      setTranslatedText("");
     } catch {
       toast.error("Failed to save transcript");
     }
-  }, [transcript, createTranscriptMutation, getTranscriptData]);
+  }, [transcript, createTranscriptMutation, getTranscriptData, audioBlob, reset]);
 
   const handleCopy = useCallback((text: string) => {
     navigator.clipboard.writeText(text);
@@ -227,8 +285,10 @@ export default function DictationWorkspace() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-[360px] max-w-6xl mx-auto">
-      {/* Error Banner */}
+    <div className="flex flex-col lg:flex-row h-full min-h-[360px] max-w-7xl mx-auto gap-4 p-4 lg:p-6">
+      {/* Main Workspace */}
+      <div className="flex-1 flex flex-col min-w-0 max-w-4xl mx-auto w-full">
+        {/* Error Banner */}
       <AnimatePresence>
         {(error || streamingError) && (
           <motion.div
@@ -251,7 +311,7 @@ export default function DictationWorkspace() {
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex gap-4 p-4 pb-0 min-h-0">
+      <div className="flex-1 flex flex-col gap-4 pb-0 min-h-0">
         {/* Transcript Panel */}
         <div className="flex-1 flex flex-col min-w-0 rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden">
           {/* Transcript Header */}
@@ -354,11 +414,12 @@ export default function DictationWorkspace() {
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
                 {/* Animated waveform idle indicator */}
-                <div className="flex items-end gap-[3px] h-10 mb-5">
+                <div className="flex items-end gap-[3px] h-10 mb-5 relative">
+                  <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full" />
                   {[...Array(12)].map((_, i) => (
                     <div
                       key={i}
-                      className="w-[3px] bg-gradient-to-t from-amber-500/40 to-orange-500/20 rounded-full animate-wave origin-bottom"
+                      className="w-[3px] bg-gradient-to-t from-amber-500/40 to-orange-500/20 rounded-full animate-wave origin-bottom relative z-10"
                       style={{
                         height: `${Math.sin(i * 0.5) * 60 + 30}%`,
                         animationDelay: `${i * 0.08}s`,
@@ -448,8 +509,8 @@ export default function DictationWorkspace() {
       </div>
 
       {/* Bottom Control Bar */}
-      <div className="shrink-0 px-4 py-4">
-        <div className="flex items-center justify-between gap-4 px-4 py-3">
+      <div className="shrink-0 py-4">
+        <div className="flex items-center justify-between gap-4 py-3">
           {/* Left actions */}
           <div className="flex items-center gap-2">
             <TooltipProvider delayDuration={300}>
@@ -510,15 +571,17 @@ export default function DictationWorkspace() {
               )}
             </button>
             {isListening && (
-              <div className="hidden sm:flex items-end gap-[2px] h-6">
-                {[...Array(5)].map((_, i) => (
+              <div className="hidden sm:flex items-center gap-[2px] h-10 relative px-4">
+                {/* Gemini-style glow behind the recording waves */}
+                <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full" />
+                {[...Array(8)].map((_, i) => (
                   <div
                     key={i}
-                    className="w-[3px] bg-red-400 rounded-full animate-wave origin-bottom"
+                    className="w-[4px] bg-gradient-to-t from-red-400 to-rose-500 rounded-full animate-wave origin-center relative z-10"
                     style={{
                       height: `${Math.random() * 60 + 40}%`,
                       animationDelay: `${i * 0.1}s`,
-                      animationDuration: `${0.6 + Math.random() * 0.4}s`,
+                      animationDuration: `${0.4 + Math.random() * 0.3}s`,
                     }}
                   />
                 ))}
@@ -532,8 +595,8 @@ export default function DictationWorkspace() {
               value={targetLanguage || ""}
               onValueChange={(value) => setTargetLanguage(value || null)}
             >
-              <SelectTrigger className="h-10 w-[140px] rounded-xl text-sm border-border/60 hidden sm:flex">
-                <SelectValue placeholder="Language..." />
+              <SelectTrigger className="h-10 w-[110px] sm:w-[140px] rounded-xl text-sm border-border/60">
+                <SelectValue placeholder="Language" />
               </SelectTrigger>
               <SelectContent position="popper" className="max-h-72">
                 {Object.entries(SUPPORTED_LANGUAGES).map(([code, { name, nativeName }]) => (
@@ -558,6 +621,61 @@ export default function DictationWorkspace() {
             </Button>
           </div>
         </div>
+      </div>
+      </div>
+
+      {/* Side Panel - Recent Transcripts */}
+      <div className="hidden lg:flex flex-col w-80 shrink-0 gap-4 h-full">
+        <Card className="h-full border-border/60 bg-card shadow-sm overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 bg-muted/10">
+            <h3 className="font-semibold text-sm">Recent Transcripts</h3>
+            <Link href="/transcripts">
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+          <div className="flex-1 overflow-y-auto scrollbar-thin p-3">
+            {isLoadingTranscripts ? (
+              <div className="flex justify-center p-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : recentTranscripts && recentTranscripts.length > 0 ? (
+              <div className="space-y-2">
+                {recentTranscripts.slice(0, 8).map((transcript: any) => (
+                  <Link key={transcript.id} href={`/transcripts/${transcript.id}`}>
+                    <div className="group flex flex-col p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50">
+                      <p className="text-sm font-medium truncate group-hover:text-amber-600 transition-colors">
+                        {transcript.title || "Untitled"}
+                      </p>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(transcript.createdAt).toLocaleDateString()}
+                        </p>
+                        <Badge variant="secondary" className="text-[10px] font-normal px-1.5 py-0">
+                          {transcript.fileType === "dictation" ? "Dictation" : "Upload"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-center p-4 text-muted-foreground">
+                <FileText className="h-8 w-8 mb-2 opacity-20" />
+                <p className="text-sm">No recent transcripts</p>
+              </div>
+            )}
+          </div>
+          <div className="p-4 border-t border-border/40 bg-muted/5">
+            <Link href="/upload">
+              <Button variant="outline" className="w-full gap-2 justify-center border-dashed">
+                <Plus className="h-4 w-4" />
+                Upload Audio/Video
+              </Button>
+            </Link>
+          </div>
+        </Card>
       </div>
     </div>
   );
