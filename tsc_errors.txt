@@ -2,9 +2,6 @@
 > last-minutes@0.1.0 typecheck /home/gwin/projects/lastminutes/last-minutes
 > tsc --noEmit
 
-src/app/(app)/settings/page.tsx(142,23): error TS2322: Type '{ readonly name: "English"; readonly nativeName: "English"; } | { readonly name: "French"; readonly nativeName: "Français"; } | { readonly name: "Spanish"; readonly nativeName: "Español"; } | ... 11 more ... | { ...; }' is not assignable to type 'ReactNode'.
-  Type '{ readonly name: "English"; readonly nativeName: "English"; }' is not assignable to type 'ReactNode'.
-src/app/api/ai/command/route.ts(58,5): error TS2353: Object literal may only specify known properties, and 'compatibility' does not exist in type 'OpenAIProviderSettings'.
-src/app/api/ai/copilot/route.ts(28,7): error TS2353: Object literal may only specify known properties, and 'compatibility' does not exist in type 'OpenAIProviderSettings'.
-src/components/onboarding-tour.tsx(10,73): error TS2339: Property 'default' does not exist on type 'typeof import("/home/gwin/projects/lastminutes/last-minutes/node_modules/.pnpm/react-joyride@3.1.0_@types+react@19.2.14_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/react-joyride/dist/index")'.
+src/hooks/useFileUpload.ts(4,10): error TS2305: Module '"uploadthing/client"' has no exported member 'uploadFiles'.
+src/hooks/useFileUpload.ts(190,32): error TS7031: Binding element 'progress' implicitly has an 'any' type.
  ELIFECYCLE  Command failed with exit code 2.

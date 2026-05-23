@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { uploadFiles } from "uploadthing/client";
+import { generateReactHelpers } from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+
+const { uploadFiles } = generateReactHelpers<OurFileRouter>();
 
 type UploadState = "idle" | "validating" | "uploading" | "processing" | "completed" | "error";
 
@@ -187,7 +190,7 @@ export function useFileUpload(): UseFileUploadReturn {
       if (type === "uploadthing") {
         const res = await uploadFiles("mediaUploader", {
           files: [selectedFile],
-          onUploadProgress: ({ progress }) => setProgress(progress),
+          onUploadProgress: ({ progress }: { progress: number }) => setProgress(progress),
         });
         publicUrl = res[0].url;
       } else {
