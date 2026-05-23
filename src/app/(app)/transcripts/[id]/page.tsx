@@ -39,6 +39,7 @@ import {
   BarChart3,
   MessageSquare,
   Type,
+  Users,
 } from "lucide-react";
 import { AudioPlayer } from "@/components/audio-player";
 import Link from "next/link";

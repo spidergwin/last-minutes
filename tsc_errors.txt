@@ -2,5 +2,6 @@
 > last-minutes@0.1.0 typecheck /home/gwin/projects/lastminutes/last-minutes
 > tsc --noEmit
 
-src/app/api/user/storage/route.ts(3,10): error TS2305: Module '"@/lib/db"' has no exported member 'prisma'.
- ELIFECYCLE  Command failed with exit code 2.
+src/app/(app)/transcripts/[id]/page.tsx(247,22): error TS2552: Cannot find name 'Users'. Did you mean 'use'?
+src/app/(app)/transcripts/[id]/page.tsx(256,24): error TS2552: Cannot find name 'Users'. Did you mean 'use'?
+ ELIFECYCLE  Command failed with exit code 1.
