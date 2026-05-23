@@ -7,7 +7,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { useUsage } from "@/hooks";
-import { OnboardingTour } from "@/components/onboarding-tour";
+
 import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -94,7 +94,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           )}
         </div>
       </SidebarInset>
-      <OnboardingTour />
+
     </SidebarProvider>
   );
 }
