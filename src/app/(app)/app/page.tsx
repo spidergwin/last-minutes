@@ -21,7 +21,6 @@ import {
   ChevronDown,
   Clock,
   Waves,
-  Waves,
   X,
   Plus,
   ArrowRight
@@ -198,12 +197,12 @@ export default function DictationWorkspace() {
               headers: { "Content-Type": file.type },
               body: file,
             });
-            
+
             if (type === "drive") {
               const putResponseText = await putRes.text();
               const driveFile = JSON.parse(putResponseText);
               const fileId = driveFile.id;
-              
+
               const publicRes = await fetch("/api/drive/public", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -289,339 +288,339 @@ export default function DictationWorkspace() {
       {/* Main Workspace */}
       <div className="flex-1 flex flex-col min-w-0 max-w-4xl mx-auto w-full">
         {/* Error Banner */}
-      <AnimatePresence>
-        {(error || streamingError) && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="px-1 pt-1"
-          >
-            <Alert variant="destructive" className="py-2">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="flex items-center justify-between">
-                <span className="text-sm">{error || streamingError}</span>
-                <Button size="sm" variant="outline" onClick={requestPermission} className="ml-4 h-7 text-xs bg-destructive/10 border-destructive/20 hover:bg-destructive/20">
-                  Grant Permission
-                </Button>
-              </AlertDescription>
-            </Alert>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence>
+          {(error || streamingError) && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="px-1 pt-1"
+            >
+              <Alert variant="destructive" className="py-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span className="text-sm">{error || streamingError}</span>
+                  <Button size="sm" variant="outline" onClick={requestPermission} className="ml-4 h-7 text-xs bg-destructive/10 border-destructive/20 hover:bg-destructive/20">
+                    Grant Permission
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col gap-4 pb-0 min-h-0">
-        {/* Transcript Panel */}
-        <div className="flex-1 flex flex-col min-w-0 rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden">
-          {/* Transcript Header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-border/40 bg-muted/20">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-semibold text-foreground">Transcript</span>
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col gap-4 pb-0 min-h-0">
+          {/* Transcript Panel */}
+          <div className="flex-1 flex flex-col min-w-0 rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden">
+            {/* Transcript Header */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border/40 bg-muted/20">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-semibold text-foreground">Transcript</span>
+                </div>
+                {isListening && (
+                  <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-red-500 border-red-500/30 bg-red-500/5 gap-1.5 animate-pulse">
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                    REC {formatTime(elapsedTime)}
+                  </Badge>
+                )}
+                {isConnecting && (
+                  <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-amber-600 dark:text-amber-400 border-amber-500/20 bg-amber-500/5 gap-1.5">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Connecting
+                  </Badge>
+                )}
+                {isProcessing && !isConnecting && !isListening && (
+                  <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-amber-600 dark:text-amber-400 border-amber-500/20 bg-amber-500/5 gap-1.5">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Processing
+                  </Badge>
+                )}
               </div>
-              {isListening && (
-                <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-red-500 border-red-500/30 bg-red-500/5 gap-1.5 animate-pulse">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                  REC {formatTime(elapsedTime)}
-                </Badge>
-              )}
-              {isConnecting && (
-                <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-amber-600 dark:text-amber-400 border-amber-500/20 bg-amber-500/5 gap-1.5">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Connecting
-                </Badge>
-              )}
-              {isProcessing && !isConnecting && !isListening && (
-                <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-amber-600 dark:text-amber-400 border-amber-500/20 bg-amber-500/5 gap-1.5">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Processing
-                </Badge>
+              <div className="flex items-center gap-1">
+                <TooltipProvider delayDuration={300}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleCopy(transcript)} disabled={!transcript}>
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">Copy</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleDownload(transcript, "transcript")} disabled={!transcript}>
+                        <Download className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">Download</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => { setTranscript(""); setTranslatedText(""); }} disabled={!transcript}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">Clear</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+
+            {/* Transcript Body */}
+            <div className="flex-1 overflow-y-auto scrollbar-thin relative">
+              {transcript || interimTranscript ? (
+                <div className="p-5 text-[15px] leading-[1.8] text-foreground/90">
+                  {/* Show speaker-labeled segments if available during live recording */}
+                  {liveSegments.length > 0 && new Set(liveSegments.map(s => s.speaker).filter(s => s !== undefined)).size > 0 ? (
+                    <div className="space-y-3">
+                      {liveSegments.map((seg, i) => {
+                        const label = normalizeSpeakerLabel(String(seg.speaker ?? 0));
+                        const color = getSpeakerColor(String(seg.speaker ?? 0));
+                        const prevSpeaker = i > 0 ? liveSegments[i - 1].speaker : null;
+                        const isNewSpeaker = seg.speaker !== prevSpeaker;
+                        return (
+                          <div key={i}>
+                            {isNewSpeaker && (
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`inline-flex h-2 w-2 rounded-full ${color.dot}`} />
+                                <span className={`text-xs font-semibold ${color.text}`}>{label}</span>
+                              </div>
+                            )}
+                            <p className="pl-4">{seg.text}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <>{transcript}</>
+                  )}
+                  <AnimatePresence>
+                    {interimTranscript && (
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.5 }}
+                        className="text-amber-500 dark:text-amber-400"
+                      >
+                        {interimTranscript}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  <div ref={transcriptEndRef} />
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                  {/* Animated waveform idle indicator */}
+                  <div className="flex items-end gap-[3px] h-10 mb-5 relative">
+                    <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full" />
+                    {[...Array(12)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-[3px] bg-gradient-to-t from-amber-500/40 to-orange-500/20 rounded-full animate-wave origin-bottom relative z-10"
+                        style={{
+                          height: `${Math.sin(i * 0.5) * 60 + 30}%`,
+                          animationDelay: `${i * 0.08}s`,
+                          animationDuration: `${1.2 + Math.sin(i * 0.3) * 0.3}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground/70 text-sm font-medium">
+                    Press the microphone to start recording
+                  </p>
+                  <p className="text-muted-foreground/40 text-xs mt-1.5">
+                    or use <kbd className="inline-flex h-5 items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium">⌘</kbd> + <kbd className="inline-flex h-5 items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium">Space</kbd>
+                  </p>
+                </div>
               )}
             </div>
-            <div className="flex items-center gap-1">
-              <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleCopy(transcript)} disabled={!transcript}>
-                      <Copy className="h-3.5 w-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs">Copy</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleDownload(transcript, "transcript")} disabled={!transcript}>
-                      <Download className="h-3.5 w-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs">Download</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => { setTranscript(""); setTranslatedText(""); }} disabled={!transcript}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs">Clear</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+
+            {/* Transcript Footer — Status + Word Count */}
+            <div className="flex items-center justify-between px-5 py-2.5 border-t border-border/40 bg-muted/10 text-xs text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <span className="tabular-nums">{wordCount} {wordCount === 1 ? "word" : "words"}</span>
+                {transcript && (
+                  <>
+                    <span className="text-border">·</span>
+                    <span>English</span>
+                  </>
+                )}
+                {liveSegments.length > 0 && (() => {
+                  const uniqueSpeakers = new Set(liveSegments.map(s => s.speaker).filter(s => s !== undefined)).size;
+                  return uniqueSpeakers > 0 ? (
+                    <>
+                      <span className="text-border">·</span>
+                      <span>{uniqueSpeakers} speaker{uniqueSpeakers !== 1 ? 's' : ''}</span>
+                    </>
+                  ) : null;
+                })()}
+              </div>
+              <div className="flex items-center gap-2">
+                {!isListening && transcript && (
+                  <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-normal">
+                    Ready to save
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Transcript Body */}
-          <div className="flex-1 overflow-y-auto scrollbar-thin relative">
-            {transcript || interimTranscript ? (
-              <div className="p-5 text-[15px] leading-[1.8] text-foreground/90">
-                {/* Show speaker-labeled segments if available during live recording */}
-                {liveSegments.length > 0 && new Set(liveSegments.map(s => s.speaker).filter(s => s !== undefined)).size > 0 ? (
-                  <div className="space-y-3">
-                    {liveSegments.map((seg, i) => {
-                      const label = normalizeSpeakerLabel(String(seg.speaker ?? 0));
-                      const color = getSpeakerColor(String(seg.speaker ?? 0));
-                      const prevSpeaker = i > 0 ? liveSegments[i - 1].speaker : null;
-                      const isNewSpeaker = seg.speaker !== prevSpeaker;
-                      return (
-                        <div key={i}>
-                          {isNewSpeaker && (
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className={`inline-flex h-2 w-2 rounded-full ${color.dot}`} />
-                              <span className={`text-xs font-semibold ${color.text}`}>{label}</span>
-                            </div>
-                          )}
-                          <p className="pl-4">{seg.text}</p>
-                        </div>
-                      );
-                    })}
+          {/* Translation Panel */}
+          <AnimatePresence>
+            {showTranslation && translatedText && (
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 340, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="flex flex-col rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden shrink-0"
+              >
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 bg-amber-500/5">
+                  <div className="flex items-center gap-2">
+                    <Languages className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <span className="text-sm font-semibold">Translation</span>
                   </div>
-                ) : (
-                  <>{transcript}</>
-                )}
-                <AnimatePresence>
-                  {interimTranscript && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 0.5 }}
-                      className="text-amber-500 dark:text-amber-400"
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowTranslation(false)}>
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 text-[14px] leading-[1.8] text-foreground/90 scrollbar-thin">
+                  {translatedText}
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5 border-t border-border/40 bg-muted/10">
+                  <span className="text-xs text-muted-foreground capitalize">
+                    {SUPPORTED_LANGUAGES[targetLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || "Translation"}
+                  </span>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => handleCopy(translatedText)}>
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => handleDownload(translatedText, "translation")}>
+                      <Download className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Bottom Control Bar */}
+        <div className="shrink-0 py-4">
+          <div className="flex items-center justify-between gap-4 py-3">
+            {/* Left actions */}
+            <div className="flex items-center gap-2">
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 rounded-xl text-muted-foreground hover:text-foreground"
+                      onClick={() => { reset(); setTranslatedText(""); setShowTranslation(false); }}
+                      disabled={!transcript && !isListening}
                     >
-                      {interimTranscript}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-                <div ref={transcriptEndRef} />
-              </div>
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
-                {/* Animated waveform idle indicator */}
-                <div className="flex items-end gap-[3px] h-10 mb-5 relative">
-                  <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full" />
-                  {[...Array(12)].map((_, i) => (
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="text-xs">Reset Workspace</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 px-4 rounded-xl gap-2 text-sm"
+                onClick={handleSave}
+                disabled={!transcript || createTranscriptMutation.isPending}
+              >
+                {createTranscriptMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Save className="h-3.5 w-3.5" />
+                )}
+                <span className="hidden sm:inline">Save</span>
+              </Button>
+            </div>
+
+            {/* Center mic button */}
+            <div className="flex items-center gap-4">
+              {isListening && (
+                <div className="hidden sm:flex items-center gap-2 text-sm text-red-500 tabular-nums font-medium">
+                  <Clock className="h-4 w-4" />
+                  {formatTime(elapsedTime)}
+                </div>
+              )}
+              <button
+                onClick={handleToggleMic}
+                className={`relative group flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${isListening
+                  ? "bg-red-500 hover:bg-red-600 shadow-red-500/30"
+                  : "bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-amber-500/30"
+                  } shadow-lg active:scale-95`}
+              >
+                {isListening ? (
+                  <StopCircle className="h-6 w-6 text-white" />
+                ) : (
+                  <Mic className="h-6 w-6 text-white" />
+                )}
+                {isListening && (
+                  <span className="absolute inset-0 rounded-2xl border-2 border-red-500 animate-ping opacity-20" />
+                )}
+              </button>
+              {isListening && (
+                <div className="hidden sm:flex items-center gap-[2px] h-10 relative px-4">
+                  {/* Gemini-style glow behind the recording waves */}
+                  <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full" />
+                  {[...Array(8)].map((_, i) => (
                     <div
                       key={i}
-                      className="w-[3px] bg-gradient-to-t from-amber-500/40 to-orange-500/20 rounded-full animate-wave origin-bottom relative z-10"
+                      className="w-[4px] bg-gradient-to-t from-red-400 to-rose-500 rounded-full animate-wave origin-center relative z-10"
                       style={{
-                        height: `${Math.sin(i * 0.5) * 60 + 30}%`,
-                        animationDelay: `${i * 0.08}s`,
-                        animationDuration: `${1.2 + Math.sin(i * 0.3) * 0.3}s`,
+                        height: `${Math.random() * 60 + 40}%`,
+                        animationDelay: `${i * 0.1}s`,
+                        animationDuration: `${0.4 + Math.random() * 0.3}s`,
                       }}
                     />
                   ))}
                 </div>
-                <p className="text-muted-foreground/70 text-sm font-medium">
-                  Press the microphone to start recording
-                </p>
-                <p className="text-muted-foreground/40 text-xs mt-1.5">
-                  or use <kbd className="inline-flex h-5 items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium">⌘</kbd> + <kbd className="inline-flex h-5 items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium">Space</kbd>
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Transcript Footer — Status + Word Count */}
-          <div className="flex items-center justify-between px-5 py-2.5 border-t border-border/40 bg-muted/10 text-xs text-muted-foreground">
-            <div className="flex items-center gap-3">
-              <span className="tabular-nums">{wordCount} {wordCount === 1 ? "word" : "words"}</span>
-              {transcript && (
-                <>
-                  <span className="text-border">·</span>
-                  <span>English</span>
-                </>
               )}
-              {liveSegments.length > 0 && (() => {
-                const uniqueSpeakers = new Set(liveSegments.map(s => s.speaker).filter(s => s !== undefined)).size;
-                return uniqueSpeakers > 0 ? (
-                  <>
-                    <span className="text-border">·</span>
-                    <span>{uniqueSpeakers} speaker{uniqueSpeakers !== 1 ? 's' : ''}</span>
-                  </>
-                ) : null;
-              })()}
             </div>
+
+            {/* Right actions — Translation */}
             <div className="flex items-center gap-2">
-              {!isListening && transcript && (
-                <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-normal">
-                  Ready to save
-                </Badge>
-              )}
+              <Select
+                value={targetLanguage || ""}
+                onValueChange={(value) => setTargetLanguage(value || null)}
+              >
+                <SelectTrigger className="h-10 w-[110px] sm:w-[140px] rounded-xl text-sm border-border/60">
+                  <SelectValue placeholder="Language" />
+                </SelectTrigger>
+                <SelectContent position="popper" className="max-h-72">
+                  {Object.entries(SUPPORTED_LANGUAGES).map(([code, { name, nativeName }]) => (
+                    <SelectItem key={code} value={code} className="text-sm py-2">
+                      {name} <span className="text-muted-foreground text-xs">({nativeName})</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                className="h-10 px-4 rounded-xl gap-2 text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md shadow-amber-500/15 border-0"
+                disabled={!transcript || !targetLanguage || translateMutation.isPending}
+                onClick={handleTranslate}
+              >
+                {translateMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Wand2 className="h-3.5 w-3.5" />
+                )}
+                <span className="hidden sm:inline">Translate</span>
+              </Button>
             </div>
           </div>
         </div>
-
-        {/* Translation Panel */}
-        <AnimatePresence>
-          {showTranslation && translatedText && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 340, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="flex flex-col rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden shrink-0"
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 bg-amber-500/5">
-                <div className="flex items-center gap-2">
-                  <Languages className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                  <span className="text-sm font-semibold">Translation</span>
-                </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowTranslation(false)}>
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 text-[14px] leading-[1.8] text-foreground/90 scrollbar-thin">
-                {translatedText}
-              </div>
-              <div className="flex items-center justify-between px-4 py-2.5 border-t border-border/40 bg-muted/10">
-                <span className="text-xs text-muted-foreground capitalize">
-                  {SUPPORTED_LANGUAGES[targetLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || "Translation"}
-                </span>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => handleCopy(translatedText)}>
-                    <Copy className="h-3 w-3" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => handleDownload(translatedText, "translation")}>
-                    <Download className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Bottom Control Bar */}
-      <div className="shrink-0 py-4">
-        <div className="flex items-center justify-between gap-4 py-3">
-          {/* Left actions */}
-          <div className="flex items-center gap-2">
-            <TooltipProvider delayDuration={300}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 rounded-xl text-muted-foreground hover:text-foreground"
-                    onClick={() => { reset(); setTranslatedText(""); setShowTranslation(false); }}
-                    disabled={!transcript && !isListening}
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="text-xs">Reset Workspace</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 px-4 rounded-xl gap-2 text-sm"
-              onClick={handleSave}
-              disabled={!transcript || createTranscriptMutation.isPending}
-            >
-              {createTranscriptMutation.isPending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Save className="h-3.5 w-3.5" />
-              )}
-              <span className="hidden sm:inline">Save</span>
-            </Button>
-          </div>
-
-          {/* Center mic button */}
-          <div className="flex items-center gap-4">
-            {isListening && (
-              <div className="hidden sm:flex items-center gap-2 text-sm text-red-500 tabular-nums font-medium">
-                <Clock className="h-4 w-4" />
-                {formatTime(elapsedTime)}
-              </div>
-            )}
-            <button
-              onClick={handleToggleMic}
-              className={`relative group flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${isListening
-                ? "bg-red-500 hover:bg-red-600 shadow-red-500/30"
-                : "bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-amber-500/30"
-                } shadow-lg active:scale-95`}
-            >
-              {isListening ? (
-                <StopCircle className="h-6 w-6 text-white" />
-              ) : (
-                <Mic className="h-6 w-6 text-white" />
-              )}
-              {isListening && (
-                <span className="absolute inset-0 rounded-2xl border-2 border-red-500 animate-ping opacity-20" />
-              )}
-            </button>
-            {isListening && (
-              <div className="hidden sm:flex items-center gap-[2px] h-10 relative px-4">
-                {/* Gemini-style glow behind the recording waves */}
-                <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full" />
-                {[...Array(8)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-[4px] bg-gradient-to-t from-red-400 to-rose-500 rounded-full animate-wave origin-center relative z-10"
-                    style={{
-                      height: `${Math.random() * 60 + 40}%`,
-                      animationDelay: `${i * 0.1}s`,
-                      animationDuration: `${0.4 + Math.random() * 0.3}s`,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Right actions — Translation */}
-          <div className="flex items-center gap-2">
-            <Select
-              value={targetLanguage || ""}
-              onValueChange={(value) => setTargetLanguage(value || null)}
-            >
-              <SelectTrigger className="h-10 w-[110px] sm:w-[140px] rounded-xl text-sm border-border/60">
-                <SelectValue placeholder="Language" />
-              </SelectTrigger>
-              <SelectContent position="popper" className="max-h-72">
-                {Object.entries(SUPPORTED_LANGUAGES).map(([code, { name, nativeName }]) => (
-                  <SelectItem key={code} value={code} className="text-sm py-2">
-                    {name} <span className="text-muted-foreground text-xs">({nativeName})</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button
-              className="h-10 px-4 rounded-xl gap-2 text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md shadow-amber-500/15 border-0"
-              disabled={!transcript || !targetLanguage || translateMutation.isPending}
-              onClick={handleTranslate}
-            >
-              {translateMutation.isPending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Wand2 className="h-3.5 w-3.5" />
-              )}
-              <span className="hidden sm:inline">Translate</span>
-            </Button>
-          </div>
-        </div>
-      </div>
       </div>
 
       {/* Side Panel - Recent Transcripts */}
