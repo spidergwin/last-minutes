@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { uploadFiles } from "uploadthing/client";
 
 type UploadState = "idle" | "validating" | "uploading" | "processing" | "completed" | "error";
 
@@ -37,7 +38,7 @@ interface UseFileUploadReturn {
   reset: () => void;
 }
 
-const MAX_FILE_SIZE = 2.5 * 1024 * 1024 * 1024; // 2.5GB
+const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
 const ALLOWED_TYPES = new Set([
   "audio/mpeg",
   "audio/mp3",
@@ -91,7 +92,7 @@ export function useFileUpload(): UseFileUploadReturn {
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      setError(`File too large. Maximum size is 2.5GB.`);
+      setError(`File too large. Maximum size is 2GB.`);
       setState("error");
       return;
     }
@@ -183,60 +184,68 @@ export function useFileUpload(): UseFileUploadReturn {
       let { publicUrl } = initiateData;
 
       // 2. Upload file directly to the provider via PUT request
-      const putResponseText = await new Promise<string>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhrRef.current = xhr;
-
-        xhr.upload.addEventListener("progress", (event) => {
-          if (event.lengthComputable) {
-            const percentage = Math.round((event.loaded * 100) / event.total);
-            setProgress(percentage);
-          }
+      if (type === "uploadthing") {
+        const res = await uploadFiles("mediaUploader", {
+          files: [selectedFile],
+          onUploadProgress: ({ progress }) => setProgress(progress),
         });
+        publicUrl = res[0].url;
+      } else {
+        const putResponseText = await new Promise<string>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhrRef.current = xhr;
 
-        xhr.addEventListener("load", () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            resolve(xhr.responseText);
-          } else {
-            reject(new Error(`Upload failed with status ${xhr.status}`));
-          }
-        });
-
-        xhr.addEventListener("error", () => {
-          reject(new Error("Network error during upload."));
-        });
-
-        xhr.addEventListener("abort", () => {
-          reject(new Error("Upload aborted."));
-        });
-
-        xhr.open("PUT", uploadUrl, true);
-        
-        // For Google Drive resumable upload, we don't always need Content-Type in the PUT,
-        // but it's safe to add.
-        xhr.setRequestHeader("Content-Type", selectedFile.type);
-        xhr.send(selectedFile);
-      });
-
-      // 3. Handle Google Drive specific logic to get the public URL
-      if (type === "drive") {
-        try {
-          const driveFile = JSON.parse(putResponseText);
-          const fileId = driveFile.id;
-          
-          const publicRes = await fetch("/api/drive/public", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ fileId }),
+          xhr.upload.addEventListener("progress", (event) => {
+            if (event.lengthComputable) {
+              const percentage = Math.round((event.loaded * 100) / event.total);
+              setProgress(percentage);
+            }
           });
-          const publicData = await publicRes.json();
-          if (!publicRes.ok || !publicData.success) {
-             throw new Error(publicData.error || "Failed to make Drive file public.");
+
+          xhr.addEventListener("load", () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(xhr.responseText);
+            } else {
+              reject(new Error(`Upload failed with status ${xhr.status}`));
+            }
+          });
+
+          xhr.addEventListener("error", () => {
+            reject(new Error("Network error during upload."));
+          });
+
+          xhr.addEventListener("abort", () => {
+            reject(new Error("Upload aborted."));
+          });
+
+          xhr.open("PUT", uploadUrl, true);
+          
+          // For Google Drive resumable upload, we don't always need Content-Type in the PUT,
+          // but it's safe to add.
+          xhr.setRequestHeader("Content-Type", selectedFile.type);
+          xhr.send(selectedFile);
+        });
+
+        // 3. Handle Google Drive specific logic to get the public URL
+        if (type === "drive") {
+          try {
+            const driveFile = JSON.parse(putResponseText);
+            const fileId = driveFile.id;
+            
+            const publicRes = await fetch("/api/drive/public", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fileId }),
+            });
+            const publicData = await publicRes.json();
+            if (!publicRes.ok || !publicData.success) {
+               throw new Error(publicData.error || "Failed to make Drive file public.");
+            }
+            publicUrl = publicData.publicUrl;
+          } catch (e) {
+            console.error("Failed to parse drive response or make public:", e);
+            throw new Error("Failed to process Google Drive upload.");
           }
-          publicUrl = publicData.publicUrl;
-        } catch (e) {
-          console.error("Failed to parse drive response or make public:", e);
-          throw new Error("Failed to process Google Drive upload.");
         }
       }
 

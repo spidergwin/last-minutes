@@ -272,7 +272,7 @@ export default function UploadPage() {
               <CardTitle className="text-base">Upload File</CardTitle>
             </div>
             <CardDescription>
-              Supported formats: MP3, WAV, M4A, OGG, FLAC, MP4, WebM, MOV · Max 2.5GB
+              Supported formats: MP3, WAV, M4A, OGG, FLAC, MP4, WebM, MOV · Max 2GB
             </CardDescription>
           </CardHeader>
 

@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-const MAX_FILE_SIZE = 2.5 * 1024 * 1024 * 1024; // 2.5GB
+const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
 const ALLOWED_TYPES = new Set([
   "audio/mpeg",
   "audio/mp3",

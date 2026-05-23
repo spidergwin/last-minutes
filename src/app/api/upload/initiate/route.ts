@@ -58,7 +58,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Fallback to Cloudflare R2 (or UploadThing if configured)
+    // 2. Fallback to Cloudflare R2
+    const isR2Configured =
+      process.env.R2_ACCESS_KEY_ID &&
+      process.env.R2_ACCESS_KEY_ID !== "your_access_key";
+
+    if (!isR2Configured) {
+      // Fallback to UploadThing
+      return NextResponse.json({
+        success: true,
+        type: "uploadthing",
+      });
+    }
+
     const uniqueKey = `${Date.now()}-${Math.random()
       .toString(36)
       .substring(2, 15)}-${filename.replace(/[^a-zA-Z0-9.-]/g, "_")}`;

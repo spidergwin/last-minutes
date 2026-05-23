@@ -316,12 +316,39 @@ export default function DictationWorkspace() {
           {/* Transcript Panel */}
           <div className="flex-1 flex flex-col min-w-0 rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden">
             {/* Transcript Header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border/40 bg-muted/20">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-5 py-3 border-b border-border/40 bg-muted/20 gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-semibold text-foreground">Transcript</span>
                 </div>
+
+                <div className="h-4 w-px bg-border/60 hidden sm:block" />
+
+                {/* Spoken Language Selector */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground hidden sm:inline">Dictation Language:</span>
+                  <Select
+                    value={language || "en"}
+                    onValueChange={(value) => setLanguage(value)}
+                    disabled={isListening}
+                  >
+                    <SelectTrigger id="dictation-language-selector" className="h-8 w-[140px] sm:w-[160px] rounded-lg text-xs border-border/60 bg-background shadow-sm">
+                      <SelectValue placeholder="Select Language" />
+                    </SelectTrigger>
+                    <SelectContent position="popper" className="max-h-72">
+                      <SelectItem value="multi" className="text-xs py-1.5 font-medium text-amber-600 dark:text-amber-400">
+                        Auto / Mixed Languages
+                      </SelectItem>
+                      {Object.entries(SUPPORTED_LANGUAGES).map(([code, { name, nativeName }]) => (
+                        <SelectItem key={code} value={code} className="text-xs py-1.5">
+                          {name} <span className="text-muted-foreground text-[10px]">({nativeName})</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {isListening && (
                   <Badge variant="outline" className="text-[11px] px-2 py-0.5 text-red-500 border-red-500/30 bg-red-500/5 gap-1.5 animate-pulse">
                     <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
@@ -341,7 +368,7 @@ export default function DictationWorkspace() {
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center justify-end gap-1">
                 <TooltipProvider delayDuration={300}>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -510,45 +537,11 @@ export default function DictationWorkspace() {
         </div>
 
         {/* Bottom Control Bar */}
-        <div className="shrink-0 py-4">
-          <div className="flex items-center justify-between gap-4 py-3">
-            {/* Left actions */}
-            <div className="flex items-center gap-2">
-              <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10 rounded-xl text-muted-foreground hover:text-foreground"
-                      onClick={() => { reset(); setTranslatedText(""); setShowTranslation(false); }}
-                      disabled={!transcript && !isListening}
-                    >
-                      <RotateCcw className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent className="text-xs">Reset Workspace</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 px-4 rounded-xl gap-2 text-sm"
-                onClick={handleSave}
-                disabled={!transcript || createTranscriptMutation.isPending}
-              >
-                {createTranscriptMutation.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Save className="h-3.5 w-3.5" />
-                )}
-                <span className="hidden sm:inline">Save</span>
-              </Button>
-            </div>
-
-            {/* Center mic button */}
-            <div className="flex items-center gap-4">
+        <div className="shrink-0 py-2 sm:py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
+            
+            {/* Center mic button (Top on mobile) */}
+            <div className="flex items-center justify-center gap-4 order-1 sm:order-2 w-full sm:w-auto">
               {isListening && (
                 <div className="hidden sm:flex items-center gap-2 text-sm text-red-500 tabular-nums font-medium">
                   <Clock className="h-4 w-4" />
@@ -591,33 +584,49 @@ export default function DictationWorkspace() {
               )}
             </div>
 
-            {/* Right actions — Source Language & Translation */}
-            <div className="flex items-center gap-2">
-              <Select
-                value={language || "en"}
-                onValueChange={(value) => setLanguage(value)}
-              >
-                <SelectTrigger id="dictation-language-selector" className="h-10 w-[110px] sm:w-[140px] rounded-xl text-sm border-border/60 bg-muted/20">
-                  <SelectValue placeholder="Source Language" />
-                </SelectTrigger>
-                <SelectContent position="popper" className="max-h-72">
-                  <SelectItem value="multi" className="text-sm py-2 font-medium text-amber-600 dark:text-amber-400">
-                    Auto / Mixed Languages
-                  </SelectItem>
-                  {Object.entries(SUPPORTED_LANGUAGES).map(([code, { name, nativeName }]) => (
-                    <SelectItem key={code} value={code} className="text-sm py-2">
-                      {name} <span className="text-muted-foreground text-xs">({nativeName})</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Left actions (Middle on mobile) */}
+            <div className="flex items-center gap-2 order-2 sm:order-1 w-full sm:w-auto justify-center sm:justify-start">
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 rounded-xl text-muted-foreground hover:text-foreground"
+                      onClick={() => { reset(); setTranslatedText(""); setShowTranslation(false); }}
+                      disabled={!transcript && !isListening}
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="text-xs">Reset Workspace</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 px-4 rounded-xl gap-2 text-sm"
+                onClick={handleSave}
+                disabled={!transcript || createTranscriptMutation.isPending}
+              >
+                {createTranscriptMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Save className="h-3.5 w-3.5" />
+                )}
+                <span>Save</span>
+              </Button>
+            </div>
+
+            {/* Right actions — Translation (Bottom on mobile) */}
+            <div className="flex items-center gap-2 order-3 w-full sm:w-auto justify-center sm:justify-end">
               <Select
                 value={targetLanguage || ""}
                 onValueChange={(value) => setTargetLanguage(value || null)}
               >
-                <SelectTrigger className="h-10 w-[110px] sm:w-[140px] rounded-xl text-sm border-border/60">
-                  <SelectValue placeholder="Language" />
+                <SelectTrigger className="h-10 w-full sm:w-[140px] rounded-xl text-sm border-border/60 bg-background shadow-sm">
+                  <SelectValue placeholder="Target Language" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="max-h-72">
                   {Object.entries(SUPPORTED_LANGUAGES).map(([code, { name, nativeName }]) => (
@@ -629,7 +638,7 @@ export default function DictationWorkspace() {
               </Select>
 
               <Button
-                className="h-10 px-4 rounded-xl gap-2 text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md shadow-amber-500/15 border-0"
+                className="h-10 px-4 rounded-xl gap-2 text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md shadow-amber-500/15 border-0 w-full sm:w-auto"
                 disabled={!transcript || !targetLanguage || translateMutation.isPending}
                 onClick={handleTranslate}
               >
@@ -638,7 +647,7 @@ export default function DictationWorkspace() {
                 ) : (
                   <Wand2 className="h-3.5 w-3.5" />
                 )}
-                <span className="hidden sm:inline">Translate</span>
+                <span>Translate</span>
               </Button>
             </div>
           </div>
