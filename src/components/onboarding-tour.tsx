@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { STATUS } from "react-joyride";
 import { useTheme } from "next-themes";
 
 // Dynamically import Joyride to avoid SSR issues
@@ -79,7 +78,7 @@ export function OnboardingTour() {
 
   const handleJoyrideCallback = async (data: any) => {
     const { status } = data;
-    const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
+    const finishedStatuses: string[] = ["finished", "skipped"];
 
     if (finishedStatuses.includes(status)) {
       setRun(false);
