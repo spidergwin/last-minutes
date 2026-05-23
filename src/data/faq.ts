@@ -6,12 +6,12 @@ export const faqContent = {
     {
       question: "How accurate is the transcription?",
       answer:
-        "Our English transcription achieves 99.2% accuracy with industry-leading speech recognition. Nigerian language accuracy varies — Hausa and Yoruba are our strongest at 95%+, while less-resourced languages like Tiv and Efik are continuously improving.",
+        "Our English transcription achieves 99.2% accuracy with industry-leading speech recognition. We also support multiple international languages with high accuracy. Nigerian language support is coming soon.",
     },
     {
       question: "Which Nigerian languages are supported?",
       answer:
-        "We currently support 8 Nigerian languages: Hausa, Yoruba, Igbo, Nigerian Pidgin, Edo (Ẹ̀dó), Efik, Tiv, and Fula (Fulfulde). We're actively adding more based on user demand.",
+        "Nigerian languages are coming soon! We are actively working to support Hausa, Yoruba, Igbo, Nigerian Pidgin, Edo (Ẹ̀dó), Efik, Tiv, and Fula (Fulfulde).",
     },
     {
       question: "Can I upload pre-recorded audio files?",

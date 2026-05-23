@@ -22,12 +22,12 @@ async function getTranslation(
         targetLang,
         wordCount: text.split(/\s+/).length,
         success: true,
-        provider: "openai",
+        provider: "deepseek",
         translationTime: 0, // Would measure actual time
       },
     });
 
-    return { translatedText, provider: "openai" };
+    return { translatedText, provider: "deepseek" };
   } catch (error) {
     console.error("Translation failed:", error);
     throw error;

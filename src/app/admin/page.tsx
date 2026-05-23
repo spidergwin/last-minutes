@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { AdminStats } from "@/lib/validations";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Activity, Users, FileText, Clock } from "lucide-react";
+import { Activity, Users, FileText, Clock, CreditCard, ShieldAlert } from "lucide-react";
 
 export default function AdminDashboard() {
   const { data: stats } = useQuery<AdminStats>({
@@ -17,17 +17,17 @@ export default function AdminDashboard() {
   });
 
   const statConfig = [
-    { label: "Total Users", value: stats?.totalUsers || 0, icon: Users, color: "text-blue-600" },
-    { label: "Active Users", value: stats?.activeUsers || 0, icon: Activity, color: "text-green-600" },
-    { label: "Total Transcripts", value: stats?.totalTranscripts || 0, icon: FileText, color: "text-purple-600" },
+    { label: "Total Users", value: stats?.totalUsers || 0, subValue: `+${stats?.newUsersToday || 0} today`, icon: Users, color: "text-blue-600" },
+    { label: "Active Subs", value: stats?.activeSubscriptions || 0, subValue: "Paid & Trial", icon: CreditCard, color: "text-emerald-600" },
+    { label: "Total Transcripts", value: stats?.totalTranscripts || 0, subValue: "System-wide", icon: FileText, color: "text-purple-600" },
     {
       label: "Total Minutes",
       value: `${Math.round((stats?.totalMinutes || 0) / 60)}h`,
+      subValue: "Processed audio",
       icon: Clock,
       color: "text-amber-600",
     },
   ];
-
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-1">
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground mt-1">+2% from last month</p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.subValue}</p>
             </CardContent>
           </Card>
         ))}
@@ -116,6 +116,35 @@ export default function AdminDashboard() {
               {(!stats?.topLanguages || stats.topLanguages.length === 0) && (
                 <div className="text-center py-10 text-muted-foreground italic">
                   No language data available
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-xs lg:col-span-3">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Latest system audit logs and actions.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {(stats?.recentAuditLogs || []).map((log: any) => (
+                <div key={log.id} className="flex items-center gap-4 text-sm border-b pb-2 last:border-0">
+                  <div className="p-2 rounded-full bg-muted">
+                    <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium">{log.action}</p>
+                    <p className="text-muted-foreground text-xs">{log.user?.name || log.user?.email} on {log.resource}</p>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {new Date(log.createdAt).toLocaleTimeString()}
+                  </div>
+                </div>
+              ))}
+              {(!stats?.recentAuditLogs || stats.recentAuditLogs.length === 0) && (
+                <div className="text-center py-6 text-muted-foreground italic">
+                  No recent activity
                 </div>
               )}
             </div>

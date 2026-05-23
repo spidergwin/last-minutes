@@ -107,7 +107,7 @@ export function useStreamingTranscription() {
   const buildWsUrl = useCallback((apiKey: string): string => {
     const isMulti = language === "multi";
     const params = new URLSearchParams({
-      model: isMulti ? "nova-2-general" : "nova-3", // Deepgram suggests nova-2 for multi, or nova-3 handles it if model is omitted, but let's use nova-2-general for explicit multi-language code switching
+      model: isMulti ? "nova-3" : "nova-3", // User explicitly requested nova-3 for multi-language
       ...(isMulti ? { language: "multi" } : { language: language.split("-")[0] || "en" }),
       smart_format: "true",
       punctuate: "true",

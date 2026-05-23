@@ -31,7 +31,7 @@ export const featuresContent = {
     {
       title: "Nigerian Language Support",
       description:
-        "First-class support for Hausa, Yoruba, Igbo, Pidgin, Edo, Efik, Tiv, and Fulfulde — plus 10+ international languages. AI that respects every voice and accent.",
+        "(Coming Soon) Deep support for Hausa, Yoruba, Igbo, Pidgin, Edo, Efik, Tiv, and Fulfulde — plus 10+ international languages. AI that respects every voice and accent.",
       icon: "Globe" as const,
       accent: "from-emerald-500 to-teal-500",
       span: "md:col-span-2",

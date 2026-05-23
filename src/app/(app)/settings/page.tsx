@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,17 +20,45 @@ export default function SettingsPage() {
   const [name, setName] = useState(user?.name || "");
   const [defaultLanguage, setDefaultLanguage] = useState("en");
   const [isSaving, setIsSaving] = useState(false);
+  const [isResettingTour, setIsResettingTour] = useState(false);
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      // Profile update would go through Better Auth
-      await new Promise((r) => setTimeout(r, 500));
-      toast.success("Profile updated");
-    } catch {
-      toast.error("Failed to update profile");
+      const { error } = await authClient.updateUser({
+        name: name,
+      });
+      if (error) throw error;
+      toast.success("Profile updated successfully");
+    } catch (err: unknown) {
+      const e = err as Error;
+      toast.error(e.message || "Failed to update profile");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handlePasswordChange = () => {
+    toast.info("Password change functionality is coming soon.");
+  };
+
+  const handleResetTour = async () => {
+    setIsResettingTour(true);
+    try {
+      const response = await fetch("/api/user/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tourCompleted: false }),
+      });
+      if (response.ok) {
+        toast.success("Tour has been reset. Refreshing page...");
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        throw new Error("Failed to reset");
+      }
+    } catch {
+      toast.error("Failed to reset the onboarding tour");
+      setIsResettingTour(false);
     }
   };
 
@@ -117,6 +145,26 @@ export default function SettingsPage() {
                 </SelectContent>
               </Select>
             </div>
+            
+            <div className="pt-4 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Onboarding Tour</p>
+                  <p className="text-xs text-muted-foreground">
+                    Reset the guided tour to see it again on your dashboard.
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleResetTour}
+                  disabled={isResettingTour}
+                >
+                  {isResettingTour && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Reset Tour
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -139,7 +187,7 @@ export default function SettingsPage() {
                   Change your account password.
                 </p>
               </div>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handlePasswordChange}>
                 Change Password
               </Button>
             </div>
@@ -179,10 +227,30 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                    Calendar & Meeting Bot
+                    Google Workspace & Meeting Bot
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Connect Google Calendar and configure auto-join meeting recording.
+                    Sync calendar events and configure auto-join recording.
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
+
+            <Link
+              href="/settings/integrations"
+              className="flex items-center justify-between rounded-xl border border-border/60 bg-card hover:bg-muted/20 p-4 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500/10 to-violet-500/10 flex items-center justify-center">
+                  <Globe className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    Custom Storage
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Bring your own storage (UploadThing) for large files.
                   </p>
                 </div>
               </div>

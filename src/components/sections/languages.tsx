@@ -53,12 +53,21 @@ export function Languages() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.05 }}
-                  className="group flex items-center gap-3 p-3 rounded-xl border bg-card hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all duration-200 cursor-default"
+                  className={`relative group flex items-center gap-3 p-3 rounded-xl border bg-card transition-all duration-200 cursor-default overflow-hidden ${
+                    lang.comingSoon 
+                      ? 'border-border/40 opacity-70 grayscale-[30%] hover:grayscale-0' 
+                      : 'hover:border-emerald-500/30 hover:bg-emerald-500/5'
+                  }`}
                 >
-                  <span className="text-xl">{lang.flag}</span>
+                  {lang.comingSoon && (
+                    <div className="absolute top-0 right-0 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
+                      Coming Soon
+                    </div>
+                  )}
+                  <span className={`text-xl ${lang.comingSoon ? 'opacity-80' : ''}`}>{lang.flag}</span>
                   <div>
-                    <div className="font-semibold text-sm">{lang.name}</div>
-                    <div className="text-xs text-muted-foreground">{lang.nativeName}</div>
+                    <div className={`font-semibold text-sm ${lang.comingSoon ? 'text-muted-foreground' : ''}`}>{lang.name}</div>
+                    <div className="text-xs text-muted-foreground/70">{lang.nativeName}</div>
                   </div>
                 </motion.div>
               ))}

@@ -41,6 +41,38 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const newUsersToday = await db.user.count({
+      where: {
+        createdAt: {
+          gte: startOfToday,
+        },
+      },
+    });
+
+    const activeSubscriptions = await db.subscription.count({
+      where: {
+        status: "ACTIVE",
+      },
+    });
+
+    const planBreakdown = await db.subscription.groupBy({
+      by: ["plan"],
+      _count: {
+        plan: true,
+      },
+    });
+
+    const recentAuditLogs = await db.auditLog.findMany({
+      take: 10,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { name: true, email: true } },
+      },
+    });
+
     // Usage trend — last 7 days
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -85,6 +117,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       totalUsers,
       activeUsers,
+      newUsersToday,
+      activeSubscriptions,
+      planBreakdown,
+      recentAuditLogs,
       totalTranscripts,
       totalMinutes: totalMinutes._sum.duration || 0,
       usageTrend,

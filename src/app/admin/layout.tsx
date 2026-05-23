@@ -38,6 +38,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           {[
             { href: "/admin", icon: BarChart3, label: "Dashboard" },
             { href: "/admin/users", icon: Users, label: "Users" },
+            { href: "/admin/transcripts", icon: Mic, label: "Transcripts" },
+            { href: "/admin/subscriptions", icon: BarChart3, label: "Subscriptions" },
+            { href: "/admin/audit-logs", icon: Settings, label: "Audit Logs" },
             { href: "/admin/settings", icon: Settings, label: "Settings" },
           ].map((item) => (
             <Link

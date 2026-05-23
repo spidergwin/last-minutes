@@ -106,6 +106,7 @@ interface UsageData {
   subscription: {
     plan: string;
     status: string;
+    trialEndsAt?: string | null;
   };
   monthlyTranscripts: number;
 }

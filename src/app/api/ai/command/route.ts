@@ -4,7 +4,7 @@ import type {
 } from '@/components/editor/use-chat';
 import type { NextRequest } from 'next/server';
 
-import { createGateway } from '@ai-sdk/gateway';
+import { createOpenAI } from '@ai-sdk/openai';
 import {
   type LanguageModel,
   type UIMessageStreamWriter,
@@ -52,8 +52,9 @@ export async function POST(req: NextRequest) {
 
   const isSelecting = editor.api.isExpanded();
 
-  const gatewayProvider = createGateway({
+  const deepseek = createOpenAI({
     apiKey,
+    baseURL: 'https://api.deepseek.com',
   });
 
   try {
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
           const modelId = model || 'google/gemini-2.5-flash';
 
           const { output: AIToolName } = await generateText({
-            model: gatewayProvider(modelId),
+            model: deepseek('deepseek-v4-flash'),
             output: Output.choice({ options: enumOptions }),
             prompt,
           });
@@ -88,18 +89,18 @@ export async function POST(req: NextRequest) {
 
         const stream = streamText({
           experimental_transform: markdownJoinerTransform(),
-          model: gatewayProvider(model || 'openai/gpt-4o-mini'),
+          model: deepseek('deepseek-v4-flash'),
           // Not used
           prompt: '',
           tools: {
             comment: getCommentTool(editor, {
               messagesRaw,
-              model: gatewayProvider(model || 'google/gemini-2.5-flash'),
+              model: deepseek('deepseek-v4-flash'),
               writer,
             }),
             table: getTableTool(editor, {
               messagesRaw,
-              model: gatewayProvider(model || 'google/gemini-2.5-flash'),
+              model: deepseek('deepseek-v4-flash'),
               writer,
             }),
           },
@@ -128,11 +129,7 @@ export async function POST(req: NextRequest) {
               return {
                 ...step,
                 activeTools: [],
-                model:
-                  editType === 'selection'
-                    ? //The selection task is more challenging, so we chose to use Gemini 2.5 Flash.
-                      gatewayProvider(model || 'google/gemini-2.5-flash')
-                    : gatewayProvider(model || 'openai/gpt-4o-mini'),
+                model: deepseek('deepseek-v4-flash'),
                 messages: [
                   {
                     content: editPrompt,
@@ -157,7 +154,7 @@ export async function POST(req: NextRequest) {
                     role: 'user',
                   },
                 ],
-                model: gatewayProvider(model || 'openai/gpt-4o-mini'),
+                model: deepseek('deepseek-v4-flash'),
               };
             }
           },

@@ -4,6 +4,7 @@ export interface LanguageItem {
   nativeName: string;
   flag: string;
   category: "nigerian" | "international";
+  comingSoon?: boolean;
 }
 
 export const languagesContent = {
@@ -15,14 +16,14 @@ export const languagesContent = {
   internationalLabel: "International Languages",
   items: [
     // Nigerian Languages
-    { code: "ha", name: "Hausa", nativeName: "Hausa", flag: "🇳🇬", category: "nigerian" as const },
-    { code: "yo", name: "Yoruba", nativeName: "Yorùbá", flag: "🇳🇬", category: "nigerian" as const },
-    { code: "ig", name: "Igbo", nativeName: "Igbo", flag: "🇳🇬", category: "nigerian" as const },
-    { code: "pid", name: "Nigerian Pidgin", nativeName: "Naija Pidgin", flag: "🇳🇬", category: "nigerian" as const },
-    { code: "bin", name: "Edo", nativeName: "Ẹ̀dó", flag: "🇳🇬", category: "nigerian" as const },
-    { code: "efi", name: "Efik", nativeName: "Efik", flag: "🇳🇬", category: "nigerian" as const },
-    { code: "tiv", name: "Tiv", nativeName: "Tiv", flag: "🇳🇬", category: "nigerian" as const },
-    { code: "ff", name: "Fula", nativeName: "Fulfulde", flag: "🇳🇬", category: "nigerian" as const },
+    { code: "ha", name: "Hausa", nativeName: "Hausa", flag: "🇳🇬", category: "nigerian" as const, comingSoon: true },
+    { code: "yo", name: "Yoruba", nativeName: "Yorùbá", flag: "🇳🇬", category: "nigerian" as const, comingSoon: true },
+    { code: "ig", name: "Igbo", nativeName: "Igbo", flag: "🇳🇬", category: "nigerian" as const, comingSoon: true },
+    { code: "pid", name: "Nigerian Pidgin", nativeName: "Naija Pidgin", flag: "🇳🇬", category: "nigerian" as const, comingSoon: true },
+    { code: "bin", name: "Edo", nativeName: "Ẹ̀dó", flag: "🇳🇬", category: "nigerian" as const, comingSoon: true },
+    { code: "efi", name: "Efik", nativeName: "Efik", flag: "🇳🇬", category: "nigerian" as const, comingSoon: true },
+    { code: "tiv", name: "Tiv", nativeName: "Tiv", flag: "🇳🇬", category: "nigerian" as const, comingSoon: true },
+    { code: "ff", name: "Fula", nativeName: "Fulfulde", flag: "🇳🇬", category: "nigerian" as const, comingSoon: true },
     // International Languages
     { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", category: "international" as const },
     { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷", category: "international" as const },

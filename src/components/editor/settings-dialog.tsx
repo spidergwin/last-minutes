@@ -47,9 +47,8 @@ type Model = {
 };
 
 export const models: Model[] = [
-  { label: 'Fast', value: 'openai/gpt-4o-mini' },
-  { label: 'Standard', value: 'openai/gpt-4o' },
-  { label: 'Advanced', value: 'openai/gpt-4.1' },
+  { label: 'Fast', value: 'deepseek-v4-flash' },
+  { label: 'Pro', value: 'deepseek-v4-pro' },
 ];
 
 export function SettingsDialog() {

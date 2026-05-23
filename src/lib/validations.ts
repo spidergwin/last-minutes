@@ -138,7 +138,9 @@ export type Transcript = z.infer<typeof transcriptSchema>;
 
 export const adminStatsSchema = z.object({
   totalUsers: z.number(),
+  newUsersToday: z.number().optional(),
   activeUsers: z.number(),
+  activeSubscriptions: z.number().optional(),
   totalTranscripts: z.number(),
   totalMinutes: z.number(),
   usageTrend: z.array(
@@ -154,6 +156,7 @@ export const adminStatsSchema = z.object({
       count: z.number(),
     })
   ),
+  recentAuditLogs: z.array(z.any()).optional(),
 });
 
 export type AdminStats = z.infer<typeof adminStatsSchema>;

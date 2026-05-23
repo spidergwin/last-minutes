@@ -22,6 +22,7 @@ model User {
   updatedAt     DateTime @updatedAt
 
   uploadThingToken String?
+  tourCompleted    Boolean  @default(false)
 
   // Relations
   accounts            Account[]
@@ -163,12 +164,13 @@ model Usage {
 model Subscription {
   id                     String             @id @default(cuid())
   userId                 String             @unique
-  plan                   SubscriptionPlan   @default(FREE)
+  plan                   SubscriptionPlan   @default(TRIAL)
   status                 SubscriptionStatus @default(ACTIVE)
   stripeId               String?            @unique
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
   monthlyLimit           Int                @default(0)
+  trialEndsAt            DateTime?
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
 
@@ -179,7 +181,7 @@ model Subscription {
 }
 
 enum SubscriptionPlan {
-  FREE
+  TRIAL
   PRO
   BUSINESS
 }

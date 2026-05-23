@@ -1,17 +1,18 @@
 import type { NextRequest } from 'next/server';
 
 import { generateText } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   const {
     apiKey: key,
-    model = 'gpt-4o-mini',
+    model = 'deepseek-v4-flash',
     prompt,
     system,
   } = await req.json();
 
-  const apiKey = key || process.env.AI_GATEWAY_API_KEY;
+  const apiKey = key || process.env.DEEPSEEK_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(
@@ -21,10 +22,15 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const deepseek = createOpenAI({ 
+      apiKey, 
+      baseURL: 'https://api.deepseek.com'
+    });
+
     const result = await generateText({
       abortSignal: req.signal,
       maxOutputTokens: 50,
-      model: `openai/${model}`,
+      model: deepseek('deepseek-v4-flash'),
       prompt,
       system,
       temperature: 0.7,

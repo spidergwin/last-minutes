@@ -5,6 +5,7 @@ import { Languages } from "@/components/sections/languages";
 import { Pricing } from "@/components/sections/pricing";
 import { Testimonials } from "@/components/sections/testimonials";
 import { FAQ } from "@/components/sections/faq";
+import { Download } from "@/components/sections/download";
 import { CTA } from "@/components/sections/cta";
 import { Navbar } from "@/components/sections/navbar";
 import { Footer } from "@/components/sections/footer";
@@ -19,6 +20,7 @@ export default function LandingPage() {
         <Benefits />
         <Languages />
         <Testimonials />
+        <Download />
         <Pricing />
         <FAQ />
         <CTA />

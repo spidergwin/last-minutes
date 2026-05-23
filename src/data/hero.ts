@@ -6,7 +6,7 @@ export const heroContent = {
     line2: "in Conversation",
   },
   description:
-    "Intelligent transcription that understands nuance, respects accessibility, and works everywhere. With first-class support for Nigerian languages and real-time AI insights — built for professionals who demand precision.",
+    "Intelligent transcription that understands nuance, respects accessibility, and works everywhere. With Nigerian language support coming soon and real-time AI insights — built for professionals who demand precision.",
   cta: {
     primary: { text: "Start Free Trial", href: "/signup" },
     secondary: { text: "Watch Demo", href: "#features" },

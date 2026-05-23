@@ -5,21 +5,21 @@
 
 import OpenAI from "openai";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
-if (!OPENAI_API_KEY && process.env.NODE_ENV === "production") {
-  console.warn("⚠️ OPENAI_API_KEY is not set. AI features will not work.");
+if (!DEEPSEEK_API_KEY && process.env.NODE_ENV === "production") {
+  console.warn("⚠️ DEEPSEEK_API_KEY is not set. AI features will not work.");
 }
 
-export const openai = OPENAI_API_KEY
-  ? new OpenAI({ apiKey: OPENAI_API_KEY })
+export const openai = DEEPSEEK_API_KEY
+  ? new OpenAI({ apiKey: DEEPSEEK_API_KEY, baseURL: "https://api.deepseek.com" })
   : null;
 
 /**
  * The default model for all AI operations.
- * GPT-4o-mini provides the best cost/quality ratio for summarization and translation.
+ * DeepSeek V4-Flash provides the best cost/quality ratio for summarization and translation.
  */
-export const DEFAULT_MODEL = "gpt-4o-mini";
+export const DEFAULT_MODEL = "deepseek-v4-flash";
 
 /**
  * Generate a completion with structured error handling.
@@ -32,7 +32,7 @@ export async function generateCompletion(options: {
   temperature?: number;
 }): Promise<string> {
   if (!openai) {
-    throw new Error("OpenAI client not configured. Set OPENAI_API_KEY.");
+    throw new Error("DeepSeek client not configured. Set DEEPSEEK_API_KEY.");
   }
 
   const response = await openai.chat.completions.create({
@@ -65,7 +65,7 @@ export async function* generateStreamingCompletion(options: {
   temperature?: number;
 }): AsyncGenerator<string> {
   if (!openai) {
-    throw new Error("OpenAI client not configured. Set OPENAI_API_KEY.");
+    throw new Error("DeepSeek client not configured. Set DEEPSEEK_API_KEY.");
   }
 
   const stream = await openai.chat.completions.create({

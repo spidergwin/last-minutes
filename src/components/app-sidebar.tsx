@@ -117,6 +117,7 @@ export function AppSidebar() {
                     asChild
                     isActive={isActive(item)}
                     tooltip={item.title}
+                    id={`sidebar-nav-${item.title.toLowerCase().replace(" new ", "").replace(" ", "-")}`}
                   >
                     <Link href={item.url}>
                       <item.icon />
@@ -139,6 +140,7 @@ export function AppSidebar() {
                     asChild
                     isActive={pathname.startsWith(item.url)}
                     tooltip={item.title}
+                    id={`sidebar-nav-${item.title.toLowerCase().replace(" ", "-")}`}
                   >
                     <Link href={item.url}>
                       <item.icon />

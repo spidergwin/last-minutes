@@ -43,6 +43,8 @@ export default function DictationWorkspace() {
     interimTranscript,
     isListening,
     isProcessing,
+    language,
+    setLanguage,
     targetLanguage,
     setTargetLanguage,
     reset,
@@ -555,6 +557,7 @@ export default function DictationWorkspace() {
               )}
               <button
                 onClick={handleToggleMic}
+                id="dictation-mic-button"
                 className={`relative group flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${isListening
                   ? "bg-red-500 hover:bg-red-600 shadow-red-500/30"
                   : "bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-amber-500/30"
@@ -588,8 +591,27 @@ export default function DictationWorkspace() {
               )}
             </div>
 
-            {/* Right actions — Translation */}
+            {/* Right actions — Source Language & Translation */}
             <div className="flex items-center gap-2">
+              <Select
+                value={language || "en"}
+                onValueChange={(value) => setLanguage(value)}
+              >
+                <SelectTrigger id="dictation-language-selector" className="h-10 w-[110px] sm:w-[140px] rounded-xl text-sm border-border/60 bg-muted/20">
+                  <SelectValue placeholder="Source Language" />
+                </SelectTrigger>
+                <SelectContent position="popper" className="max-h-72">
+                  <SelectItem value="multi" className="text-sm py-2 font-medium text-amber-600 dark:text-amber-400">
+                    Auto / Mixed Languages
+                  </SelectItem>
+                  {Object.entries(SUPPORTED_LANGUAGES).map(([code, { name, nativeName }]) => (
+                    <SelectItem key={code} value={code} className="text-sm py-2">
+                      {name} <span className="text-muted-foreground text-xs">({nativeName})</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Select
                 value={targetLanguage || ""}
                 onValueChange={(value) => setTargetLanguage(value || null)}
