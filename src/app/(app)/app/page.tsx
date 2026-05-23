@@ -5,13 +5,13 @@ import { useStreamingTranscription } from "@/hooks/useStreamingTranscription";
 import { useDictationStore } from "@/store/dictation";
 import { useTranslate, useCreateTranscript } from "@/hooks";
 import { autoFormatTranscript, normalizeSpeakerLabel, isMeetingTranscript, getSpeakerColor } from "@/lib/format-transcript";
-import { 
-  Mic, 
-  StopCircle, 
-  Copy, 
-  Download, 
-  RotateCcw, 
-  Languages, 
+import {
+  Mic,
+  StopCircle,
+  Copy,
+  Download,
+  RotateCcw,
+  Languages,
   Trash2,
   FileText,
   Save,
@@ -449,7 +449,7 @@ export default function DictationWorkspace() {
 
       {/* Bottom Control Bar */}
       <div className="shrink-0 px-4 py-4">
-        <div className="flex items-center justify-between gap-4 rounded-2xl border border-border/60 bg-card shadow-lg px-4 py-3">
+        <div className="flex items-center justify-between gap-4 px-4 py-3">
           {/* Left actions */}
           <div className="flex items-center gap-2">
             <TooltipProvider delayDuration={300}>
@@ -495,11 +495,10 @@ export default function DictationWorkspace() {
             )}
             <button
               onClick={handleToggleMic}
-              className={`relative group flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${
-                isListening
-                  ? "bg-red-500 hover:bg-red-600 shadow-red-500/30"
-                  : "bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-amber-500/30"
-              } shadow-lg active:scale-95`}
+              className={`relative group flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${isListening
+                ? "bg-red-500 hover:bg-red-600 shadow-red-500/30"
+                : "bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-amber-500/30"
+                } shadow-lg active:scale-95`}
             >
               {isListening ? (
                 <StopCircle className="h-6 w-6 text-white" />
