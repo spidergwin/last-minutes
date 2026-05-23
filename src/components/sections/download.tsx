@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export function Download() {
   return (
@@ -19,9 +20,14 @@ export function Download() {
             className="space-y-8"
           >
             <div className="space-y-4">
-              <Badge variant="secondary" className="px-3 py-1 text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400 bg-amber-500/10">
-                Mobile App
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="px-3 py-1 text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400 bg-amber-500/10">
+                  Mobile App
+                </Badge>
+                <Badge variant="outline" className="px-2 py-0.5 text-[10px] uppercase tracking-wider border-amber-500/30 text-amber-600 dark:text-amber-500">
+                  Coming Soon
+                </Badge>
+              </div>
               <h2 className="text-4xl md:text-5xl font-bold font-[family-name:var(--font-display)] leading-tight">
                 Capture thoughts <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">
@@ -77,48 +83,20 @@ export function Download() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative mx-auto w-full max-w-[320px] lg:max-w-none"
+            className="relative mx-auto w-full max-w-[260px] md:max-w-[280px]"
           >
             <div className="relative rounded-[2.5rem] border-[8px] border-zinc-900 dark:border-zinc-800 bg-background shadow-2xl overflow-hidden aspect-[9/19]">
               {/* iPhone Notch */}
               <div className="absolute top-0 inset-x-0 h-6 bg-zinc-900 dark:bg-zinc-800 rounded-b-3xl w-[120px] mx-auto z-20" />
               
               {/* Screen Content Mockup */}
-              <div className="absolute inset-0 bg-zinc-50 dark:bg-zinc-950 p-4 pt-10">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <div className="h-6 w-20 bg-amber-500/20 rounded-full" />
-                    <div className="h-8 w-8 bg-muted rounded-full" />
-                  </div>
-                  
-                  <div className="h-24 w-full bg-muted rounded-2xl animate-pulse" />
-                  
-                  <div className="space-y-2">
-                    <div className="h-16 w-full bg-card border rounded-2xl p-3 flex gap-3">
-                      <div className="h-10 w-10 bg-amber-500/20 rounded-xl" />
-                      <div className="space-y-2 flex-1 pt-1">
-                        <div className="h-2 w-2/3 bg-muted rounded" />
-                        <div className="h-2 w-1/3 bg-muted rounded" />
-                      </div>
-                    </div>
-                    <div className="h-16 w-full bg-card border rounded-2xl p-3 flex gap-3">
-                      <div className="h-10 w-10 bg-blue-500/20 rounded-xl" />
-                      <div className="space-y-2 flex-1 pt-1">
-                        <div className="h-2 w-1/2 bg-muted rounded" />
-                        <div className="h-2 w-1/4 bg-muted rounded" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Mobile Mic Button */}
-                <div className="absolute bottom-6 inset-x-0 flex justify-center">
-                  <div className="h-16 w-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full shadow-lg shadow-amber-500/40 flex items-center justify-center border-4 border-background">
-                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
-                  </div>
-                </div>
+              <div className="absolute inset-0 bg-zinc-50 dark:bg-zinc-950 overflow-hidden">
+                <Image 
+                  src="/app-image.png" 
+                  alt="App Mockup" 
+                  fill
+                  className="object-cover"
+                />
               </div>
             </div>
             

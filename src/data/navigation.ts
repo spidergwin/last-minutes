@@ -1,8 +1,9 @@
 export const mainNav = [
-  { name: "Features", href: "#features" },
-  { name: "Languages", href: "#languages" },
-  { name: "Pricing", href: "#pricing" },
-  { name: "FAQ", href: "#faq" },
+  { name: "Features", href: "/#features" },
+  { name: "Languages", href: "/#languages" },
+  { name: "Pricing", href: "/#pricing" },
+  { name: "Download App", href: "/download" },
+  { name: "FAQ", href: "/#faq" },
 ] as const;
 
 export const footerSections = [

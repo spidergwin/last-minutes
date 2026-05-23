@@ -56,7 +56,7 @@ export const fileUploadSchema = z.object({
 });
 
 export const fileValidation = {
-  maxSize: 2.5 * 1024 * 1024 * 1024, // 2.5GB
+  maxSize: 2 * 1024 * 1024 * 1024, // 2GB
   allowedAudioTypes: ["audio/mpeg", "audio/wav", "audio/mp4"],
   allowedVideoTypes: ["video/mp4", "video/webm"],
   getAllowedTypes() {
