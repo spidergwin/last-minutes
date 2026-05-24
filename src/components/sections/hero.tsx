@@ -45,11 +45,11 @@ export function Hero() {
           {/* Headline */}
           <motion.h1
             variants={fadeUp}
-            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 font-[family-name:var(--font-display)] leading-[1.1] sm:leading-[1.05]"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 font-[family-name:var(--font-display)] leading-[1.1] sm:leading-[1.05]"
           >
             {heroContent.title.line1}{" "}
             <span className="text-gradient">{heroContent.title.highlight}</span>
-            <br className="hidden sm:block" />
+            <br />
             <span className="text-muted-foreground/70">{heroContent.title.line2}</span>
           </motion.h1>
 
