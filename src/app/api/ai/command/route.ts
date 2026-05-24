@@ -4,7 +4,6 @@ import type {
 } from '@/components/editor/use-chat';
 import type { NextRequest } from 'next/server';
 
-import { createOpenAI } from '@ai-sdk/openai';
 import {
   type LanguageModel,
   type UIMessageStreamWriter,
@@ -20,6 +19,7 @@ import { type SlateEditor, createSlateEditor, nanoid } from 'platejs';
 import { z } from 'zod';
 
 import { BaseEditorKit } from '@/components/editor/editor-base-kit';
+import { getModel } from '@/lib/ai';
 import { markdownJoinerTransform } from '@/lib/markdown-joiner-transform';
 
 import {
@@ -31,7 +31,7 @@ import {
 } from './prompt';
 
 export async function POST(req: NextRequest) {
-  const { apiKey: key, ctx, messages: messagesRaw, model } = await req.json();
+  const { ctx, messages: messagesRaw } = await req.json();
 
   const { children, selection, toolName: toolNameParam } = ctx;
 
@@ -41,21 +41,8 @@ export async function POST(req: NextRequest) {
     value: children,
   });
 
-  const apiKey = key || process.env.AI_GATEWAY_API_KEY;
-
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: 'Missing AI Gateway API key.' },
-      { status: 401 }
-    );
-  }
-
-  const isSelecting = editor.api.isExpanded();
-
-  const deepseek = createOpenAI({
-    apiKey,
-    baseURL: 'https://api.deepseek.com',
-  });
+  // Use the centralized provider-agnostic model
+  const model = getModel();
 
   try {
     const stream = createUIMessageStream<ChatMessage>({
@@ -64,17 +51,16 @@ export async function POST(req: NextRequest) {
 
         if (!toolName) {
           const prompt = getChooseToolPrompt({
-            isSelecting,
+            isSelecting: editor.api.isExpanded(),
             messages: messagesRaw,
           });
 
-          const enumOptions = isSelecting
+          const enumOptions = editor.api.isExpanded()
             ? ['generate', 'edit', 'comment']
             : ['generate', 'comment'];
-          const modelId = model || 'google/gemini-2.5-flash';
 
           const { output: AIToolName } = await generateText({
-            model: deepseek('deepseek-v4-flash'),
+            model,
             output: Output.choice({ options: enumOptions }),
             prompt,
           });
@@ -89,18 +75,18 @@ export async function POST(req: NextRequest) {
 
         const stream = streamText({
           experimental_transform: markdownJoinerTransform(),
-          model: deepseek('deepseek-v4-flash'),
+          model,
           // Not used
           prompt: '',
           tools: {
             comment: getCommentTool(editor, {
               messagesRaw,
-              model: deepseek('deepseek-v4-flash'),
+              model,
               writer,
             }),
             table: getTableTool(editor, {
               messagesRaw,
-              model: deepseek('deepseek-v4-flash'),
+              model,
               writer,
             }),
           },
@@ -114,7 +100,7 @@ export async function POST(req: NextRequest) {
 
             if (toolName === 'edit') {
               const [editPrompt, editType] = getEditPrompt(editor, {
-                isSelecting,
+                isSelecting: editor.api.isExpanded(),
                 messages: messagesRaw,
               });
 
@@ -129,7 +115,7 @@ export async function POST(req: NextRequest) {
               return {
                 ...step,
                 activeTools: [],
-                model: deepseek('deepseek-v4-flash'),
+                model,
                 messages: [
                   {
                     content: editPrompt,
@@ -141,7 +127,7 @@ export async function POST(req: NextRequest) {
 
             if (toolName === 'generate') {
               const generatePrompt = getGeneratePrompt(editor, {
-                isSelecting,
+                isSelecting: editor.api.isExpanded(),
                 messages: messagesRaw,
               });
 
@@ -154,7 +140,7 @@ export async function POST(req: NextRequest) {
                     role: 'user',
                   },
                 ],
-                model: deepseek('deepseek-v4-flash'),
+                model,
               };
             }
           },

@@ -1,7 +1,0 @@
-
-> last-minutes@0.1.0 typecheck /home/gwin/projects/lastminutes/last-minutes
-> tsc --noEmit
-
-src/hooks/useFileUpload.ts(4,10): error TS2305: Module '"uploadthing/client"' has no exported member 'uploadFiles'.
-src/hooks/useFileUpload.ts(190,32): error TS7031: Binding element 'progress' implicitly has an 'any' type.
- ELIFECYCLE  Command failed with exit code 2.

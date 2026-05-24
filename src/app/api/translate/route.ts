@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { checkRateLimit } from "@/lib/ratelimit";
 import { auth } from "@/lib/auth";
 import { translateText } from "@/lib/translation";
+import { getProviderName } from "@/lib/ai";
 
 async function getTranslation(
   text: string,
@@ -11,6 +12,8 @@ async function getTranslation(
   targetLang: string,
   userId: string
 ): Promise<{ translatedText: string; provider: string }> {
+  const provider = getProviderName();
+
   try {
     const translatedText = await translateText(text, sourceLang, targetLang);
 
@@ -22,12 +25,12 @@ async function getTranslation(
         targetLang,
         wordCount: text.split(/\s+/).length,
         success: true,
-        provider: "deepseek",
+        provider,
         translationTime: 0, // Would measure actual time
       },
     });
 
-    return { translatedText, provider: "deepseek" };
+    return { translatedText, provider };
   } catch (error) {
     console.error("Translation failed:", error);
     throw error;

@@ -1,88 +1,115 @@
 /**
- * AI client configuration for summarization and translation.
- * Uses OpenAI GPT-4o-mini for optimal cost/quality ratio.
+ * Centralized AI provider configuration.
+ *
+ * Switch providers by setting the AI_PROVIDER env variable:
+ *   AI_PROVIDER=gemini   → Google Gemini 2.5 Flash (free tier, 1500 req/day)
+ *   AI_PROVIDER=deepseek → DeepSeek V4-Flash ($0.14/M input tokens)
+ *
+ * Each provider needs its own API key:
+ *   GOOGLE_GENERATIVE_AI_API_KEY  → for Gemini
+ *   DEEPSEEK_API_KEY              → for DeepSeek
  */
 
-import OpenAI from "openai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { generateText, type LanguageModel } from "ai";
 
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+// ---------------------------------------------------------------------------
+// Provider config
+// ---------------------------------------------------------------------------
 
-if (!DEEPSEEK_API_KEY && process.env.NODE_ENV === "production") {
-  console.warn("⚠️ DEEPSEEK_API_KEY is not set. AI features will not work.");
+export type AIProvider = "gemini" | "deepseek";
+
+export const AI_PROVIDER: AIProvider =
+  (process.env.AI_PROVIDER as AIProvider) || "gemini";
+
+/** Model identifiers per provider */
+const MODEL_IDS: Record<AIProvider, string> = {
+  gemini: "gemini-2.5-flash",
+  deepseek: "deepseek-v4-flash",
+};
+
+// ---------------------------------------------------------------------------
+// Provider instances (lazy — only created when actually used)
+// ---------------------------------------------------------------------------
+
+function createDeepSeekProvider() {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error("DEEPSEEK_API_KEY is not set. Cannot use DeepSeek provider.");
+  }
+  return createOpenAI({
+    apiKey,
+    baseURL: "https://api.deepseek.com",
+  });
 }
 
-export const openai = DEEPSEEK_API_KEY
-  ? new OpenAI({ apiKey: DEEPSEEK_API_KEY, baseURL: "https://api.deepseek.com" })
-  : null;
+function createGeminiProvider() {
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "GOOGLE_GENERATIVE_AI_API_KEY is not set. Cannot use Gemini provider."
+    );
+  }
+  return createGoogleGenerativeAI({
+    apiKey,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 /**
- * The default model for all AI operations.
- * DeepSeek V4-Flash provides the best cost/quality ratio for summarization and translation.
+ * Get an AI SDK LanguageModel for the configured provider.
+ * This is the single source of truth — use this everywhere.
+ *
+ * @param modelOverride - Optional model ID override (e.g. "deepseek-v4-pro")
  */
-export const DEFAULT_MODEL = "deepseek-v4-flash";
+export function getModel(modelOverride?: string): LanguageModel {
+  const modelId = modelOverride ?? MODEL_IDS[AI_PROVIDER];
+
+  if (AI_PROVIDER === "deepseek") {
+    const provider = createDeepSeekProvider();
+    return provider(modelId);
+  }
+
+  // Default: Gemini
+  const provider = createGeminiProvider();
+  return provider(modelId);
+}
+
+/**
+ * The active provider name — useful for logging/analytics.
+ */
+export function getProviderName(): string {
+  return AI_PROVIDER;
+}
 
 /**
  * Generate a completion with structured error handling.
+ * Used by translation and summarization services.
  */
 export async function generateCompletion(options: {
   systemPrompt: string;
   userPrompt: string;
   model?: string;
-  maxTokens?: number;
+  maxOutputTokens?: number;
   temperature?: number;
 }): Promise<string> {
-  if (!openai) {
-    throw new Error("DeepSeek client not configured. Set DEEPSEEK_API_KEY.");
-  }
-
-  const response = await openai.chat.completions.create({
-    model: options.model ?? DEFAULT_MODEL,
-    messages: [
-      { role: "system", content: options.systemPrompt },
-      { role: "user", content: options.userPrompt },
-    ],
-    max_tokens: options.maxTokens ?? 4096,
+  const result = await generateText({
+    model: getModel(options.model),
+    system: options.systemPrompt,
+    prompt: options.userPrompt,
+    maxOutputTokens: options.maxOutputTokens ?? 4096,
     temperature: options.temperature ?? 0.3,
   });
 
-  const content = response.choices[0]?.message?.content;
+  const content = result.text;
 
   if (!content) {
     throw new Error("AI returned empty response.");
   }
 
   return content;
-}
-
-/**
- * Generate a streaming completion for real-time UI updates.
- */
-export async function* generateStreamingCompletion(options: {
-  systemPrompt: string;
-  userPrompt: string;
-  model?: string;
-  maxTokens?: number;
-  temperature?: number;
-}): AsyncGenerator<string> {
-  if (!openai) {
-    throw new Error("DeepSeek client not configured. Set DEEPSEEK_API_KEY.");
-  }
-
-  const stream = await openai.chat.completions.create({
-    model: options.model ?? DEFAULT_MODEL,
-    messages: [
-      { role: "system", content: options.systemPrompt },
-      { role: "user", content: options.userPrompt },
-    ],
-    max_tokens: options.maxTokens ?? 4096,
-    temperature: options.temperature ?? 0.3,
-    stream: true,
-  });
-
-  for await (const chunk of stream) {
-    const content = chunk.choices[0]?.delta?.content;
-    if (content) {
-      yield content;
-    }
-  }
 }
