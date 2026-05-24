@@ -291,9 +291,9 @@ export default function DictationWorkspace() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-full max-w-7xl mx-auto gap-3 sm:gap-4 p-2 sm:p-4 lg:p-6">
+    <div className="flex flex-col lg:flex-row h-full min-h-[360px] max-w-7xl mx-auto gap-3 sm:gap-4 p-2 sm:p-4 lg:p-6">
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col min-w-0 max-w-4xl mx-auto w-full relative">
+      <div className="flex-1 flex flex-col min-w-0 max-w-4xl mx-auto w-full">
         {/* Error Banner */}
         <AnimatePresence>
           {(error || streamingError) && (
@@ -301,9 +301,9 @@ export default function DictationWorkspace() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="px-1 pt-1 shrink-0"
+              className="px-1 pt-1"
             >
-              <Alert variant="destructive" className="py-2 mb-4">
+              <Alert variant="destructive" className="py-2">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="flex items-center justify-between">
                   <span className="text-sm">{error || streamingError}</span>
@@ -317,11 +317,11 @@ export default function DictationWorkspace() {
         </AnimatePresence>
 
         {/* Main Content Area */}
-        <div className="flex flex-col gap-4 pb-24">
+        <div className="flex-1 flex flex-col gap-4 pb-0 min-h-0">
           {/* Transcript Panel */}
-          <div className="flex flex-col min-w-0 rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden">
+          <div className="flex-1 flex flex-col min-w-0 rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden">
             {/* Transcript Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 border-b border-border/40 bg-muted/20 gap-3 shrink-0">
+            <div className="flex flex-col md:flex-row md:items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 border-b border-border/40 bg-muted/20 gap-3">
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
@@ -404,7 +404,7 @@ export default function DictationWorkspace() {
             </div>
 
             {/* Transcript Body */}
-            <div className="relative min-h-[300px]">
+            <div className="h-[450px] sm:h-[550px] overflow-y-auto scrollbar-thin relative">
               {transcript || interimTranscript ? (
                 <div className="p-5 text-[15px] leading-[1.8] text-foreground/90">
                   {/* Show speaker-labeled segments if available during live recording */}
@@ -429,7 +429,7 @@ export default function DictationWorkspace() {
                       })}
                     </div>
                   ) : (
-                    <p className="whitespace-pre-wrap">{transcript}</p>
+                    <>{transcript}</>
                   )}
                   <AnimatePresence>
                     {interimTranscript && (
@@ -445,7 +445,7 @@ export default function DictationWorkspace() {
                   <div ref={transcriptEndRef} />
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center text-center p-12 py-24">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
                   {/* Animated waveform idle indicator */}
                   <div className="flex items-end gap-[3px] h-10 mb-5 relative">
                     <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full" />
@@ -472,7 +472,7 @@ export default function DictationWorkspace() {
             </div>
 
             {/* Transcript Footer — Status + Word Count */}
-            <div className="flex items-center justify-between px-5 py-2.5 border-t border-border/40 bg-muted/10 text-xs text-muted-foreground shrink-0">
+            <div className="flex items-center justify-between px-5 py-2.5 border-t border-border/40 bg-muted/10 text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
                 <span className="tabular-nums">{wordCount} {wordCount === 1 ? "word" : "words"}</span>
                 {transcript && (
@@ -505,13 +505,13 @@ export default function DictationWorkspace() {
           <AnimatePresence>
             {showTranslation && translatedText && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="flex flex-col w-full rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden shrink-0"
+                className="flex flex-col w-full lg:w-[340px] rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden shrink-0"
               >
-                <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 bg-amber-500/5 shrink-0">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 bg-amber-500/5">
                   <div className="flex items-center gap-2">
                     <Languages className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                     <span className="text-sm font-semibold">Translation</span>
@@ -520,10 +520,10 @@ export default function DictationWorkspace() {
                     <X className="h-3.5 w-3.5" />
                   </Button>
                 </div>
-                <div className="p-4 text-[14px] leading-[1.8] text-foreground/90 whitespace-pre-wrap">
+                <div className="h-[250px] sm:h-[300px] overflow-y-auto p-4 text-[14px] leading-[1.8] text-foreground/90 scrollbar-thin">
                   {translatedText}
                 </div>
-                <div className="flex items-center justify-between px-4 py-2.5 border-t border-border/40 bg-muted/10 shrink-0">
+                <div className="flex items-center justify-between px-4 py-2.5 border-t border-border/40 bg-muted/10">
                   <span className="text-xs text-muted-foreground capitalize">
                     {SUPPORTED_LANGUAGES[targetLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || "Translation"}
                   </span>
@@ -541,112 +541,109 @@ export default function DictationWorkspace() {
           </AnimatePresence>
         </div>
 
-        {/* Sticky Bottom Control Bar */}
-        <div className="fixed bottom-0 left-0 right-0 lg:left-[calc(280px+1.5rem)] lg:right-[calc(320px+1.5rem)] z-40 px-4 pb-6 pt-2 pointer-events-none">
-          <div className="max-w-4xl mx-auto w-full pointer-events-auto">
-            <div className="bg-background/80 backdrop-blur-md border border-border/60 rounded-2xl shadow-2xl p-3 sm:p-4">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                
-                {/* Translation Actions (Row 1 on mobile, Right on desktop) */}
-                <div className="flex items-center gap-2 w-full lg:w-auto order-1 lg:order-2">
-                  <Select
-                    value={targetLanguage || ""}
-                    onValueChange={(value) => setTargetLanguage(value || null)}
-                  >
-                    <SelectTrigger className="h-10 flex-1 lg:w-[140px] rounded-xl text-sm border-border/60 bg-background shadow-sm">
-                      <SelectValue placeholder="Target Language" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" className="max-h-72">
-                      {Object.entries(SUPPORTED_LANGUAGES).map(([code, { name, nativeName }]) => (
-                        <SelectItem key={code} value={code} className="text-sm py-2">
-                          {name} <span className="text-muted-foreground text-xs">({nativeName})</span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+        {/* Bottom Control Bar */}
+        <div className="shrink-0 py-3 sm:py-4">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+            
+            {/* Translation Actions (Row 1 on mobile, Right on desktop) */}
+            <div className="flex items-center gap-2 w-full lg:w-auto order-1 lg:order-2">
+              <Select
+                value={targetLanguage || ""}
+                onValueChange={(value) => setTargetLanguage(value || null)}
+              >
+                <SelectTrigger className="h-10 flex-1 lg:w-[140px] rounded-xl text-sm border-border/60 bg-background shadow-sm">
+                  <SelectValue placeholder="Target Language" />
+                </SelectTrigger>
+                <SelectContent position="popper" className="max-h-72">
+                  {Object.entries(SUPPORTED_LANGUAGES).map(([code, { name, nativeName }]) => (
+                    <SelectItem key={code} value={code} className="text-sm py-2">
+                      {name} <span className="text-muted-foreground text-xs">({nativeName})</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                  <Button
-                    className="h-10 px-4 rounded-xl gap-2 text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md shadow-amber-500/15 border-0 flex-1 lg:flex-none"
-                    disabled={!transcript || !targetLanguage || translateMutation.isPending}
-                    onClick={handleTranslate}
-                  >
-                    {translateMutation.isPending ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Wand2 className="h-3.5 w-3.5" />
-                    )}
-                    <span>Translate</span>
-                  </Button>
-                </div>
+              <Button
+                className="h-10 px-4 rounded-xl gap-2 text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md shadow-amber-500/15 border-0 flex-1 lg:flex-none"
+                disabled={!transcript || !targetLanguage || translateMutation.isPending}
+                onClick={handleTranslate}
+              >
+                {translateMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Wand2 className="h-3.5 w-3.5" />
+                )}
+                <span>Translate</span>
+              </Button>
+            </div>
 
-                {/* Main Actions (Row 2 on mobile, Left on desktop) */}
-                <div className="flex items-center justify-between lg:justify-start gap-4 w-full lg:w-auto order-2 lg:order-1">
-                  {/* Reset button */}
-                  <TooltipProvider delayDuration={300}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-11 w-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                          onClick={() => { reset(); setTranslatedText(""); setShowTranslation(false); }}
-                          disabled={!transcript && !isListening}
-                        >
-                          <RotateCcw className="h-5 w-5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent className="text-xs">Reset Workspace</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  {/* Mic button and timer */}
-                  <div className="flex items-center gap-3">
-                    {isListening && (
-                      <div className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm text-red-500 tabular-nums font-bold">
-                        <Clock className="h-3.5 w-3.5 hidden sm:block" />
-                        {formatTime(elapsedTime)}
-                      </div>
-                    )}
-                    <button
-                      onClick={handleToggleMic}
-                      id="dictation-mic-button"
-                      className={`relative group flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${isListening
-                        ? "bg-red-500 hover:bg-red-600 shadow-red-500/30"
-                        : "bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-amber-500/30"
-                        } shadow-lg active:scale-95`}
+            {/* Main Actions (Row 2 on mobile, Left on desktop) */}
+            <div className="flex items-center justify-between lg:justify-start gap-4 w-full lg:w-auto order-2 lg:order-1 bg-muted/30 lg:bg-transparent p-2 lg:p-0 rounded-2xl border border-border/40 lg:border-0">
+              {/* Reset button */}
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-11 w-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-background"
+                      onClick={() => { reset(); setTranslatedText(""); setShowTranslation(false); }}
+                      disabled={!transcript && !isListening}
                     >
-                      {isListening ? (
-                        <StopCircle className="h-6 w-6 text-white" />
-                      ) : (
-                        <Mic className="h-6 w-6 text-white" />
-                      )}
-                      {isListening && (
-                        <span className="absolute inset-0 rounded-2xl border-2 border-red-500 animate-ping opacity-20" />
-                      )}
-                    </button>
-                  </div>
+                      <RotateCcw className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="text-xs">Reset Workspace</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-                  {/* Save button */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-11 px-4 rounded-xl gap-2 text-sm font-medium border-border/60 hover:bg-muted/50"
-                    onClick={handleSave}
-                    disabled={!transcript || createTranscriptMutation.isPending}
-                  >
-                    {createTranscriptMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4" />
-                    )}
-                    <span className="hidden sm:inline">Save</span>
-                  </Button>
-                </div>
+              {/* Mic button and timer */}
+              <div className="flex items-center gap-3">
+                {isListening && (
+                  <div className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm text-red-500 tabular-nums font-bold">
+                    <Clock className="h-3.5 w-3.5 hidden sm:block" />
+                    {formatTime(elapsedTime)}
+                  </div>
+                )}
+                <button
+                  onClick={handleToggleMic}
+                  id="dictation-mic-button"
+                  className={`relative group flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${isListening
+                    ? "bg-red-500 hover:bg-red-600 shadow-red-500/30"
+                    : "bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-amber-500/30"
+                    } shadow-lg active:scale-95`}
+                >
+                  {isListening ? (
+                    <StopCircle className="h-6 w-6 text-white" />
+                  ) : (
+                    <Mic className="h-6 w-6 text-white" />
+                  )}
+                  {isListening && (
+                    <span className="absolute inset-0 rounded-2xl border-2 border-red-500 animate-ping opacity-20" />
+                  )}
+                </button>
               </div>
+
+              {/* Save button */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-11 px-4 rounded-xl gap-2 text-sm font-medium border-border/60 hover:bg-background"
+                onClick={handleSave}
+                disabled={!transcript || createTranscriptMutation.isPending}
+              >
+                {createTranscriptMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                <span className="hidden sm:inline">Save</span>
+              </Button>
             </div>
           </div>
         </div>
       </div>
+
       {/* Side Panel - Recent Transcripts */}
       <div className="hidden lg:flex flex-col w-80 shrink-0 gap-4 h-full">
         <Card className="h-full border-border/60 bg-card shadow-sm overflow-hidden flex flex-col">
