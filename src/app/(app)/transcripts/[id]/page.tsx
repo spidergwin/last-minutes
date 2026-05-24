@@ -2,7 +2,7 @@
 
 import { use, useState, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { useTranscript, useDeleteTranscript, useSummarize, useUpdateTranscript, useTranslate } from "@/hooks";
+import { useTranscript, useDeleteTranscript, useSummarize, useUpdateTranscript, useTranslate, useDeleteSummary } from "@/hooks";
 import { isMeetingTranscript, normalizeSpeakerLabel } from "@/lib/format-transcript";
 import { Summary } from "@/lib/validations";
 
@@ -59,6 +59,7 @@ export default function TranscriptDetailPage({
   const summarizeMutation = useSummarize();
   const translateMutation = useTranslate();
   const updateMutation = useUpdateTranscript();
+  const deleteSummaryMutation = useDeleteSummary();
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState("");
@@ -66,6 +67,7 @@ export default function TranscriptDetailPage({
   const [summaryResult, setSummaryResult] = useState<any>(null);
   const [targetLang, setTargetLang] = useState<string>("fr");
   const [viewMode, setViewMode] = useState<"original" | "translated">("original");
+  const [translatedSegments, setTranslatedSegments] = useState<any[] | null>(null);
 
   // Meeting detection — auto-select conversation view when speakers data exists
   const hasMeetingData = useMemo(
@@ -73,6 +75,12 @@ export default function TranscriptDetailPage({
     [transcript?.speakers]
   );
 
+  const displaySegments = useMemo(() => {
+    if (viewMode === "translated" && translatedSegments) {
+      return translatedSegments;
+    }
+    return (transcript?.segments as any[]) ?? [];
+  }, [viewMode, translatedSegments, transcript?.segments]);
 
   const handleCopy = useCallback(() => {
     if (transcript?.originalText) {
@@ -146,9 +154,21 @@ export default function TranscriptDetailPage({
     }
   };
 
+  const handleDeleteSummary = async (summaryId: string) => {
+    if (!confirm("Are you sure you want to delete this summary?")) return;
+    try {
+      await deleteSummaryMutation.mutateAsync(summaryId);
+      queryClient.invalidateQueries({ queryKey: ["transcript", id] });
+      toast.success("Summary deleted");
+    } catch {
+      toast.error("Failed to delete summary");
+    }
+  };
+
   const handleTranslate = async () => {
     if (!transcript) return;
     try {
+      // 1. Translate the main text
       const result = await translateMutation.mutateAsync({
         text: transcript.originalText,
         sourceLang: transcript.sourceLanguage,
@@ -156,11 +176,36 @@ export default function TranscriptDetailPage({
       });
       
       const translatedText = result.data.translatedText;
+      let newSegments = null;
+
+      // 2. If it's a meeting, we need to translate segments too
+      if (hasMeetingData && transcript.segments && Array.isArray(transcript.segments)) {
+        const segmentsToTranslate = (transcript.segments as any[]).map(s => s.text);
+        
+        // Batch translate segments (or do them in one prompt if small, but let's assume we need to translate them)
+        // For now, let's just translate the combined segments text if it's too much work to do each
+        // Better: Translate each segment so we keep the structure
+        const segmentsResult = await Promise.all((transcript.segments as any[]).map(async (seg) => {
+          const transResult = await translateMutation.mutateAsync({
+            text: seg.text,
+            sourceLang: transcript.sourceLanguage,
+            targetLang,
+          });
+          return { ...seg, text: transResult.data.translatedText };
+        }));
+        
+        newSegments = segmentsResult;
+        setTranslatedSegments(newSegments);
+      }
       
       // Save translation to transcript
       await updateMutation.mutateAsync({
         id: transcript.id,
-        data: { translatedText, targetLanguage: targetLang },
+        data: { 
+          translatedText, 
+          targetLanguage: targetLang,
+          ...(newSegments && { segments: newSegments }) // Update segments too if we have them
+        },
       });
       
       queryClient.invalidateQueries({ queryKey: ["transcript", id] });
@@ -326,7 +371,7 @@ export default function TranscriptDetailPage({
                 />
               ) : hasMeetingData ? (
                 <MeetingTranscriptView
-                  segments={(transcript.segments as any[]) ?? []}
+                  segments={displaySegments}
                   speakers={(transcript.speakers as string[]) ?? []}
                   duration={transcript.duration || undefined}
                   onRenameSpeaker={async (oldName, newName) => {
@@ -442,6 +487,8 @@ export default function TranscriptDetailPage({
                         <SummaryRenderer 
                           content={summary.content} 
                           type={summary.type} 
+                          onDelete={() => handleDeleteSummary(summary.id)}
+                          isDeleting={deleteSummaryMutation.isPending}
                         />
                       </div>
                     </div>

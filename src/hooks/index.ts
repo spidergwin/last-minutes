@@ -155,6 +155,22 @@ export function useSummarize() {
   });
 }
 
+export function useDeleteSummary() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/summarize/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete summary");
+      }
+
+      return response.json();
+    },
+  });
+}
+
 // ============= Update Transcript Hook =============
 
 interface UpdateTranscriptParams {
