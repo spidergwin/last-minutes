@@ -35,7 +35,7 @@ export function Hero() {
           <motion.div variants={fadeUp}>
             <Badge
               variant="secondary"
-              className="mb-6 py-1.5 px-5 text-sm font-medium border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full"
+              className="mb-6 py-1.5 px-5 text-xs sm:text-sm font-medium border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full"
             >
               <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2 animate-pulse" />
               {heroContent.badge}
@@ -45,11 +45,11 @@ export function Hero() {
           {/* Headline */}
           <motion.h1
             variants={fadeUp}
-            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 font-[family-name:var(--font-display)] leading-[1.05]"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 font-[family-name:var(--font-display)] leading-[1.1] sm:leading-[1.05]"
           >
             {heroContent.title.line1}{" "}
             <span className="text-gradient">{heroContent.title.highlight}</span>
-            <br className="hidden sm:block" />
+            <br />
             <span className="text-muted-foreground/70">{heroContent.title.line2}</span>
           </motion.h1>
 
