@@ -72,9 +72,12 @@ export default function DictationWorkspace() {
   // Auto-scroll transcript
   useEffect(() => {
     if (transcriptEndRef.current && (transcript || interimTranscript)) {
-      transcriptEndRef.current.scrollIntoView({ behavior: "smooth" });
+      transcriptEndRef.current.scrollIntoView({ 
+        behavior: isListening ? "auto" : "smooth",
+        block: "end"
+      });
     }
-  }, [transcript, interimTranscript]);
+  }, [transcript, interimTranscript, isListening]);
 
   // Timer for recording duration
   useEffect(() => {
@@ -401,7 +404,7 @@ export default function DictationWorkspace() {
             </div>
 
             {/* Transcript Body */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin relative">
+            <div className="h-[450px] sm:h-[550px] overflow-y-auto scrollbar-thin relative">
               {transcript || interimTranscript ? (
                 <div className="p-5 text-[15px] leading-[1.8] text-foreground/90">
                   {/* Show speaker-labeled segments if available during live recording */}
@@ -517,7 +520,7 @@ export default function DictationWorkspace() {
                     <X className="h-3.5 w-3.5" />
                   </Button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-4 text-[14px] leading-[1.8] text-foreground/90 scrollbar-thin">
+                <div className="h-[250px] sm:h-[300px] overflow-y-auto p-4 text-[14px] leading-[1.8] text-foreground/90 scrollbar-thin">
                   {translatedText}
                 </div>
                 <div className="flex items-center justify-between px-4 py-2.5 border-t border-border/40 bg-muted/10">
