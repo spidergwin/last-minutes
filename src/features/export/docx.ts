@@ -1,5 +1,6 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { Transcript, Summary } from "@prisma/client";
+import { formatSummaryToText } from "../summarization/formatter";
 
 export async function exportAsDocx(transcript: Transcript, summaries?: Summary[]): Promise<Buffer> {
   const children: any[] = [
@@ -14,12 +15,12 @@ export async function exportAsDocx(transcript: Transcript, summaries?: Summary[]
     }),
     new Paragraph({
       children: [
-        new TextRun({ text: `Duration: ${Math.round(transcript.duration / 60)} minutes`, bold: true }),
+        new TextRun({ text: `Duration: ${Math.round((transcript.duration || 0) / 60)} minutes`, bold: true }),
       ],
     }),
     new Paragraph({
       children: [
-        new TextRun({ text: `Word Count: ${transcript.wordCount}`, bold: true }),
+        new TextRun({ text: `Word Count: ${transcript.wordCount || 0}`, bold: true }),
       ],
     }),
     new Paragraph({ text: "" }), // Spacing
@@ -28,26 +29,32 @@ export async function exportAsDocx(transcript: Transcript, summaries?: Summary[]
   if (summaries && summaries.length > 0) {
     children.push(
       new Paragraph({
-        text: "AI Summaries",
+        text: "AI Summaries & Insights",
         heading: HeadingLevel.HEADING_2,
       })
     );
 
     summaries.forEach((s) => {
-      children.push(
-        new Paragraph({
-          text: s.type.replace(/_/g, " "),
-          heading: HeadingLevel.HEADING_3,
-        })
-      );
+      const formattedText = formatSummaryToText(s.metadata || s.content, s.type);
+      const lines = formattedText.split('\n');
       
-      // Basic formatting for the summary content
-      const contentLines = s.content.split('\n');
-      contentLines.forEach(line => {
-        if (line.trim()) {
+      lines.forEach((line, index) => {
+        if (index === 0 && line.toUpperCase() === line && line.includes('SUMMARY')) {
+          // It's the title line from formatter
+           children.push(
+            new Paragraph({
+              text: line,
+              heading: HeadingLevel.HEADING_3,
+            })
+          );
+        } else if (line.trim()) {
           children.push(new Paragraph({ text: line }));
+        } else if (line === "") {
+          children.push(new Paragraph({ text: "" }));
         }
       });
+      
+      children.push(new Paragraph({ text: "---", alignment: "center" }));
       children.push(new Paragraph({ text: "" }));
     });
   }

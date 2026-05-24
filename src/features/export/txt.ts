@@ -1,24 +1,19 @@
 import { Transcript, Summary } from "@prisma/client";
+import { formatSummaryToText } from "../summarization/formatter";
 
 export function exportAsTxt(transcript: Transcript, summaries?: Summary[]): string {
   let content = `${transcript.title}\n`;
   content += `${"=".repeat(transcript.title.length)}\n\n`;
   
   content += `Date: ${transcript.createdAt.toDateString()}\n`;
-  content += `Duration: ${Math.round(transcript.duration / 60)} minutes\n`;
-  content += `Word Count: ${transcript.wordCount}\n\n`;
+  content += `Duration: ${Math.round((transcript.duration || 0) / 60)} minutes\n`;
+  content += `Word Count: ${transcript.wordCount || 0}\n\n`;
 
   if (summaries && summaries.length > 0) {
-    content += `--- SUMMARIES ---\n\n`;
+    content += `--- SUMMARIES & INSIGHTS ---\n\n`;
     summaries.forEach((s) => {
-      content += `[${s.type}]\n`;
-      // Very basic serialization for TXT format
-      if (s.metadata) {
-        content += JSON.stringify(s.metadata, null, 2);
-      } else {
-        content += s.content;
-      }
-      content += `\n\n`;
+      content += formatSummaryToText(s.metadata || s.content, s.type);
+      content += `\n\n${"-".repeat(20)}\n\n`;
     });
   }
 
@@ -32,3 +27,4 @@ export function exportAsTxt(transcript: Transcript, summaries?: Summary[]): stri
 
   return content;
 }
+

@@ -43,6 +43,7 @@ import {
   Users,
 } from "lucide-react";
 import { AudioPlayer } from "@/components/audio-player";
+import { SummaryRenderer } from "@/components/summary-renderer";
 import Link from "next/link";
 
 export default function TranscriptDetailPage({
@@ -420,10 +421,11 @@ export default function TranscriptDetailPage({
                         <Badge className="bg-amber-600">{summaryType.replace('_', ' ')}</Badge>
                         <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">New Result</span>
                       </div>
-                      <div className="text-sm whitespace-pre-wrap text-foreground/90 font-sans leading-relaxed">
-                        {typeof summaryResult === "string"
-                          ? summaryResult
-                          : JSON.stringify(summaryResult, null, 2)}
+                      <div className="text-sm">
+                        <SummaryRenderer 
+                          content={summaryResult} 
+                          type={summaryType} 
+                        />
                       </div>
                     </div>
                   )}
@@ -436,19 +438,11 @@ export default function TranscriptDetailPage({
                           {format(new Date(summary.createdAt), "MMM d, h:mm a")}
                         </span>
                       </div>
-                      <div className="text-sm whitespace-pre-wrap text-foreground/90 font-sans leading-relaxed">
-                        {/* If it's stored as JSON string (like ACTION_ITEMS might be), try to parse it nicely */}
-                        {(() => {
-                          try {
-                            const parsed = JSON.parse(summary.content);
-                            if (typeof parsed === 'object' && parsed !== null) {
-                               return <pre className="font-sans whitespace-pre-wrap">{JSON.stringify(parsed, null, 2)}</pre>;
-                            }
-                            return summary.content;
-                          } catch {
-                            return summary.content;
-                          }
-                        })()}
+                      <div className="text-sm">
+                        <SummaryRenderer 
+                          content={summary.content} 
+                          type={summary.type} 
+                        />
                       </div>
                     </div>
                   ))}
@@ -589,3 +583,4 @@ export default function TranscriptDetailPage({
     </div>
   );
 }
+

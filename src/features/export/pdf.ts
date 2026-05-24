@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { Transcript, Summary } from "@prisma/client";
+import { formatSummaryToText } from "../summarization/formatter";
 
 export async function exportAsPdf(transcript: Transcript, summaries?: Summary[]): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
@@ -39,6 +40,8 @@ export async function exportAsPdf(transcript: Transcript, summaries?: Summary[])
     if (line.trim()) {
       page.drawText(line, { x: margin, y, size, font, color });
       y -= size + 10;
+    } else if (text === "") {
+        y -= size; // Handle empty lines
     }
   };
 
@@ -48,26 +51,38 @@ export async function exportAsPdf(transcript: Transcript, summaries?: Summary[])
 
   // Metadata
   drawText(`Date: ${transcript.createdAt.toDateString()}`, timesRomanFont, 12);
-  drawText(`Duration: ${Math.round(transcript.duration / 60)} minutes`, timesRomanFont, 12);
-  drawText(`Word Count: ${transcript.wordCount}`, timesRomanFont, 12);
+  drawText(`Duration: ${Math.round((transcript.duration || 0) / 60)} minutes`, timesRomanFont, 12);
+  drawText(`Word Count: ${transcript.wordCount || 0}`, timesRomanFont, 12);
   y -= 20;
 
   // Summaries
   if (summaries && summaries.length > 0) {
-    drawText('AI Summaries', timesRomanBoldFont, 18);
-    y -= 5;
+    drawText('AI Summaries & Insights', timesRomanBoldFont, 18);
+    y -= 10;
     
     for (const s of summaries) {
-      drawText(s.type.replace(/_/g, " "), timesRomanBoldFont, 14);
+      const formattedText = formatSummaryToText(s.metadata || s.content, s.type);
+      const lines = formattedText.split('\n');
       
-      // PDF-lib doesn't handle newlines in drawText automatically well, so split
-      const lines = s.content.split('\n');
-      for (const line of lines) {
-        if (line.trim()) {
-          drawText(line.trim(), timesRomanFont, 12);
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (i === 0 && line.toUpperCase() === line && line.includes('SUMMARY')) {
+           drawText(line, timesRomanBoldFont, 14);
+        } else if (line.trim()) {
+          drawText(line, timesRomanFont, 12);
+        } else if (line === "") {
+            y -= 5;
         }
       }
-      y -= 10;
+      y -= 15;
+      
+      // Draw a divider
+      page.drawLine({
+          start: { x: margin, y: y + 10 },
+          end: { x: width - margin, y: y + 10 },
+          thickness: 0.5,
+          color: rgb(0.8, 0.8, 0.8)
+      });
     }
   }
 
