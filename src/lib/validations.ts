@@ -26,6 +26,7 @@ export type SignInInput = z.infer<typeof signInSchema>;
 export const createTranscriptSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   originalText: z.string().min(1, "Text is required"),
+  translatedText: z.string().optional(),
   sourceLanguage: z.string().default("en"),
   targetLanguage: z.string().optional(),
   fileUrl: z.string().url().optional(),
@@ -38,6 +39,7 @@ export const createTranscriptSchema = z.object({
 export const updateTranscriptSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   originalText: z.string().min(1).optional(),
+  translatedText: z.string().optional(),
   targetLanguage: z.string().optional(),
   isPublic: z.boolean().optional(),
   segments: z.array(z.any()).optional(),
@@ -132,9 +134,22 @@ export const transcriptSchema = z.object({
   createdAt: z.union([z.string(), z.date()]),
   updatedAt: z.union([z.string(), z.date()]),
   isPublic: z.boolean().default(false),
+  summaries: z.array(z.any()).optional(),
 });
 
 export type Transcript = z.infer<typeof transcriptSchema>;
+
+export const summarySchema = z.object({
+  id: z.string(),
+  transcriptId: z.string(),
+  type: z.enum(["EXECUTIVE_SUMMARY", "ACTION_ITEMS", "KEY_DECISIONS", "MEETING_NOTES", "CUSTOM"]),
+  content: z.string(),
+  metadata: z.any().nullable().optional(),
+  createdAt: z.union([z.string(), z.date()]),
+  updatedAt: z.union([z.string(), z.date()]),
+});
+
+export type Summary = z.infer<typeof summarySchema>;
 
 export const adminStatsSchema = z.object({
   totalUsers: z.number(),

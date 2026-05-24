@@ -18,6 +18,11 @@ export async function GET(
 
     const transcript = await db.transcript.findUnique({
       where: { id },
+      include: {
+        summaries: {
+          orderBy: { createdAt: 'desc' }
+        }
+      }
     });
 
     if (!transcript || transcript.userId !== userId) {

@@ -227,6 +227,8 @@ export default function DictationWorkspace() {
       await createTranscriptMutation.mutateAsync({
         title: `Dictation — ${new Date().toLocaleDateString("en-NG", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`,
         originalText,
+        translatedText: translatedText || undefined,
+        targetLanguage: translatedText && targetLanguage ? targetLanguage : undefined,
         sourceLanguage: "en",
         fileType: "dictation",
         fileUrl,

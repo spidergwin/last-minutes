@@ -2,8 +2,9 @@
 
 import { use, useState, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { useTranscript, useDeleteTranscript, useSummarize, useUpdateTranscript } from "@/hooks";
+import { useTranscript, useDeleteTranscript, useSummarize, useUpdateTranscript, useTranslate } from "@/hooks";
 import { isMeetingTranscript, normalizeSpeakerLabel } from "@/lib/format-transcript";
+import { Summary } from "@/lib/validations";
 
 const TranscriptEditor = dynamic(
   () => import('@/components/transcript-editor').then(mod => ({ default: mod.TranscriptEditor })),
@@ -55,12 +56,15 @@ export default function TranscriptDetailPage({
   const { data: transcript, isLoading, error } = useTranscript(id);
   const deleteMutation = useDeleteTranscript();
   const summarizeMutation = useSummarize();
+  const translateMutation = useTranslate();
   const updateMutation = useUpdateTranscript();
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [summaryType, setSummaryType] = useState<string>("EXECUTIVE_SUMMARY");
   const [summaryResult, setSummaryResult] = useState<any>(null);
+  const [targetLang, setTargetLang] = useState<string>("fr");
+  const [viewMode, setViewMode] = useState<"original" | "translated">("original");
 
   // Meeting detection — auto-select conversation view when speakers data exists
   const hasMeetingData = useMemo(
@@ -135,8 +139,33 @@ export default function TranscriptDetailPage({
         type: summaryType as any,
       });
       setSummaryResult(result.data?.result || result.data);
+      queryClient.invalidateQueries({ queryKey: ["transcript", id] });
     } catch {
       // Error handled by hook
+    }
+  };
+
+  const handleTranslate = async () => {
+    if (!transcript) return;
+    try {
+      const result = await translateMutation.mutateAsync({
+        text: transcript.originalText,
+        sourceLang: transcript.sourceLanguage,
+        targetLang,
+      });
+      
+      const translatedText = result.data.translatedText;
+      
+      // Save translation to transcript
+      await updateMutation.mutateAsync({
+        id: transcript.id,
+        data: { translatedText, targetLanguage: targetLang },
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ["transcript", id] });
+      toast.success("Translation complete");
+    } catch (error) {
+      console.error("Translation error:", error);
     }
   };
 
@@ -260,7 +289,26 @@ export default function TranscriptDetailPage({
                   )}
                 </div>
                 <div className="flex items-center flex-wrap gap-2">
-
+                  {transcript.translatedText && (
+                    <div className="flex items-center bg-muted rounded-md p-1 border">
+                      <Button
+                        variant={viewMode === "original" ? "secondary" : "ghost"}
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1"
+                        onClick={() => setViewMode("original")}
+                      >
+                        Original
+                      </Button>
+                      <Button
+                        variant={viewMode === "translated" ? "secondary" : "ghost"}
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1"
+                        onClick={() => setViewMode("translated")}
+                      >
+                        {SUPPORTED_LANGUAGES[transcript.targetLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || "Translated"}
+                      </Button>
+                    </div>
+                  )}
                   <Badge variant="secondary" className="text-xs font-normal">
                     <Languages className="mr-1 h-3 w-3" />
                     {SUPPORTED_LANGUAGES[transcript.sourceLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || "English"}
@@ -269,7 +317,13 @@ export default function TranscriptDetailPage({
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              {hasMeetingData ? (
+              {viewMode === "translated" ? (
+                <TranscriptEditor
+                  initialContent={transcript.translatedText || ""}
+                  onSave={async () => {}}
+                  readOnly={true}
+                />
+              ) : hasMeetingData ? (
                 <MeetingTranscriptView
                   segments={(transcript.segments as any[]) ?? []}
                   speakers={(transcript.speakers as string[]) ?? []}
@@ -326,11 +380,11 @@ export default function TranscriptDetailPage({
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                <CardTitle className="text-base">AI Summary</CardTitle>
+                <CardTitle className="text-base">AI Summary & Insights</CardTitle>
               </div>
-              <CardDescription>Generate an AI-powered summary of this transcript.</CardDescription>
+              <CardDescription>Generate or view AI-powered insights for this transcript.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="flex items-center gap-2">
                 <Select value={summaryType} onValueChange={setSummaryType}>
                   <SelectTrigger className="w-[200px]">
@@ -356,13 +410,48 @@ export default function TranscriptDetailPage({
                   Generate
                 </Button>
               </div>
-              {summaryResult && (
-                <div className="rounded-lg border bg-muted/20 p-4">
-                  <pre className="text-sm whitespace-pre-wrap text-foreground/90 font-sans">
-                    {typeof summaryResult === "string"
-                      ? summaryResult
-                      : JSON.stringify(summaryResult, null, 2)}
-                  </pre>
+
+              {/* Display existing summaries */}
+              {(transcript.summaries && transcript.summaries.length > 0 || summaryResult) && (
+                <div className="space-y-4 pt-2">
+                  {summaryResult && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50/30 p-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className="bg-amber-600">{summaryType.replace('_', ' ')}</Badge>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">New Result</span>
+                      </div>
+                      <div className="text-sm whitespace-pre-wrap text-foreground/90 font-sans leading-relaxed">
+                        {typeof summaryResult === "string"
+                          ? summaryResult
+                          : JSON.stringify(summaryResult, null, 2)}
+                      </div>
+                    </div>
+                  )}
+
+                  {(transcript.summaries as Summary[])?.map((summary) => (
+                    <div key={summary.id} className="rounded-lg border bg-muted/20 p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="outline">{summary.type.replace('_', ' ')}</Badge>
+                        <span className="text-[10px] text-muted-foreground">
+                          {format(new Date(summary.createdAt), "MMM d, h:mm a")}
+                        </span>
+                      </div>
+                      <div className="text-sm whitespace-pre-wrap text-foreground/90 font-sans leading-relaxed">
+                        {/* If it's stored as JSON string (like ACTION_ITEMS might be), try to parse it nicely */}
+                        {(() => {
+                          try {
+                            const parsed = JSON.parse(summary.content);
+                            if (typeof parsed === 'object' && parsed !== null) {
+                               return <pre className="font-sans whitespace-pre-wrap">{JSON.stringify(parsed, null, 2)}</pre>;
+                            }
+                            return summary.content;
+                          } catch {
+                            return summary.content;
+                          }
+                        })()}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>
@@ -439,6 +528,60 @@ export default function TranscriptDetailPage({
                   </Button>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Translation */}
+          <Card className="shadow-sm border-amber-200 dark:border-amber-800/30">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Languages className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <CardTitle className="text-base">Translate</CardTitle>
+              </div>
+              <CardDescription>Translate the entire transcript to another language.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <span className="text-xs text-muted-foreground">Target Language</span>
+                <Select value={targetLang} onValueChange={setTargetLang}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(SUPPORTED_LANGUAGES)
+                      .filter(([code]) => code !== transcript.sourceLanguage)
+                      .map(([code, { name }]) => (
+                        <SelectItem key={code} value={code}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button 
+                className="w-full gap-2" 
+                variant="outline"
+                onClick={handleTranslate}
+                disabled={translateMutation.isPending}
+              >
+                {translateMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Languages className="h-4 w-4" />
+                )}
+                Translate Transcript
+              </Button>
+
+              {transcript.translatedText && (
+                <div className="pt-2">
+                  <Badge variant="secondary" className="mb-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                    <Check className="mr-1 h-3 w-3" /> Translation Available
+                  </Badge>
+                  <p className="text-[10px] text-muted-foreground leading-tight">
+                    This transcript has been translated to <strong>{SUPPORTED_LANGUAGES[transcript.targetLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name || transcript.targetLanguage}</strong>.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
