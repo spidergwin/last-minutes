@@ -15,7 +15,7 @@ export default function AdminUsersPage() {
   const [role, setRole] = useState("ALL");
   const [page, setPage] = useState(1);
 
-  const { data, refetch } = useQuery({
+  const { data, refetch, isLoading, isError } = useQuery({
     queryKey: ["admin-users", search, role, page],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -63,7 +63,7 @@ export default function AdminUsersPage() {
         <p className="text-muted-foreground">Manage all registered users on the platform.</p>
       </div>
 
-      <Card className="shadow-xs">
+      <Card className="shadow-xs border-amber-500/10">
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row justify-between gap-4">
             <div className="relative w-full max-w-sm">
@@ -90,7 +90,7 @@ export default function AdminUsersPage() {
         <CardContent>
           <div className="border rounded-md">
             <table className="w-full text-sm text-left">
-              <thead className="bg-muted/50 text-muted-foreground font-medium border-b">
+              <thead className="bg-amber-500/5 text-amber-700 dark:text-amber-400 font-medium border-b border-amber-500/20">
                 <tr>
                   <th className="px-4 py-3">User</th>
                   <th className="px-4 py-3">Plan</th>
@@ -100,15 +100,27 @@ export default function AdminUsersPage() {
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
-                {data?.users?.map((user: any) => (
+              <tbody className="divide-y divide-amber-500/10">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                      Loading users...
+                    </td>
+                  </tr>
+                ) : isError ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-red-500">
+                      Failed to load users. You might not have permission.
+                    </td>
+                  </tr>
+                ) : data?.users?.map((user: any) => (
                   <tr key={user.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-3">
                       <div className="font-medium">{user.name || "No name"}</div>
                       <div className="text-muted-foreground text-xs">{user.email}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
+                      <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 text-xs font-semibold">
                         {user.subscription?.plan || "TRIAL"}
                       </span>
                     </td>
@@ -144,7 +156,7 @@ export default function AdminUsersPage() {
                 ))}
               </tbody>
             </table>
-            {(!data?.users || data.users.length === 0) && (
+            {(!isLoading && !isError && (!data?.users || data.users.length === 0)) && (
               <div className="p-8 text-center text-muted-foreground">No users found.</div>
             )}
           </div>

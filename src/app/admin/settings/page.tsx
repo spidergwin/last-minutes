@@ -18,7 +18,9 @@ export default function AdminSettingsPage() {
         <Card className="shadow-xs">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-amber-500/10 rounded-lg">
+                <Globe className="h-5 w-5 text-amber-600" />
+              </div>
               <CardTitle>External Services</CardTitle>
             </div>
             <CardDescription>
@@ -54,7 +56,9 @@ export default function AdminSettingsPage() {
         <Card className="shadow-xs">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Settings2 className="h-5 w-5 text-purple-600" />
+              <div className="p-2 bg-orange-500/10 rounded-lg">
+                <Settings2 className="h-5 w-5 text-orange-600" />
+              </div>
               <CardTitle>Feature Toggles</CardTitle>
             </div>
             <CardDescription>
@@ -119,7 +123,7 @@ export default function AdminSettingsPage() {
 
         <div className="flex justify-end gap-4">
           <Button variant="outline">Cancel</Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
+          <Button className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/20">
             Save System Settings
           </Button>
         </div>

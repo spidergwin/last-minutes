@@ -7,27 +7,65 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Activity, Users, FileText, Clock, CreditCard, ShieldAlert } from "lucide-react";
 
 export default function AdminDashboard() {
-  const { data: stats } = useQuery<AdminStats>({
+  const { data: stats, isLoading, isError, error } = useQuery<AdminStats>({
     queryKey: ["admin-stats"],
     queryFn: async () => {
       const response = await fetch("/api/admin/stats");
-      if (!response.ok) throw new Error("Failed to fetch stats");
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to fetch stats");
+      }
       return response.json();
     },
   });
 
   const statConfig = [
-    { label: "Total Users", value: stats?.totalUsers || 0, subValue: `+${stats?.newUsersToday || 0} today`, icon: Users, color: "text-blue-600" },
-    { label: "Active Subs", value: stats?.activeSubscriptions || 0, subValue: "Paid & Trial", icon: CreditCard, color: "text-emerald-600" },
-    { label: "Total Transcripts", value: stats?.totalTranscripts || 0, subValue: "System-wide", icon: FileText, color: "text-purple-600" },
+    { label: "Total Users", value: stats?.totalUsers || 0, subValue: `+${stats?.newUsersToday || 0} today`, icon: Users, color: "text-amber-600 dark:text-amber-400" },
+    { label: "Active Subs", value: stats?.activeSubscriptions || 0, subValue: "Paid & Trial", icon: CreditCard, color: "text-orange-500" },
+    { label: "Total Transcripts", value: stats?.totalTranscripts || 0, subValue: "System-wide", icon: FileText, color: "text-amber-500" },
     {
       label: "Total Minutes",
       value: `${Math.round((stats?.totalMinutes || 0) / 60)}h`,
       subValue: "Processed audio",
       icon: Clock,
-      color: "text-amber-600",
+      color: "text-orange-600 dark:text-orange-400",
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col space-y-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Loading system statistics...</p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="shadow-xs animate-pulse">
+              <CardHeader className="pb-2"><div className="h-4 w-24 bg-muted rounded"></div></CardHeader>
+              <CardContent><div className="h-8 w-16 bg-muted rounded mb-2"></div><div className="h-3 w-32 bg-muted rounded"></div></CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <ShieldAlert className="w-8 h-8 text-red-500" />
+        </div>
+        <h3 className="text-lg font-semibold font-[family-name:var(--font-display)] text-red-600 dark:text-red-400">
+          Access Denied or Error
+        </h3>
+        <p className="text-muted-foreground mb-6 max-w-sm mx-auto text-sm mt-2">
+          {error instanceof Error ? error.message : "You do not have permission to view admin statistics or an error occurred."}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-1">
@@ -38,10 +76,12 @@ export default function AdminDashboard() {
       {/* Stats Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statConfig.map((stat) => (
-          <Card key={stat.label} className="shadow-xs">
+          <Card key={stat.label} className="shadow-xs border-amber-500/10 hover:border-amber-500/30 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.label}</CardTitle>
+              <div className={`p-2 rounded-lg bg-amber-500/10 ${stat.color}`}>
+                <stat.icon className="h-4 w-4" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
@@ -106,7 +146,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                       <div 
-                        className="h-full bg-blue-600" 
+                        className="h-full bg-gradient-to-r from-amber-500 to-orange-500" 
                         style={{ width: `${Math.min(100, (lang.count / (stats?.totalTranscripts || 1)) * 100)}%` }} 
                       />
                     </div>

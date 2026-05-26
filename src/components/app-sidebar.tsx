@@ -14,6 +14,7 @@ import {
   CreditCard,
   Upload,
   Video,
+  MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,6 +47,7 @@ const mainItems = [
   { title: "Upload", url: "/upload", icon: Upload },
   { title: "Meetings", url: "/meetings", icon: Video },
   { title: "Transcripts", url: "/transcripts", icon: FileText },
+  { title: "AI Chat", url: "/chat", icon: MessageSquare },
 ];
 
 const settingsItems = [

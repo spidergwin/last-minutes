@@ -16,6 +16,8 @@ import { SlashKit } from '@/components/editor/plugins/slash-kit';
 import { BlockMenuKit } from '@/components/editor/plugins/block-menu-kit';
 import { BlockPlaceholderKit } from '@/components/editor/plugins/block-placeholder-kit';
 import { FixedToolbarKit } from '@/components/editor/plugins/fixed-toolbar-kit';
+import { AIKit } from '@/components/editor/plugins/ai-kit';
+import { CopilotKit } from '@/components/editor/plugins/copilot-kit';
 import { TrailingBlockPlugin } from 'platejs';
 import { Editor, EditorContainer } from '@/components/ui/editor';
 import { Badge } from '@/components/ui/badge';
@@ -62,6 +64,8 @@ function slateValueToText(value: any[]): string {
 }
 
 const TranscriptEditorPlugins = [
+  ...CopilotKit,
+  ...AIKit,
   // Elements
   ...BasicBlocksKit,
   ...CodeBlockKit,

@@ -41,6 +41,8 @@ import {
   MessageSquare,
   Type,
   Users,
+  AlertCircle,
+  RotateCcw,
 } from "lucide-react";
 import { AudioPlayer } from "@/components/audio-player";
 import { SummaryRenderer } from "@/components/summary-renderer";
@@ -65,9 +67,14 @@ export default function TranscriptDetailPage({
   const [editTitle, setEditTitle] = useState("");
   const [summaryType, setSummaryType] = useState<string>("EXECUTIVE_SUMMARY");
   const [summaryResult, setSummaryResult] = useState<any>(null);
+  const [summaryState, setSummaryState] = useState<"idle" | "processing" | "completed" | "error">("idle");
+  const [summaryError, setSummaryError] = useState<string | null>(null);
   const [targetLang, setTargetLang] = useState<string>("fr");
   const [viewMode, setViewMode] = useState<"original" | "translated">("original");
   const [translatedSegments, setTranslatedSegments] = useState<any[] | null>(null);
+  const [translateState, setTranslateState] = useState<"idle" | "processing" | "completed" | "error">("idle");
+  const [translateError, setTranslateError] = useState<string | null>(null);
+  const [translateProgress, setTranslateProgress] = useState<string>("");
 
   // Meeting detection — auto-select conversation view when speakers data exists
   const hasMeetingData = useMemo(
@@ -142,15 +149,19 @@ export default function TranscriptDetailPage({
 
   const handleSummarize = async () => {
     if (!transcript) return;
+    setSummaryState("processing");
+    setSummaryError(null);
     try {
       const result = await summarizeMutation.mutateAsync({
         transcriptId: transcript.id,
         type: summaryType as any,
       });
       setSummaryResult(result.data?.result || result.data);
+      setSummaryState("completed");
       queryClient.invalidateQueries({ queryKey: ["transcript", id] });
-    } catch {
-      // Error handled by hook
+    } catch (err: any) {
+      setSummaryError(err.message || "Failed to generate summary");
+      setSummaryState("error");
     }
   };
 
@@ -167,6 +178,9 @@ export default function TranscriptDetailPage({
 
   const handleTranslate = async () => {
     if (!transcript) return;
+    setTranslateState("processing");
+    setTranslateError(null);
+    setTranslateProgress("Translating main text...");
     try {
       // 1. Translate the main text
       const result = await translateMutation.mutateAsync({
@@ -180,24 +194,25 @@ export default function TranscriptDetailPage({
 
       // 2. If it's a meeting, we need to translate segments too
       if (hasMeetingData && transcript.segments && Array.isArray(transcript.segments)) {
-        const segmentsToTranslate = (transcript.segments as any[]).map(s => s.text);
+        const segs = transcript.segments as any[];
+        const segmentsResult = [];
         
-        // Batch translate segments (or do them in one prompt if small, but let's assume we need to translate them)
-        // For now, let's just translate the combined segments text if it's too much work to do each
-        // Better: Translate each segment so we keep the structure
-        const segmentsResult = await Promise.all((transcript.segments as any[]).map(async (seg) => {
+        for (let i = 0; i < segs.length; i++) {
+          setTranslateProgress(`Translating segment ${i + 1} of ${segs.length}...`);
+          const seg = segs[i];
           const transResult = await translateMutation.mutateAsync({
             text: seg.text,
             sourceLang: transcript.sourceLanguage,
             targetLang,
           });
-          return { ...seg, text: transResult.data.translatedText };
-        }));
+          segmentsResult.push({ ...seg, text: transResult.data.translatedText });
+        }
         
         newSegments = segmentsResult;
         setTranslatedSegments(newSegments);
       }
       
+      setTranslateProgress("Saving translation...");
       // Save translation to transcript
       await updateMutation.mutateAsync({
         id: transcript.id,
@@ -208,10 +223,13 @@ export default function TranscriptDetailPage({
         },
       });
       
+      setTranslateState("completed");
       queryClient.invalidateQueries({ queryKey: ["transcript", id] });
       toast.success("Translation complete");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Translation error:", error);
+      setTranslateError(error.message || "Failed to translate transcript");
+      setTranslateState("error");
     }
   };
 
@@ -289,6 +307,11 @@ export default function TranscriptDetailPage({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Link href={`/chat?transcriptId=${transcript.id}`}>
+            <Button variant="outline" size="sm" className="gap-1.5 border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800/30 dark:hover:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400">
+              <MessageSquare className="h-3.5 w-3.5" /> AI Chat
+            </Button>
+          </Link>
           <Button variant="outline" size="sm" onClick={handleCopy} className="gap-1.5">
             <Copy className="h-3.5 w-3.5" /> Copy
           </Button>
@@ -445,10 +468,10 @@ export default function TranscriptDetailPage({
                 </Select>
                 <Button
                   onClick={handleSummarize}
-                  disabled={summarizeMutation.isPending}
+                  disabled={summaryState === "processing"}
                   className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0"
                 >
-                  {summarizeMutation.isPending ? (
+                  {summaryState === "processing" ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <Sparkles className="mr-2 h-4 w-4" />
@@ -456,6 +479,52 @@ export default function TranscriptDetailPage({
                   Generate
                 </Button>
               </div>
+
+              {/* Processing State */}
+              {summaryState === "processing" && (
+                <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/20 p-4">
+                  <div className="flex items-end gap-[2px] h-4">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-[2.5px] bg-amber-500 rounded-full animate-wave origin-bottom"
+                        style={{
+                          height: `${Math.random() * 60 + 40}%`,
+                          animationDelay: `${i * 0.1}s`,
+                          animationDuration: `${0.6 + Math.random() * 0.4}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Generating AI summary...</p>
+                    <p className="text-xs text-muted-foreground">This may take a moment based on the transcript length.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error State */}
+              {summaryState === "error" && summaryError && (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-red-700 dark:text-red-300">
+                        Failed to generate summary
+                      </p>
+                      <p className="text-xs text-red-600/70 dark:text-red-400/70 mt-0.5">
+                        {summaryError}
+                      </p>
+                      <div className="flex gap-2 mt-3">
+                        <Button size="sm" variant="outline" onClick={handleSummarize} className="gap-1.5 text-xs">
+                          <RotateCcw className="h-3 w-3" />
+                          Retry
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Display existing summaries */}
               {(transcript.summaries && transcript.summaries.length > 0 || summaryResult) && (
@@ -603,15 +672,61 @@ export default function TranscriptDetailPage({
                 className="w-full gap-2" 
                 variant="outline"
                 onClick={handleTranslate}
-                disabled={translateMutation.isPending}
+                disabled={translateState === "processing"}
               >
-                {translateMutation.isPending ? (
+                {translateState === "processing" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Languages className="h-4 w-4" />
                 )}
                 Translate Transcript
               </Button>
+
+              {/* Translation Processing State */}
+              {translateState === "processing" && (
+                <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/20 p-4">
+                  <div className="flex items-end gap-[2px] h-4">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-[2.5px] bg-amber-500 rounded-full animate-wave origin-bottom"
+                        style={{
+                          height: `${Math.random() * 60 + 40}%`,
+                          animationDelay: `${i * 0.1}s`,
+                          animationDuration: `${0.6 + Math.random() * 0.4}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Translating transcript...</p>
+                    <p className="text-xs text-muted-foreground">{translateProgress}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Translation Error State */}
+              {translateState === "error" && translateError && (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 mt-2">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-red-700 dark:text-red-300">
+                        Translation failed
+                      </p>
+                      <p className="text-xs text-red-600/70 dark:text-red-400/70 mt-0.5">
+                        {translateError}
+                      </p>
+                      <div className="flex gap-2 mt-3">
+                        <Button size="sm" variant="outline" onClick={handleTranslate} className="gap-1.5 text-xs">
+                          <RotateCcw className="h-3 w-3" />
+                          Retry
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {transcript.translatedText && (
                 <div className="pt-2">

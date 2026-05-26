@@ -273,7 +273,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </Link>
-        <Link href="/app">
+        <Link href={transcripts.length > 0 ? `/chat?transcriptId=${transcripts[0].id}` : "/chat"}>
           <Card className="group cursor-pointer hover:border-amber-500/30 hover:shadow-md transition-all duration-200 overflow-hidden">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-sm">
@@ -281,10 +281,10 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="font-semibold text-sm group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                  AI Summary
+                  AI Chat
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  From any transcript
+                  Ask about your meetings
                 </p>
               </div>
             </CardContent>
