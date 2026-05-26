@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   FileText,
   Home,
-  Home,
+  Mic,
   Settings,
   LogOut,
   User,
