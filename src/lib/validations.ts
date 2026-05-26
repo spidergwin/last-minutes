@@ -100,7 +100,7 @@ export const NIGERIAN_LANGUAGES = ["ha", "yo", "ig", "pid"] as const;
 
 // ============= API Response Schemas =============
 
-export const userRoleSchema = z.enum(["USER", "ADMIN", "SUPER_ADMIN"]);
+export const userRoleSchema = z.enum(["USER", "ADMIN"]);
 export type UserRole = z.infer<typeof userRoleSchema>;
 
 export const userSchema = z.object({

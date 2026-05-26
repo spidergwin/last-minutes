@@ -29,7 +29,7 @@ export interface UserProfile {
   email: string;
   name: string;
   image?: string;
-  role: "USER" | "ADMIN" | "SUPER_ADMIN";
+  role: "USER" | "ADMIN";
   createdAt: Date;
   subscription?: {
     plan: string;

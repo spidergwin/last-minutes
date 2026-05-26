@@ -103,10 +103,19 @@ export default function AdminSubscriptionsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium uppercase text-xs tracking-wider">
-                          {sub.planId}
+                      <div className="flex flex-col items-start gap-1">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium uppercase text-xs tracking-wider">
+                            {sub.planId}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {sub.planId?.toLowerCase() === "pro" 
+                            ? "₦15,000/mo" 
+                            : sub.planId?.toLowerCase() === "business" 
+                            ? "₦45,000/mo" 
+                            : "Free Trial"}
                         </span>
                       </div>
                     </TableCell>

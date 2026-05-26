@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import Logo from "@/components/logo";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     if (!isPending) {
       if (!session) {
         router.push("/signin");
-      } else if ((session.user as any).role !== "ADMIN" && (session.user as any).role !== "SUPER_ADMIN") {
+      } else if ((session.user as any).role !== "ADMIN") {
         toast.error("You don't have permission to access the admin area");
         router.push("/dashboard");
       }
@@ -55,18 +56,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!session || ((session.user as any).role !== "ADMIN" && (session.user as any).role !== "SUPER_ADMIN")) {
+  if (!session || ((session.user as any).role !== "ADMIN")) {
     return null;
   }
 
   const SidebarContent = () => (
     <>
-      <Link href="/admin" className="flex items-center gap-2 text-2xl font-bold mb-12" onClick={() => setMobileOpen(false)}>
-        <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/20">
-          <Mic className="size-5" />
-        </div>
-        <span className="font-[family-name:var(--font-display)]">Admin Area</span>
-      </Link>
+      <div className="mb-12" onClick={() => setMobileOpen(false)}>
+        <Logo />
+      </div>
 
       <nav className="flex-1 space-y-1">
         {navItems.map((item) => {
@@ -110,12 +108,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b bg-card">
-        <Link href="/admin" className="flex items-center gap-2 text-xl font-bold">
-          <div className="p-1 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 text-white">
-            <Mic className="size-4" />
-          </div>
-          <span className="font-[family-name:var(--font-display)]">Admin Area</span>
-        </Link>
+        <div className="scale-90 origin-left">
+          <Logo />
+        </div>
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">

@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   FileText,
   Home,
-  Mic,
+  Home,
   Settings,
   LogOut,
   User,
@@ -17,6 +17,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
+import Logo from "@/components/logo";
 
 import {
   Sidebar,
@@ -94,15 +95,9 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/20">
-                  <Mic className="size-4" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold font-[family-name:var(--font-display)]">Last Minutes</span>
-                  <span className="text-xs text-muted-foreground">v0.1.0</span>
-                </div>
-              </Link>
+              <div className="flex px-2 py-1.5 w-full">
+                <Logo />
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

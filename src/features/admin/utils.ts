@@ -48,7 +48,7 @@ export async function logAdminAction(
 }
 
 export function canPerformAdminAction(
-  userRole: "USER" | "ADMIN" | "SUPER_ADMIN",
+  userRole: "USER" | "ADMIN",
   action: AdminAction
 ): boolean {
   const adminOnlyActions = [
@@ -57,14 +57,8 @@ export function canPerformAdminAction(
     AdminAction.REPORT_GENERATED,
   ];
 
-  const superAdminOnlyActions: AdminAction[] = [];
-
-  if (superAdminOnlyActions.includes(action)) {
-    return userRole === "SUPER_ADMIN";
-  }
-
   if (adminOnlyActions.includes(action)) {
-    return userRole === "ADMIN" || userRole === "SUPER_ADMIN";
+    return userRole === "ADMIN";
   }
 
   return true;

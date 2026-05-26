@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranscripts } from "@/hooks";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
 import {
   PromptInput,
@@ -38,7 +39,7 @@ function ChatInterface() {
   const transcriptId = searchParams.get("transcriptId");
   const router = useRouter();
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [customTitle, setCustomTitle] = useState<string>("New Chat");
   const [text, setText] = useState<string>("");
 
@@ -92,67 +93,83 @@ function ChatInterface() {
     }
   };
 
-  return (
-    <div className="flex h-[calc(100vh-8rem)] max-w-7xl mx-auto rounded-2xl overflow-hidden bg-background shadow-2xl shadow-amber-500/5 border border-border/60">
-      
-      {/* Inner Sidebar for Transcripts */}
-      {sidebarOpen && (
-        <div className="w-72 border-r bg-card/50 flex flex-col shrink-0 transition-all duration-300">
-          <div className="p-4 border-b flex items-center justify-between">
-            <h3 className="font-semibold font-[family-name:var(--font-display)] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              Chat History
-            </h3>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => router.push("/chat")}>
-              <Plus className="w-4 h-4" />
-            </Button>
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full w-full">
+      <div className="p-4 border-b flex items-center justify-between shrink-0">
+        <h3 className="font-semibold font-[family-name:var(--font-display)] flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          Chat History
+        </h3>
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => {
+          router.push("/chat");
+          setSheetOpen(false);
+        }}>
+          <Plus className="w-4 h-4" />
+        </Button>
+      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-3 flex flex-col gap-1">
+          <Button 
+            variant={!transcriptId ? "secondary" : "ghost"} 
+            className="w-full justify-start font-normal h-10 px-3"
+            onClick={() => {
+              router.push("/chat");
+              setSheetOpen(false);
+            }}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Chat
+          </Button>
+          <div className="my-2 px-3 pt-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Meeting Transcripts
           </div>
-          <ScrollArea className="flex-1">
-            <div className="p-3 flex flex-col gap-1">
-              <Button 
-                variant={!transcriptId ? "secondary" : "ghost"} 
-                className="w-full justify-start font-normal h-10 px-3"
-                onClick={() => router.push("/chat")}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Chat
-              </Button>
-              <div className="my-2 px-3 pt-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Meeting Transcripts
-              </div>
-              {isLoadingTranscripts ? (
-                <div className="px-3 py-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                </div>
-              ) : transcripts.map((t: any) => (
-                <Button
-                  key={t.id}
-                  variant={transcriptId === t.id ? "secondary" : "ghost"}
-                  className={`w-full justify-start h-auto py-2.5 px-3 text-left ${transcriptId === t.id ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-100' : ''}`}
-                  onClick={() => router.push(`/chat?transcriptId=${t.id}`)}
-                >
-                  <FileText className={`w-4 h-4 mr-3 shrink-0 ${transcriptId === t.id ? 'text-amber-600' : 'text-muted-foreground'}`} />
-                  <div className="flex flex-col min-w-0 overflow-hidden">
-                    <span className="truncate text-sm font-medium">{t.title}</span>
-                    <span className="truncate text-[10px] text-muted-foreground mt-0.5">
-                      {formatDistanceToNow(new Date(t.createdAt), { addSuffix: true })}
-                    </span>
-                  </div>
-                </Button>
-              ))}
+          {isLoadingTranscripts ? (
+            <div className="px-3 py-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
             </div>
-          </ScrollArea>
+          ) : transcripts.map((t: any) => (
+            <Button
+              key={t.id}
+              variant={transcriptId === t.id ? "secondary" : "ghost"}
+              className={`w-full justify-start h-auto py-2.5 px-3 text-left ${transcriptId === t.id ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-100' : ''}`}
+              onClick={() => {
+                router.push(`/chat?transcriptId=${t.id}`);
+                setSheetOpen(false);
+              }}
+            >
+              <FileText className={`w-4 h-4 mr-3 shrink-0 ${transcriptId === t.id ? 'text-amber-600' : 'text-muted-foreground'}`} />
+              <div className="flex flex-col min-w-0 overflow-hidden">
+                <span className="truncate text-sm font-medium">{t.title}</span>
+                <span className="truncate text-[10px] text-muted-foreground mt-0.5">
+                  {formatDistanceToNow(new Date(t.createdAt), { addSuffix: true })}
+                </span>
+              </div>
+            </Button>
+          ))}
         </div>
-      )}
+      </ScrollArea>
+    </div>
+  );
 
+  return (
+    <div className="flex h-[calc(100vh-8rem)] max-w-7xl mx-auto rounded-2xl overflow-hidden bg-background shadow-2xl shadow-amber-500/5 border border-border/60 relative">
+      
       {/* Main Chat Area */}
-      <div className="flex flex-col flex-1 min-w-0 bg-background relative">
+      <div className="flex flex-col flex-1 min-w-0 bg-background h-full">
         {/* Header */}
         <div className="flex items-center justify-between gap-4 p-4 sm:p-5 border-b bg-card/80 backdrop-blur-xl z-10 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full shrink-0 hover:bg-muted" onClick={() => setSidebarOpen(!sidebarOpen)}>
-              <Menu className="w-4 h-4" />
-            </Button>
+            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden h-9 w-9 rounded-full shrink-0 hover:bg-muted">
+                  <Menu className="w-4 h-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 p-0 flex flex-col">
+                <SheetTitle className="sr-only">Chat History</SheetTitle>
+                <SidebarContent />
+              </SheetContent>
+            </Sheet>
             
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-sm shrink-0">
               <Sparkles className="h-5 w-5" />
@@ -188,7 +205,7 @@ function ChatInterface() {
         </div>
 
         {/* Chat Conversation Area */}
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col flex-1 overflow-hidden">
           <Conversation className="flex-1 bg-muted/5">
             <ConversationContent className="p-4 sm:p-6">
               {messages.length === 0 ? (
@@ -288,6 +305,12 @@ function ChatInterface() {
           </div>
         </div>
       </div>
+
+      {/* Desktop Sidebar for Transcripts (Right side) */}
+      <div className="hidden md:flex w-72 border-l bg-card/50 flex-col shrink-0 h-full">
+        <SidebarContent />
+      </div>
+
     </div>
   );
 }

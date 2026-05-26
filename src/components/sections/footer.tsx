@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Mic } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import Logo from "@/components/logo";
 import { siteConfig } from "@/data/site";
 import { footerSections } from "@/data/navigation";
 
@@ -13,14 +13,9 @@ export function Footer() {
         <div className="grid md:grid-cols-5 gap-12 mb-12">
           {/* Brand column */}
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-7 h-7 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-                <Mic className="w-3.5 h-3.5 text-white" />
-              </div>
-              <span className="font-bold tracking-tight font-[family-name:var(--font-display)]">
-                {siteConfig.name}
-              </span>
-            </Link>
+            <div className="mb-4">
+              <Logo />
+            </div>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mb-6">
               {siteConfig.description}
             </p>

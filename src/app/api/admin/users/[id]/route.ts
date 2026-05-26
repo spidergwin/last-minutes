@@ -8,19 +8,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const admin = await db.user.findUnique({ where: { id: session.user.id } });
-    if (!admin || (admin.role !== "ADMIN" && admin.role !== "SUPER_ADMIN")) {
+    if (!admin || (admin.role !== "ADMIN")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { id } = await params;
     const body = await request.json();
     const { role } = body;
-
-    // Prevent changing super admin roles
-    const targetUser = await db.user.findUnique({ where: { id } });
-    if (targetUser?.role === "SUPER_ADMIN" && admin.role !== "SUPER_ADMIN") {
-      return NextResponse.json({ error: "Cannot modify super admin" }, { status: 403 });
-    }
 
     const user = await db.user.update({
       where: { id },
@@ -50,16 +44,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const admin = await db.user.findUnique({ where: { id: session.user.id } });
-    if (!admin || (admin.role !== "ADMIN" && admin.role !== "SUPER_ADMIN")) {
+    if (!admin || (admin.role !== "ADMIN")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { id } = await params;
-
-    const targetUser = await db.user.findUnique({ where: { id } });
-    if (targetUser?.role === "SUPER_ADMIN" && admin.role !== "SUPER_ADMIN") {
-      return NextResponse.json({ error: "Cannot delete super admin" }, { status: 403 });
-    }
 
     await db.user.delete({ where: { id } });
 

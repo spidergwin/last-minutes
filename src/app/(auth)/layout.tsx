@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Link from "next/link";
-import { Mic, Check } from "lucide-react";
+import { Check } from "lucide-react";
+import Logo from "@/components/logo";
 import { authContent } from "@/data/auth";
 import { siteConfig } from "@/data/site";
 
@@ -16,14 +17,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
         {/* Logo */}
         <div className="relative z-10">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-              <Mic className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight font-[family-name:var(--font-display)]">
-              {siteConfig.name}
-            </span>
-          </Link>
+          <Logo />
         </div>
 
         {/* Hero text */}

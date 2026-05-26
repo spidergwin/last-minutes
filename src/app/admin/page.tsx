@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { AdminStats } from "@/lib/validations";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Activity, Users, FileText, Clock, CreditCard, ShieldAlert } from "lucide-react";
+import { Activity, Users, FileText, Clock, CreditCard, ShieldAlert, DollarSign } from "lucide-react";
 
 export default function AdminDashboard() {
-  const { data: stats, isLoading, isError, error } = useQuery<AdminStats>({
+  const { data: stats, isLoading, isError, error } = useQuery<AdminStats & { planBreakdown?: any[] }>({
     queryKey: ["admin-stats"],
     queryFn: async () => {
       const response = await fetch("/api/admin/stats");
@@ -19,9 +19,19 @@ export default function AdminDashboard() {
     },
   });
 
+  // Calculate revenue
+  const planBreakdown = stats?.planBreakdown || [];
+  const proCount = planBreakdown.find((p: any) => p.plan?.toLowerCase() === "pro")?._count?.plan || 0;
+  const businessCount = planBreakdown.find((p: any) => p.plan?.toLowerCase() === "business")?._count?.plan || 0;
+  
+  const proRevenue = proCount * 15000;
+  const businessRevenue = businessCount * 45000;
+  const totalRevenue = proRevenue + businessRevenue;
+
   const statConfig = [
     { label: "Total Users", value: stats?.totalUsers || 0, subValue: `+${stats?.newUsersToday || 0} today`, icon: Users, color: "text-amber-600 dark:text-amber-400" },
     { label: "Active Subs", value: stats?.activeSubscriptions || 0, subValue: "Paid & Trial", icon: CreditCard, color: "text-orange-500" },
+    { label: "Total Revenue", value: `₦${totalRevenue.toLocaleString()}`, subValue: "Monthly Recurring", icon: DollarSign, color: "text-emerald-500" },
     { label: "Total Transcripts", value: stats?.totalTranscripts || 0, subValue: "System-wide", icon: FileText, color: "text-amber-500" },
     {
       label: "Total Minutes",
@@ -39,8 +49,8 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">Loading system statistics...</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {[1, 2, 3, 4, 5].map((i) => (
             <Card key={i} className="shadow-xs animate-pulse">
               <CardHeader className="pb-2"><div className="h-4 w-24 bg-muted rounded"></div></CardHeader>
               <CardContent><div className="h-8 w-16 bg-muted rounded mb-2"></div><div className="h-3 w-32 bg-muted rounded"></div></CardContent>
@@ -66,6 +76,7 @@ export default function AdminDashboard() {
       </div>
     );
   }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-1">
@@ -74,7 +85,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {statConfig.map((stat) => (
           <Card key={stat.label} className="shadow-xs border-amber-500/10 hover:border-amber-500/30 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -89,6 +100,45 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Revenue Breakdown */}
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Card className="shadow-xs border-amber-500/10 bg-amber-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-400">Pro Plan Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-end">
+              <div>
+                <div className="text-3xl font-bold text-amber-600 dark:text-amber-500">₦{proRevenue.toLocaleString()}</div>
+                <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">/month</p>
+              </div>
+              <div className="text-right">
+                <div className="text-lg font-semibold text-amber-700 dark:text-amber-300">{proCount}</div>
+                <p className="text-xs text-amber-600/70 dark:text-amber-400/70">Subscribers</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-xs border-orange-500/10 bg-orange-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-orange-700 dark:text-orange-400">Business Plan Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-end">
+              <div>
+                <div className="text-3xl font-bold text-orange-600 dark:text-orange-500">₦{businessRevenue.toLocaleString()}</div>
+                <p className="text-xs text-orange-600/70 dark:text-orange-400/70 mt-1">/month</p>
+              </div>
+              <div className="text-right">
+                <div className="text-lg font-semibold text-orange-700 dark:text-orange-300">{businessCount}</div>
+                <p className="text-xs text-orange-600/70 dark:text-orange-400/70">Subscribers</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Charts Section */}
@@ -161,6 +211,7 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+        
         <Card className="shadow-xs lg:col-span-3">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
