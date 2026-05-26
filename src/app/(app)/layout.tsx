@@ -20,6 +20,7 @@ const routeTitles: Record<string, string> = {
   "/settings": "Settings",
   "/settings/billing": "Billing",
   "/settings/integrations": "Integrations",
+  "/chat": "AI Chat",
 };
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -62,7 +63,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <ThemeToggle />
           </div>
         </header>
-        <div className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 lg:p-8 min-w-0">
+        <div className={`flex-1 overflow-x-hidden overflow-y-auto min-w-0 ${pathname === "/chat" ? "p-0" : "p-4 md:p-6 lg:p-8"}`}>
           {isTrialExpired && pathname !== "/settings/billing" ? (
             <div className="flex items-center justify-center h-[calc(100vh-12rem)]">
               <div className="max-w-md text-center space-y-6">

@@ -152,7 +152,7 @@ function ChatInterface() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] max-w-7xl mx-auto rounded-2xl overflow-hidden bg-background shadow-2xl shadow-amber-500/5 border border-border/60 relative">
+    <div className="flex h-[calc(100vh-4rem)] w-full overflow-hidden bg-background relative">
       
       {/* Main Chat Area */}
       <div className="flex flex-col flex-1 min-w-0 bg-background h-full">
@@ -280,10 +280,10 @@ function ChatInterface() {
           </Conversation>
 
           {/* Input Area */}
-          <div className="p-3 sm:p-5 border-t bg-card/80 backdrop-blur-xl shrink-0">
+          <div className="p-4 sm:p-6 shrink-0 bg-transparent flex flex-col items-center w-full">
             <PromptInput
               onSubmit={handleSubmit}
-              className="max-w-4xl mx-auto w-full relative"
+              className="max-w-3xl w-full relative shadow-lg rounded-xl border border-border/60 bg-card focus-within:ring-1 focus-within:ring-amber-500/50 transition-shadow"
               globalDrop
               multiple
             >
@@ -299,8 +299,10 @@ function ChatInterface() {
                 className="absolute bottom-2 right-2 bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md rounded-full"
               />
             </PromptInput>
-            <div className="text-center mt-3">
-              <p className="text-[10px] text-muted-foreground/60 font-medium tracking-wide uppercase">AI can make mistakes. Verify important information.</p>
+            <div className="text-center mt-3 max-w-3xl w-full">
+              <p className="text-xs text-muted-foreground/80 tracking-wide">
+                Last Minutes AI may generate inaccurate information. Please verify critical details.
+              </p>
             </div>
           </div>
         </div>
@@ -317,7 +319,7 @@ function ChatInterface() {
 
 export default function ChatPage() {
   return (
-    <Suspense fallback={<div className="flex h-[calc(100vh-8rem)] items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-amber-500" /></div>}>
+    <Suspense fallback={<div className="flex h-[calc(100vh-4rem)] w-full items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-amber-500" /></div>}>
       <ChatInterface />
     </Suspense>
   );
