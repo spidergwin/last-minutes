@@ -120,7 +120,12 @@ const ThreadScrollToBottom: FC = () => {
   );
 };
 
+import { useSearchParams } from "next/navigation";
+
 const ThreadWelcome: FC = () => {
+  const searchParams = useSearchParams();
+  const transcriptId = searchParams.get("transcriptId");
+
   return (
     <div className="aui-thread-welcome-root my-auto flex grow flex-col pb-10">
       <div className="aui-thread-welcome-center flex w-full grow flex-col items-center justify-center">
@@ -131,10 +136,10 @@ const ThreadWelcome: FC = () => {
             </div>
           </div>
           <h1 className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in fill-mode-both text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent duration-200">
-            Welcome to Last Minutes
+            {transcriptId ? "Ask about this meeting" : "Welcome to Last Minutes"}
           </h1>
           <p className="aui-thread-welcome-message-inner mt-4 fade-in slide-in-from-bottom-1 animate-in fill-mode-both text-muted-foreground text-lg max-w-md delay-75 duration-200">
-            Assign a task and let the AI handle the rest. Ask about your latest meeting transcripts or extract insights.
+            {transcriptId ? "I have read the transcript. You can ask me to summarize it, extract action items, or answer specific questions about what was discussed." : "Assign a task and let the AI handle the rest. Ask about your latest meeting transcripts or extract insights."}
           </p>
         </div>
       </div>
@@ -331,6 +336,26 @@ const AssistantMessage: FC = () => {
             }
           }}
         </MessagePrimitive.GroupedParts>
+        
+        <MessagePrimitive.Empty>
+          <div className="flex items-center gap-3 p-2 my-2 opacity-70">
+            <div className="flex items-end gap-[3px] h-4">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="w-[3px] bg-amber-500 rounded-full animate-wave origin-bottom"
+                  style={{
+                    height: `${Math.random() * 60 + 40}%`,
+                    animationDelay: `${i * 0.15}s`,
+                    animationDuration: `0.8s`,
+                  }}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-muted-foreground animate-pulse">Thinking...</span>
+          </div>
+        </MessagePrimitive.Empty>
+
         <MessageError />
       </div>
 

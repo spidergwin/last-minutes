@@ -31,11 +31,52 @@ export async function POST(req: NextRequest) {
     const model = getModel();
 
     const coreMessages = await convertToModelMessages(messages);
+    const lastUserMessage = messages[messages.length - 1];
+
+    let threadId: string | undefined = undefined;
+
+    // Save user message to database
+    if (transcriptId && lastUserMessage.role === "user") {
+      let thread = await db.thread.findFirst({
+        where: { userId: session.user.id, transcriptId },
+      });
+
+      if (!thread) {
+        thread = await db.thread.create({
+          data: {
+            userId: session.user.id,
+            transcriptId,
+            title: `Chat about transcript`,
+          },
+        });
+      }
+      
+      threadId = thread.id;
+
+      await db.message.create({
+        data: {
+          threadId: thread.id,
+          role: "user",
+          content: typeof lastUserMessage.content === "string" ? lastUserMessage.content : JSON.stringify(lastUserMessage.content),
+        },
+      });
+    }
 
     const result = streamText({
       model,
       system: systemPrompt,
       messages: coreMessages,
+      async onFinish({ text }) {
+        if (threadId) {
+          await db.message.create({
+            data: {
+              threadId,
+              role: "assistant",
+              content: text,
+            },
+          });
+        }
+      },
     });
 
     return result.toUIMessageStreamResponse();
