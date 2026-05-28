@@ -202,7 +202,9 @@ function ChatInterface() {
             </SheetTrigger>
             <SheetContent side="right" className="w-80 p-0 flex flex-col">
               <SheetTitle className="sr-only">Chat History</SheetTitle>
-              <SidebarContent />
+              <div className="flex flex-col flex-1 overflow-hidden pt-10">
+                <SidebarContent />
+              </div>
             </SheetContent>
           </Sheet>
         </div>

@@ -32,6 +32,7 @@ import {
   SuggestionPrimitive,
   ThreadPrimitive,
   useAuiState,
+  useMessage,
   useThreadRuntime,
 } from "@assistant-ui/react";
 import {
@@ -136,10 +137,12 @@ const ThreadWelcome: FC = () => {
             </div>
           </div>
           <h1 className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in fill-mode-both text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent duration-200">
-            {transcriptId ? "Ask about this meeting" : "Welcome to Last Minutes"}
+            {transcriptId ? "Ask about this meeting" : "What can I help you with?"}
           </h1>
           <p className="aui-thread-welcome-message-inner mt-4 fade-in slide-in-from-bottom-1 animate-in fill-mode-both text-muted-foreground text-lg max-w-md delay-75 duration-200">
-            {transcriptId ? "I have read the transcript. You can ask me to summarize it, extract action items, or answer specific questions about what was discussed." : "Assign a task and let the AI handle the rest. Ask about your latest meeting transcripts or extract insights."}
+            {transcriptId
+              ? "I've read the transcript. Ask me to summarize it, extract action items, or answer specific questions about what was discussed."
+              : "Select a transcript from the sidebar to get started, or ask me anything about your meetings."}
           </p>
         </div>
       </div>
@@ -149,13 +152,23 @@ const ThreadWelcome: FC = () => {
 };
 
 const ThreadSuggestions: FC = () => {
+  const searchParams = useSearchParams();
+  const transcriptId = searchParams.get("transcriptId");
   const thread = useThreadRuntime();
-  const suggestions = [
+
+  const transcriptSuggestions = [
     { text: "Write meeting minutes", icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
     { text: "Extract action items", icon: CheckIcon, color: "text-emerald-500", bg: "bg-emerald-500/10" },
     { text: "Summarize decisions", icon: Users, color: "text-purple-500", bg: "bg-purple-500/10" },
     { text: "Draft follow-up email", icon: MessageSquare, color: "text-amber-500", bg: "bg-amber-500/10" },
   ];
+
+  const generalSuggestions = [
+    { text: "How do I get started?", icon: Sparkles, color: "text-amber-500", bg: "bg-amber-500/10" },
+    { text: "What can you help me with?", icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10" },
+  ];
+
+  const suggestions = transcriptId ? transcriptSuggestions : generalSuggestions;
 
   const handleSuggestionClick = (text: string) => {
     thread.append({
@@ -265,6 +278,33 @@ const ComposerAction: FC = () => {
   );
 };
 
+const ThinkingIndicator: FC = () => {
+  const isRunning = useAuiState((s) => s.thread.isRunning);
+  const message = useMessage();
+  const hasContent = message.content.length > 0;
+
+  if (hasContent || !isRunning) return null;
+
+  return (
+    <div className="flex items-center gap-3 p-2 my-2 opacity-70">
+      <div className="flex items-end gap-[3px] h-4">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="w-[3px] bg-amber-500 rounded-full animate-wave origin-bottom"
+            style={{
+              height: `${Math.random() * 60 + 40}%`,
+              animationDelay: `${i * 0.15}s`,
+              animationDuration: `0.8s`,
+            }}
+          />
+        ))}
+      </div>
+      <span className="text-sm text-muted-foreground animate-pulse">Thinking...</span>
+    </div>
+  );
+};
+
 const MessageError: FC = () => {
   return (
     <MessagePrimitive.Error>
@@ -337,24 +377,7 @@ const AssistantMessage: FC = () => {
           }}
         </MessagePrimitive.GroupedParts>
         
-        <MessagePrimitive.If hasContent={false}>
-          <div className="flex items-center gap-3 p-2 my-2 opacity-70">
-            <div className="flex items-end gap-[3px] h-4">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-[3px] bg-amber-500 rounded-full animate-wave origin-bottom"
-                  style={{
-                    height: `${Math.random() * 60 + 40}%`,
-                    animationDelay: `${i * 0.15}s`,
-                    animationDuration: `0.8s`,
-                  }}
-                />
-              ))}
-            </div>
-            <span className="text-sm text-muted-foreground animate-pulse">Thinking...</span>
-          </div>
-        </MessagePrimitive.If>
+        <ThinkingIndicator />
 
         <MessageError />
       </div>

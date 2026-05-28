@@ -9,6 +9,39 @@ import { auth } from '@/lib/auth';
 
 export const maxDuration = 60;
 
+/** Extract text content from a UIMessage in any format */
+function extractTextContent(message: any): string | undefined {
+  // Try parts array first (AI SDK v6 UIMessage format)
+  if (Array.isArray(message.parts)) {
+    const text = message.parts
+      .filter((p: any) => p.type === "text")
+      .map((p: any) => p.text)
+      .join("");
+    if (text) return text;
+  }
+
+  // Try content as array of objects (e.g. [{type: "text", text: "..."}])
+  if (Array.isArray(message.content)) {
+    const text = message.content
+      .filter((p: any) => p.type === "text")
+      .map((p: any) => p.text)
+      .join("");
+    if (text) return text;
+  }
+
+  // Try content as plain string
+  if (typeof message.content === "string" && message.content) {
+    return message.content;
+  }
+
+  // Last resort: stringify content if it exists
+  if (message.content) {
+    return JSON.stringify(message.content);
+  }
+
+  return undefined;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: req.headers });
@@ -32,36 +65,55 @@ export async function POST(req: NextRequest) {
 
     const model = getModel();
 
-    const coreMessages = await convertToModelMessages(messages);
+    let coreMessages;
+    try {
+      coreMessages = await convertToModelMessages(messages);
+    } catch (conversionError) {
+      console.error("Message conversion error:", conversionError);
+      return NextResponse.json(
+        { error: "Failed to process messages" },
+        { status: 400 }
+      );
+    }
+
     const lastUserMessage = messages[messages.length - 1];
 
     let threadId: string | undefined = undefined;
 
     // Save user message to database
-    if (transcriptId && lastUserMessage.role === "user") {
-      let thread = await db.thread.findFirst({
-        where: { userId: session.user.id, transcriptId },
-      });
-
-      if (!thread) {
-        thread = await db.thread.create({
-          data: {
-            userId: session.user.id,
-            transcriptId,
-            title: `Chat about transcript`,
-          },
+    if (transcriptId && lastUserMessage?.role === "user") {
+      try {
+        let thread = await db.thread.findFirst({
+          where: { userId: session.user.id, transcriptId },
         });
-      }
-      
-      threadId = thread.id;
 
-      await db.message.create({
-        data: {
-          threadId: thread.id,
-          role: "user",
-          content: typeof lastUserMessage.content === "string" ? lastUserMessage.content : JSON.stringify(lastUserMessage.content),
-        },
-      });
+        if (!thread) {
+          thread = await db.thread.create({
+            data: {
+              userId: session.user.id,
+              transcriptId,
+              title: `Chat about transcript`,
+            },
+          });
+        }
+        
+        threadId = thread.id;
+
+        const messageContent = extractTextContent(lastUserMessage);
+
+        if (messageContent) {
+          await db.message.create({
+            data: {
+              threadId: thread.id,
+              role: "user",
+              content: messageContent,
+            },
+          });
+        }
+      } catch (dbError) {
+        // Don't fail the whole request if DB save fails — still stream the response
+        console.error("Failed to save user message to DB:", dbError);
+      }
     }
 
     const result = streamText({
@@ -72,23 +124,28 @@ export async function POST(req: NextRequest) {
       maxRetries: 3,
       async onFinish({ text, finishReason }) {
         if (finishReason === 'length') {
-          console.warn('AI Chat stream abruptly stopped due to maxTokens limit!');
+          console.warn('AI Chat stream abruptly stopped due to maxOutputTokens limit!');
         }
-        if (threadId) {
-          await db.message.create({
-            data: {
-              threadId,
-              role: "assistant",
-              content: text,
-            },
-          });
+        if (threadId && text) {
+          try {
+            await db.message.create({
+              data: {
+                threadId,
+                role: "assistant",
+                content: text,
+              },
+            });
+          } catch (dbError) {
+            console.error("Failed to save assistant message to DB:", dbError);
+          }
         }
       },
     });
 
     return result.toUIMessageStreamResponse();
   } catch (error) {
-    console.error("Chat API error:", error);
+    console.error("Chat API error:", error instanceof Error ? error.message : error);
+    console.error("Chat API error stack:", error instanceof Error ? error.stack : "no stack");
     return NextResponse.json({ error: "Failed to process chat" }, { status: 500 });
   }
 }
