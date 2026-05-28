@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       messages,
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json({ error: "Failed to process chat" }, { status: 500 });

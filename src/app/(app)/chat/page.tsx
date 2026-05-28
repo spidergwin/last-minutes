@@ -1,6 +1,5 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -18,43 +17,9 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { useSession } from "@/lib/auth-client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-import {
-  PromptInput,
-  type PromptInputMessage,
-  PromptInputTextarea,
-  PromptInputSubmit,
-  usePromptInputAttachments
-} from "@/components/ai-elements/prompt-input";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationScrollButton,
-  ConversationEmptyState,
-} from "@/components/ai-elements/conversation";
-import {
-  Message,
-  MessageContent,
-  MessageResponse,
-} from "@/components/ai-elements/message";
-
-// A small component to render the attach buttons inside the PromptInput context
-function ChatInputActions() {
-  const attachments = usePromptInputAttachments();
-
-  return (
-    <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
-      <button 
-        type="button" 
-        onClick={() => attachments.openFileDialog()}
-        className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-      >
-        <Paperclip className="w-3.5 h-3.5" />
-        Attach
-      </button>
-    </div>
-  );
-}
-
+import { Thread } from "@/components/assistant-ui/thread";
+import { AssistantRuntimeProvider } from "@assistant-ui/react";
+import { useChatRuntime, AssistantChatTransport } from "@assistant-ui/react-ai-sdk";
 function ChatInterface() {
   const searchParams = useSearchParams();
   const transcriptId = searchParams.get("transcriptId");
@@ -79,39 +44,16 @@ function ChatInterface() {
     enabled: !!transcriptId,
   });
 
-  const { messages, status, sendMessage, setMessages } = useChat({
-    onError: (error) => toast.error(error.message || "Failed to send message"),
+  const runtime = useChatRuntime({
+    transport: new AssistantChatTransport({
+      api: "/api/chat",
+      body: transcriptId ? { transcriptId } : undefined,
+    }),
   });
 
   useEffect(() => {
-    if (!transcriptId && messages.length > 0) {
-      const firstUserMsg = messages.find(m => m.role === 'user');
-      if (firstUserMsg && customTitle === "New Chat") {
-        const textPart = firstUserMsg.parts?.find(p => p.type === 'text');
-        if (textPart && textPart.type === 'text') {
-          const generatedTitle = textPart.text.length > 40 ? textPart.text.substring(0, 40) + "..." : textPart.text;
-          setCustomTitle(generatedTitle);
-        }
-      }
-    }
-  }, [messages, transcriptId, customTitle]);
-
-  useEffect(() => {
-    setMessages([]);
     setCustomTitle("New Chat");
-  }, [transcriptId, setMessages]);
-
-  const handleSubmit = (message: PromptInputMessage) => {
-    if (message.text.trim() || message.files?.length) {
-      sendMessage({
-        text: message.text || "Sent with attachments",
-        files: message.files,
-      }, {
-        body: { transcriptId }
-      });
-      setText("");
-    }
-  };
+  }, [transcriptId]);
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full w-full">
@@ -216,153 +158,9 @@ function ChatInterface() {
       <div className="flex flex-1 min-h-0 relative">
         {/* Main Chat Area */}
         <div className="flex flex-col flex-1 min-w-0 bg-background h-full">
-          {/* Chat Conversation Area */}
-          <div className="flex flex-col flex-1 overflow-hidden">
-            <Conversation className="flex-1">
-              <ConversationContent className="p-4 sm:p-6 lg:px-24">
-                {messages.length === 0 ? (
-                  transcriptId ? (
-                    <div className="max-w-2xl mx-auto text-center fade-up mt-12 mb-8">
-                      <h3 className="text-4xl font-bold mb-4 tracking-tight">
-                        {isLoadingTranscript ? "Loading Context..." : transcript?.title}
-                      </h3>
-                      <p className="text-muted-foreground text-sm max-w-md mx-auto mb-10">
-                        The AI has read this transcript. Not sure where to start?
-                      </p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                        {['Summarize key points', 'List action items', 'Identify decisions made', 'Draft a follow-up email'].map((suggestion, i) => (
-                          <Button
-                            key={i}
-                            variant="outline"
-                            className="h-14 justify-between px-5 rounded-xl hover:bg-accent/50 border-border/60"
-                            onClick={() => sendMessage({ text: suggestion })}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                <Sparkles className="w-4 h-4" />
-                              </div>
-                              <span className="font-semibold text-sm">{suggestion}</span>
-                            </div>
-                            <Plus className="w-4 h-4 text-muted-foreground" />
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="max-w-3xl mx-auto w-full text-center fade-up mt-16 mb-8 px-4">
-                      <h1 className="text-4xl sm:text-5xl font-bold mb-4 tracking-tight">Welcome to Last Minutes</h1>
-                      <p className="text-muted-foreground mb-12 max-w-lg mx-auto">
-                        Get started by assigning a task and Chat can do the rest. Not sure where to start?
-                      </p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                        <Button variant="outline" className="h-16 justify-between px-5 rounded-2xl hover:bg-accent/50 border-border/60 shadow-sm" onClick={() => sendMessage({ text: "Write meeting minutes" })}>
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                              <FileText className="w-4 h-4" />
-                            </div>
-                            <span className="font-semibold text-[15px]">Write minutes</span>
-                          </div>
-                          <Plus className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                        
-                        <Button variant="outline" className="h-16 justify-between px-5 rounded-2xl hover:bg-accent/50 border-border/60 shadow-sm" onClick={() => sendMessage({ text: "Extract action items" })}>
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-secondary-foreground">
-                              <Sparkles className="w-4 h-4" />
-                            </div>
-                            <span className="font-semibold text-[15px]">Extract actions</span>
-                          </div>
-                          <Plus className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                        
-                        <Button variant="outline" className="h-16 justify-between px-5 rounded-2xl hover:bg-accent/50 border-border/60 shadow-sm" onClick={() => sendMessage({ text: "Summarize decisions" })}>
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-accent-foreground">
-                              <User className="w-4 h-4" />
-                            </div>
-                            <span className="font-semibold text-[15px]">Summarize decisions</span>
-                          </div>
-                          <Plus className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                        
-                        <Button variant="outline" className="h-16 justify-between px-5 rounded-2xl hover:bg-accent/50 border-border/60 shadow-sm" onClick={() => sendMessage({ text: "Draft follow-up email" })}>
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-foreground">
-                              <MessageSquare className="w-4 h-4" />
-                            </div>
-                            <span className="font-semibold text-[15px]">Draft email</span>
-                          </div>
-                          <Plus className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                      </div>
-                    </div>
-                  )
-                ) : (
-                  messages.map((message) => (
-                    <Message from={message.role} key={message.id}>
-                      <MessageContent>
-                        {message.parts?.map((part, i) => {
-                          switch (part.type) {
-                            case "text":
-                              return (
-                                <MessageResponse key={`${message.id}-${i}`}>
-                                  {part.text}
-                                </MessageResponse>
-                              );
-                            case "file":
-                              return (
-                                <div key={`${message.id}-${i}`} className="flex items-center gap-2 p-2 mt-2 rounded-lg bg-background/50 border border-border text-xs backdrop-blur-sm">
-                                  <FileText className="h-4 w-4 text-primary" />
-                                  <span className="truncate max-w-[150px] font-medium text-foreground">Attached Document</span>
-                                </div>
-                              );
-                            default:
-                              return null;
-                          }
-                        })}
-                      </MessageContent>
-                    </Message>
-                  ))
-                )}
-              </ConversationContent>
-              <ConversationScrollButton />
-            </Conversation>
-
-            {/* Input Area */}
-            <div className="p-4 sm:p-6 shrink-0 bg-transparent flex flex-col items-center w-full max-w-4xl mx-auto">
-              <PromptInput
-                onSubmit={handleSubmit}
-                className="w-full relative shadow-md rounded-2xl border border-border bg-card focus-within:ring-1 focus-within:ring-ring transition-all flex flex-col overflow-hidden"
-                globalDrop
-                multiple
-                accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-              >
-                <PromptInputTextarea
-                  onChange={(e) => setText(e.target.value)}
-                  value={text}
-                  placeholder={transcriptId ? `Ask about ${transcript?.title || 'this meeting'}...` : "Summarize the latest..."}
-                  className="pr-12 text-[15px] resize-none min-h-[80px] p-4 bg-transparent border-0 focus-visible:ring-0 shadow-none pb-12"
-                />
-                
-                <div className="absolute bottom-0 left-0 w-full p-3 flex items-center justify-between">
-                  <ChatInputActions />
-                  
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground font-medium">20 / 3,000</span>
-                    <PromptInputSubmit
-                      status={status === "streaming" || status === "submitted" ? "streaming" : "ready"}
-                      disabled={!text.trim() && (status !== "streaming" && status !== "submitted")}
-                      className="bg-transparent hover:bg-accent text-foreground shadow-none rounded-lg h-8 w-8"
-                    />
-                  </div>
-                </div>
-              </PromptInput>
-              
-
-            </div>
-          </div>
+          <AssistantRuntimeProvider runtime={runtime}>
+            <Thread />
+          </AssistantRuntimeProvider>
         </div>
 
         {/* Desktop Sidebar for Transcripts (Right side) */}
