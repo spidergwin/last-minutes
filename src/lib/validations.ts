@@ -157,7 +157,7 @@ export const adminStatsSchema = z.object({
   activeUsers: z.number(),
   activeSubscriptions: z.number().optional(),
   totalTranscripts: z.number(),
-  totalMinutes: z.number(),
+  totalDurationSeconds: z.number(),
   usageTrend: z.array(
     z.object({
       date: z.string(),

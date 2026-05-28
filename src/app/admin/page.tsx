@@ -34,8 +34,14 @@ export default function AdminDashboard() {
     { label: "Total Revenue", value: `₦${totalRevenue.toLocaleString()}`, subValue: "Monthly Recurring", icon: DollarSign, color: "text-emerald-500" },
     { label: "Total Transcripts", value: stats?.totalTranscripts || 0, subValue: "System-wide", icon: FileText, color: "text-amber-500" },
     {
-      label: "Total Minutes",
-      value: `${Math.round((stats?.totalMinutes || 0) / 60)}h`,
+      label: "Total Audio",
+      value: (() => {
+        const totalSeconds = stats?.totalDurationSeconds || 0;
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.round((totalSeconds % 3600) / 60);
+        if (hours > 0) return `${hours}h ${minutes}m`;
+        return `${minutes}m`;
+      })(),
       subValue: "Processed audio",
       icon: Clock,
       color: "text-orange-600 dark:text-orange-400",

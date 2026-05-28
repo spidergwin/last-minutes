@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     const totalTranscripts = await db.transcript.count();
 
-    const totalMinutes = await db.transcript.aggregate({
+    const totalDuration = await db.transcript.aggregate({
       _sum: {
         duration: true,
       },
@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
       planBreakdown,
       recentAuditLogs,
       totalTranscripts,
-      totalMinutes: totalMinutes._sum.duration || 0,
+      totalDurationSeconds: totalDuration._sum.duration || 0,
       usageTrend,
       topLanguages: topLanguages.map((lang: any) => {
         const langInfo = SUPPORTED_LANGUAGES[lang.sourceLanguage as keyof typeof SUPPORTED_LANGUAGES];

@@ -13,7 +13,7 @@ export interface AdminStats {
   totalUsers: number;
   activeUsers: number;
   totalTranscripts: number;
-  totalMinutes: number;
+  totalDurationSeconds: number;
   topLanguages: Array<{
     code: string;
     name: string;
@@ -71,7 +71,7 @@ export function formatAdminStatsForDisplay(stats: AdminStats) {
       (stats.activeUsers / stats.totalUsers) * 100
     ),
     averageTranscriptLength: Math.round(
-      (stats.totalMinutes / stats.totalTranscripts) * 60
+      stats.totalDurationSeconds / (stats.totalTranscripts || 1)
     ),
   };
 }
