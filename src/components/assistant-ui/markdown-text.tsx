@@ -327,12 +327,13 @@ const standaloneComponents: Components = {
 
 export const StandaloneMarkdown = ({ content }: { content: string }) => {
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      className="aui-md"
-      components={standaloneComponents}
-    >
-      {content}
-    </ReactMarkdown>
+    <div className="aui-md">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={standaloneComponents}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
   );
 };

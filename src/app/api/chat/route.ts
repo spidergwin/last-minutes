@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       model,
       system: systemPrompt,
       messages: coreMessages,
-      maxTokens: 8192,
+      maxOutputTokens: 8192,
       maxRetries: 3,
       async onFinish({ text, finishReason }) {
         if (finishReason === 'length') {

@@ -337,7 +337,7 @@ const AssistantMessage: FC = () => {
           }}
         </MessagePrimitive.GroupedParts>
         
-        <MessagePrimitive.Empty>
+        <MessagePrimitive.If hasContent={false}>
           <div className="flex items-center gap-3 p-2 my-2 opacity-70">
             <div className="flex items-end gap-[3px] h-4">
               {[...Array(5)].map((_, i) => (
@@ -354,7 +354,7 @@ const AssistantMessage: FC = () => {
             </div>
             <span className="text-sm text-muted-foreground animate-pulse">Thinking...</span>
           </div>
-        </MessagePrimitive.Empty>
+        </MessagePrimitive.If>
 
         <MessageError />
       </div>

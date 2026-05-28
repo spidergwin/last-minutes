@@ -62,7 +62,7 @@ function ChatInterface() {
       api: "/api/chat",
       body: transcriptId ? { transcriptId } : undefined,
     }),
-    initialMessages,
+    messages: initialMessages,
   });
 
   useEffect(() => {
