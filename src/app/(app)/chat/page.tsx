@@ -51,14 +51,6 @@ function ChatInputActions() {
         <Paperclip className="w-3.5 h-3.5" />
         Attach
       </button>
-      <button type="button" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
-        <Mic className="w-3.5 h-3.5" />
-        Voice Message
-      </button>
-      <button type="button" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
-        <Search className="w-3.5 h-3.5" />
-        Browse Prompts
-      </button>
     </div>
   );
 }
@@ -368,11 +360,7 @@ function ChatInterface() {
                 </div>
               </PromptInput>
               
-              <div className="text-center mt-4">
-                <p className="text-[11px] text-muted-foreground/70 font-medium">
-                  Last Minutes may generate inaccurate information about people, places, or facts. Model: Last Minutes AI v1.3
-                </p>
-              </div>
+
             </div>
           </div>
         </div>
