@@ -7,6 +7,8 @@ import { auth } from '@/lib/auth';
 // Add the edge runtime config if we're not using prisma heavily or if we are, node is fine.
 // Last Minutes uses Prisma, so let's stick to default Node runtime.
 
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: req.headers });
@@ -66,7 +68,12 @@ export async function POST(req: NextRequest) {
       model,
       system: systemPrompt,
       messages: coreMessages,
-      async onFinish({ text }) {
+      maxTokens: 8192,
+      maxRetries: 3,
+      async onFinish({ text, finishReason }) {
+        if (finishReason === 'length') {
+          console.warn('AI Chat stream abruptly stopped due to maxTokens limit!');
+        }
         if (threadId) {
           await db.message.create({
             data: {
