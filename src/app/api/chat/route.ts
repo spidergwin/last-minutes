@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { messages, transcriptId } = await req.json();
+    const { messages, transcriptId, threadId: clientThreadId } = await req.json();
 
     let systemPrompt = 'You are an advanced AI assistant designed to answer questions based on meeting transcripts. Be helpful, concise, and accurate based on the provided context. If the user asks something outside the transcript, try to answer but politely mention it is outside the scope of the meeting context.';
     
@@ -81,34 +81,56 @@ export async function POST(req: NextRequest) {
     let threadId: string | undefined = undefined;
 
     // Save user message to database
-    if (transcriptId && lastUserMessage?.role === "user") {
+    if (lastUserMessage?.role === "user") {
       try {
-        let thread = await db.thread.findFirst({
-          where: { userId: session.user.id, transcriptId },
-        });
-
-        if (!thread) {
-          thread = await db.thread.create({
-            data: {
-              userId: session.user.id,
-              transcriptId,
-              title: `Chat about transcript`,
-            },
+        let thread = null;
+        if (transcriptId) {
+          thread = await db.thread.findFirst({
+            where: { userId: session.user.id, transcriptId },
           });
+
+          if (!thread) {
+            thread = await db.thread.create({
+              data: {
+                userId: session.user.id,
+                transcriptId,
+                title: `Chat about transcript`,
+              },
+            });
+          }
+        } else if (clientThreadId) {
+          thread = await db.thread.findFirst({
+            where: { id: clientThreadId, userId: session.user.id },
+          });
+
+          if (!thread) {
+            const userText = extractTextContent(lastUserMessage) || "General Chat";
+            const title = userText.length > 40 ? userText.substring(0, 37) + "..." : userText;
+            
+            thread = await db.thread.create({
+              data: {
+                id: clientThreadId,
+                userId: session.user.id,
+                transcriptId: null,
+                title: title,
+              },
+            });
+          }
         }
-        
-        threadId = thread.id;
 
-        const messageContent = extractTextContent(lastUserMessage);
+        if (thread) {
+          threadId = thread.id;
+          const messageContent = extractTextContent(lastUserMessage);
 
-        if (messageContent) {
-          await db.message.create({
-            data: {
-              threadId: thread.id,
-              role: "user",
-              content: messageContent,
-            },
-          });
+          if (messageContent) {
+            await db.message.create({
+              data: {
+                threadId: thread.id,
+                role: "user",
+                content: messageContent,
+              },
+            });
+          }
         }
       } catch (dbError) {
         // Don't fail the whole request if DB save fails — still stream the response

@@ -23,11 +23,22 @@ import { cn } from "@/lib/utils";
 import { Thread } from "@/components/assistant-ui/thread";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime, AssistantChatTransport } from "@assistant-ui/react-ai-sdk";
-function ChatArea({ transcriptId, initialMessages }: { transcriptId: string | null, initialMessages: any[] }) {
+function ChatArea({ 
+  transcriptId, 
+  threadId, 
+  initialMessages 
+}: { 
+  transcriptId: string | null; 
+  threadId: string | null; 
+  initialMessages: any[]; 
+}) {
   const runtime = useChatRuntime({
     transport: new AssistantChatTransport({
       api: "/api/chat",
-      body: transcriptId ? { transcriptId } : undefined,
+      body: {
+        ...(transcriptId ? { transcriptId } : {}),
+        ...(threadId ? { threadId } : {}),
+      },
     }),
     messages: initialMessages,
   });
@@ -42,6 +53,7 @@ function ChatArea({ transcriptId, initialMessages }: { transcriptId: string | nu
 function ChatInterface() {
   const searchParams = useSearchParams();
   const transcriptId = searchParams.get("transcriptId");
+  const threadId = searchParams.get("threadId");
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -63,21 +75,63 @@ function ChatInterface() {
     enabled: !!transcriptId,
   });
 
+  // Generate unique threadId for new general chats and redirect to it
+  useEffect(() => {
+    if (!threadId && !transcriptId) {
+      const newThreadId = "gen-" + Math.random().toString(36).substring(2, 15);
+      router.replace(`/chat?threadId=${newThreadId}`);
+    }
+  }, [threadId, transcriptId, router]);
+
   const { data: initialMessages = [], isLoading: isLoadingMessages } = useQuery({
-    queryKey: ["chat-history", transcriptId],
+    queryKey: ["chat-history", transcriptId, threadId],
     queryFn: async () => {
-      const res = await fetch(`/api/chat/history?transcriptId=${transcriptId || "new"}`);
+      let url = "/api/chat/history";
+      if (threadId) {
+        url += `?threadId=${threadId}`;
+      } else if (transcriptId) {
+        url += `?transcriptId=${transcriptId}`;
+      } else {
+        url += "?transcriptId=new";
+      }
+      const res = await fetch(url);
       if (!res.ok) return [];
       const data = await res.json();
       return data.messages || [];
     },
   });
 
+  const { data: threadsData } = useQuery({
+    queryKey: ["chat-threads"],
+    queryFn: async () => {
+      const res = await fetch("/api/chat/threads");
+      if (!res.ok) return { threads: [] };
+      return res.json();
+    },
+    refetchInterval: 5000,
+  });
+  const threads = threadsData?.threads || [];
+
   // ChatArea below dynamically manages the chat runtime instance with database-fetched initialMessages
 
   useEffect(() => {
-    setCustomTitle("New Chat");
-  }, [transcriptId]);
+    if (threadId) {
+      const currentThread = threads.find((t: any) => t.id === threadId);
+      if (currentThread) {
+        setCustomTitle(currentThread.title);
+      } else {
+        setCustomTitle("General Chat");
+      }
+    } else if (transcriptId) {
+      if (transcript) {
+        setCustomTitle(`Chat: ${transcript.title}`);
+      } else {
+        setCustomTitle("Meeting Chat");
+      }
+    } else {
+      setCustomTitle("New Chat");
+    }
+  }, [threadId, transcriptId, threads, transcript]);
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full w-full bg-card/30">
@@ -123,6 +177,46 @@ function ChatInterface() {
               </div>
             </div>
           )}
+
+          {/* General Chats */}
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-2">
+              <MessageSquare className="w-3.5 h-3.5 text-amber-500" /> Recent Chats
+            </h3>
+            {threads.filter((t: any) => !t.transcriptId).length === 0 ? (
+              <p className="text-xs text-muted-foreground/60 px-1 py-1 italic">
+                No recent general chats.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {threads
+                  .filter((t: any) => !t.transcriptId)
+                  .map((t: any) => (
+                    <Button
+                      key={t.id}
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start h-auto py-2 px-3 rounded-xl text-left transition-all",
+                        threadId === t.id 
+                          ? 'bg-accent/80 hover:bg-accent shadow-sm ring-1 ring-border/50' 
+                          : 'hover:bg-accent/50'
+                      )}
+                      onClick={() => {
+                        router.push(`/chat?threadId=${t.id}`);
+                        setSheetOpen(false);
+                      }}
+                    >
+                      <span className={cn(
+                        "truncate text-sm font-medium pr-2 w-full",
+                        threadId === t.id ? "text-foreground" : "text-muted-foreground"
+                      )}>
+                        {t.title}
+                      </span>
+                    </Button>
+                  ))}
+              </div>
+            )}
+          </div>
 
           <div className="space-y-2">
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
@@ -229,8 +323,9 @@ function ChatInterface() {
             </div>
           ) : (
             <ChatArea 
-              key={transcriptId || "new"} 
+              key={threadId || transcriptId || "new"} 
               transcriptId={transcriptId} 
+              threadId={threadId}
               initialMessages={initialMessages} 
             />
           )}

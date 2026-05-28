@@ -11,9 +11,15 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const transcriptId = searchParams.get("transcriptId");
+    const threadId = searchParams.get("threadId");
 
     let thread;
-    if (transcriptId && transcriptId !== 'new') {
+    if (threadId) {
+      thread = await db.thread.findFirst({
+        where: { id: threadId, userId: session.user.id },
+        include: { messages: { orderBy: { createdAt: 'asc' } } }
+      });
+    } else if (transcriptId && transcriptId !== 'new') {
       thread = await db.thread.findFirst({
         where: { userId: session.user.id, transcriptId },
         include: { messages: { orderBy: { createdAt: 'asc' } } }
