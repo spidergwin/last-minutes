@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useSession } from "@/lib/auth-client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -61,9 +62,6 @@ function ChatInterface() {
       <div className="p-4 border-b flex flex-col gap-3 shrink-0">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-sm">Projects ({transcripts.length})</h3>
-          <Button variant="ghost" size="icon" className="h-6 w-6">
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
         </div>
         {transcriptId && (
           <Link href={`/transcripts/${transcriptId}`} className="w-full">
@@ -124,14 +122,14 @@ function ChatInterface() {
     <div className="flex flex-col h-screen w-full overflow-hidden bg-background">
       
       {/* Custom Top Header mapping exactly to design */}
-      <header className="flex-none h-16 border-b flex items-center justify-between px-4 md:px-6 bg-background shrink-0">
+      <header className="flex-none h-14 border-b flex items-center justify-between px-4 bg-background shrink-0">
         <div className="flex items-center gap-3">
           {/* Main App Sidebar Trigger (Left) */}
-          <SidebarTrigger className="md:hidden" />
-          <div className="hidden md:block h-4 w-px bg-border" />
+          <SidebarTrigger className="-ml-1" />
+          <div className="h-4 w-px bg-border" />
           
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold truncate max-w-[180px] sm:max-w-[200px] md:max-w-[400px] font-[family-name:var(--font-display)]">
+            <h1 className="text-sm font-semibold truncate max-w-[180px] sm:max-w-[200px] md:max-w-[400px] font-[family-name:var(--font-display)]">
               {transcriptId 
                 ? (isLoadingTranscript ? "Loading..." : transcript?.title || "Meeting Chat")
                 : customTitle}
@@ -139,7 +137,7 @@ function ChatInterface() {
             {transcriptId && (
               <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground ml-2">
                 <span className="relative flex h-2 w-2">
-                  <span className={`relative inline-flex rounded-full h-2 w-2 ${isLoadingTranscript ? 'bg-primary animate-pulse' : 'bg-primary'}`}></span>
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${isLoadingTranscript ? 'bg-amber-600 animate-pulse' : 'bg-amber-600'}`}></span>
                 </span>
                 Context Linked
               </div>
@@ -148,6 +146,7 @@ function ChatInterface() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <ThemeToggle />
           {/* Projects/Transcripts Sheet Trigger (Right) */}
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>

@@ -17,6 +17,9 @@ interface SummaryRendererProps {
   isDeleting?: boolean;
 }
 
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 export function SummaryRenderer({ 
   content, 
   type, 
@@ -90,8 +93,10 @@ export function SummaryRenderer({
           )}
         </div>
       )}
-      <div className={cn("whitespace-pre-wrap text-sm leading-relaxed", !hideActions && "pr-0")}>
-        {formattedText}
+      <div className={cn("prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:p-0", !hideActions && "pr-0")}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {formattedText}
+        </ReactMarkdown>
       </div>
     </div>
   );

@@ -30,10 +30,8 @@ export async function POST(req: NextRequest) {
 
     const model = getModel();
 
-    const coreMessages = messages.map((m: any) => ({
-      role: m.role,
-      content: m.content,
-    }));
+    const { convertToModelMessages } = await import('ai');
+    const coreMessages = convertToModelMessages(messages);
 
     const result = streamText({
       model,

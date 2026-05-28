@@ -63,10 +63,10 @@ export const Thread: FC = () => {
         ["--composer-padding" as string]: "10px",
       }}
     >
-      {/* Animated gradient background (Gemini/Premium vibe) */}
+      {/* Animated gradient background (Premium vibe) */}
       <div className="absolute inset-0 pointer-events-none z-[-1] overflow-hidden opacity-30 dark:opacity-20">
-        <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/20 via-purple-500/10 to-background blur-3xl animate-[spin_60s_linear_infinite]" />
-        <div className="absolute -bottom-1/2 -right-1/2 w-[200%] h-[200%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/20 via-emerald-500/10 to-background blur-3xl animate-[spin_40s_linear_infinite_reverse]" />
+        <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-500/20 via-orange-500/10 to-background blur-3xl animate-[spin_60s_linear_infinite]" />
+        <div className="absolute -bottom-1/2 -right-1/2 w-[200%] h-[200%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-orange-500/20 via-amber-500/10 to-background blur-3xl animate-[spin_40s_linear_infinite_reverse]" />
       </div>
       <ThreadPrimitive.Viewport
         turnAnchor="top"
@@ -125,9 +125,9 @@ const ThreadWelcome: FC = () => {
     <div className="aui-thread-welcome-root my-auto flex grow flex-col pb-10">
       <div className="aui-thread-welcome-center flex w-full grow flex-col items-center justify-center">
         <div className="aui-thread-welcome-message flex size-full flex-col items-center justify-center px-4 mt-16 mb-8 text-center">
-          <div className="mb-4 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 p-1">
+          <div className="mb-4 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 p-1">
             <div className="rounded-full bg-background/90 backdrop-blur-sm p-3">
-              <Sparkles className="w-8 h-8 text-purple-500 animate-pulse" />
+              <Sparkles className="w-8 h-8 text-amber-500 animate-pulse" />
             </div>
           </div>
           <h1 className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in fill-mode-both text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent duration-200">

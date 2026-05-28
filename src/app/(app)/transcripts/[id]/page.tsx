@@ -527,24 +527,9 @@ export default function TranscriptDetailPage({
               )}
 
               {/* Display existing summaries */}
-              {(transcript.summaries && transcript.summaries.length > 0 || summaryResult) && (
+              {(transcript.summaries && transcript.summaries.length > 0) && (
                 <div className="space-y-4 pt-2">
-                  {summaryResult && (
-                    <div className="rounded-lg border border-amber-200 bg-amber-50/30 p-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge className="bg-amber-600">{summaryType.replace('_', ' ')}</Badge>
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">New Result</span>
-                      </div>
-                      <div className="text-sm">
-                        <SummaryRenderer 
-                          content={summaryResult} 
-                          type={summaryType} 
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {(transcript.summaries as Summary[])?.map((summary) => (
+                  {([...(transcript.summaries as Summary[])])?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((summary) => (
                     <div key={summary.id} className="rounded-lg border bg-muted/20 p-4">
                       <div className="flex items-center justify-between mb-2">
                         <Badge variant="outline">{summary.type.replace('_', ' ')}</Badge>
