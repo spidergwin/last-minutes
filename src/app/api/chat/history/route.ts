@@ -34,6 +34,12 @@ export async function GET(req: NextRequest) {
       id: m.id,
       role: m.role,
       content: m.content,
+      parts: [
+        {
+          type: "text",
+          text: m.content,
+        }
+      ],
       createdAt: m.createdAt,
     }));
 
