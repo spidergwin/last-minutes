@@ -1,49 +1,45 @@
 export const SUBSCRIPTION_PLANS = {
   FREE: {
-    name: "Free Trial",
-    monthlyLimit: 15, // minutes
+    name: "Pro Trial",
+    monthlyLimit: 120, // 2 hours
     trialDays: 7,
     price: 0,
     currency: "₦",
     features: [
-      "15 minutes of transcription",
-      "Live dictation",
-      "English language only",
-      "TXT export",
+      "2 hours of transcription",
+      "Real-time streaming",
+      "File uploads (up to 2GB)",
+      "Global languages",
+      "AI summaries & translation",
+      "Google Calendar & Drive sync",
     ],
   },
   PRO: {
     name: "Pro",
-    monthlyLimit: Infinity,
-    trialDays: 0,
-    price: 5000,
-    currency: "₦",
-    features: [
-      "Unlimited transcription minutes",
-      "Real-time streaming + file uploads",
-      "All 18+ languages including Nigerian",
-      "AI summaries & action items",
-      "DOCX, PDF, SRT, VTT export",
-      "Speaker diarization",
-      "Unlimited translations",
-      "Priority email support",
-    ],
-  },
-  BUSINESS: {
-    name: "Business",
-    monthlyLimit: Infinity,
+    monthlyLimit: 900, // 15 hours
     trialDays: 0,
     price: 15000,
     currency: "₦",
     features: [
-      "Everything in Pro",
-      "Team collaboration workspace",
-      "Admin dashboard & analytics",
-      "Custom vocabulary & templates",
-      "SSO & SAML authentication",
-      "Dedicated account manager",
-      "SLA guarantees",
-      "Onboarding & training",
+      "Up to 15 hours of transcription / mo",
+      "Real-time streaming + file uploads (up to 2GB)",
+      "Global Languages + Code-switching",
+      "AI summaries & action items",
+      "DOCX, PDF, SRT, VTT export",
+      "Speaker diarization",
+      "Google Calendar & Drive Integration",
+      "Unlimited translations",
+    ],
+  },
+  BUSINESS: {
+    name: "Business",
+    monthlyLimit: 3000, // 50 hours
+    trialDays: 0,
+    price: 45000,
+    currency: "₦",
+    features: [
+      "Up to 50 hours of transcription / mo",
+      "Everything that pro offers",
     ],
   },
 } as const;

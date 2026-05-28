@@ -32,11 +32,13 @@ export function formatSummaryToText(content: any, type: string): string {
       return formatMeetingNotes(content);
     default:
       // Fallback for custom or unknown types
+      if (content.raw) return String(content.raw);
       return typeof content === "object" ? JSON.stringify(content, null, 2) : String(content);
   }
 }
 
 function formatExecutiveSummary(content: any): string {
+  if (content.raw) return String(content.raw);
   let text = "EXECUTIVE SUMMARY\n";
   text += "=================\n\n";
   
@@ -64,6 +66,7 @@ function formatExecutiveSummary(content: any): string {
 }
 
 function formatActionItems(content: any): string {
+  if (content.raw) return String(content.raw);
   let text = "ACTION ITEMS\n";
   text += "============\n\n";
   
@@ -82,6 +85,7 @@ function formatActionItems(content: any): string {
 }
 
 function formatKeyDecisions(content: any): string {
+  if (content.raw) return String(content.raw);
   let text = "KEY DECISIONS\n";
   text += "=============\n\n";
   
@@ -101,6 +105,7 @@ function formatKeyDecisions(content: any): string {
 }
 
 function formatMeetingNotes(content: any): string {
+  if (content.raw) return String(content.raw);
   let text = `${content.title || "MEETING NOTES"}\n`;
   text += "=".repeat((content.title || "MEETING NOTES").length) + "\n\n";
   

@@ -72,7 +72,8 @@ export async function POST(request: NextRequest) {
     // Try to parse as JSON if we expect JSON
     let parsedContent;
     try {
-      parsedContent = JSON.parse(summaryText);
+      const cleanJson = summaryText.replace(/```json\n?|\n?```/gi, "").trim();
+      parsedContent = JSON.parse(cleanJson);
     } catch {
       // If it's not JSON (e.g. CUSTOM prompt), just save as string
       parsedContent = { raw: summaryText };
