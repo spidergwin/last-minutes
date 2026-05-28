@@ -1,4 +1,4 @@
-import { streamText } from 'ai';
+import { streamText, convertToModelMessages } from 'ai';
 import { getModel } from '@/lib/ai';
 import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
@@ -30,8 +30,7 @@ export async function POST(req: NextRequest) {
 
     const model = getModel();
 
-    const { convertToModelMessages } = await import('ai');
-    const coreMessages = convertToModelMessages(messages);
+    const coreMessages = await convertToModelMessages(messages);
 
     const result = streamText({
       model,
