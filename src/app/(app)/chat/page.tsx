@@ -23,6 +23,22 @@ import { cn } from "@/lib/utils";
 import { Thread } from "@/components/assistant-ui/thread";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime, AssistantChatTransport } from "@assistant-ui/react-ai-sdk";
+function ChatArea({ transcriptId, initialMessages }: { transcriptId: string | null, initialMessages: any[] }) {
+  const runtime = useChatRuntime({
+    transport: new AssistantChatTransport({
+      api: "/api/chat",
+      body: transcriptId ? { transcriptId } : undefined,
+    }),
+    messages: initialMessages,
+  });
+
+  return (
+    <AssistantRuntimeProvider runtime={runtime}>
+      <Thread />
+    </AssistantRuntimeProvider>
+  );
+}
+
 function ChatInterface() {
   const searchParams = useSearchParams();
   const transcriptId = searchParams.get("transcriptId");
@@ -57,13 +73,7 @@ function ChatInterface() {
     },
   });
 
-  const runtime = useChatRuntime({
-    transport: new AssistantChatTransport({
-      api: "/api/chat",
-      body: transcriptId ? { transcriptId } : undefined,
-    }),
-    messages: initialMessages,
-  });
+  // ChatArea below dynamically manages the chat runtime instance with database-fetched initialMessages
 
   useEffect(() => {
     setCustomTitle("New Chat");
@@ -213,9 +223,17 @@ function ChatInterface() {
       <div className="flex flex-1 min-h-0 relative">
         {/* Main Chat Area */}
         <div className="flex flex-col flex-1 min-w-0 bg-background h-full">
-          <AssistantRuntimeProvider runtime={runtime}>
-            <Thread />
-          </AssistantRuntimeProvider>
+          {isLoadingMessages ? (
+            <div className="flex flex-1 items-center justify-center bg-background">
+              <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+            </div>
+          ) : (
+            <ChatArea 
+              key={transcriptId || "new"} 
+              transcriptId={transcriptId} 
+              initialMessages={initialMessages} 
+            />
+          )}
         </div>
 
         {/* Desktop Sidebar for Transcripts (Right side) */}
