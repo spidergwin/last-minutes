@@ -30,10 +30,15 @@ export async function POST(req: NextRequest) {
 
     const model = getModel();
 
+    const coreMessages = messages.map((m: any) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
     const result = streamText({
       model,
       system: systemPrompt,
-      messages,
+      messages: coreMessages,
     });
 
     return result.toUIMessageStreamResponse();

@@ -14,6 +14,7 @@ import { useTranscripts } from "@/hooks";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useSession } from "@/lib/auth-client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -57,11 +58,21 @@ function ChatInterface() {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full w-full">
-      <div className="p-4 border-b flex items-center justify-between shrink-0">
-        <h3 className="font-semibold text-sm">Projects ({transcripts.length})</h3>
-        <Button variant="ghost" size="icon" className="h-6 w-6">
-          <MoreHorizontal className="w-4 h-4" />
-        </Button>
+      <div className="p-4 border-b flex flex-col gap-3 shrink-0">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-sm">Projects ({transcripts.length})</h3>
+          <Button variant="ghost" size="icon" className="h-6 w-6">
+            <MoreHorizontal className="w-4 h-4" />
+          </Button>
+        </div>
+        {transcriptId && (
+          <Link href={`/transcripts/${transcriptId}`} className="w-full">
+            <Button variant="outline" size="sm" className="w-full gap-2 rounded-lg h-9 bg-accent/50 hover:bg-accent border-dashed">
+              <ExternalLink className="h-3.5 w-3.5" />
+              <span>View Source Transcript</span>
+            </Button>
+          </Link>
+        )}
       </div>
       <ScrollArea className="flex-1">
         <div className="p-3 flex flex-col gap-2">
@@ -113,21 +124,14 @@ function ChatInterface() {
     <div className="flex flex-col h-screen w-full overflow-hidden bg-background">
       
       {/* Custom Top Header mapping exactly to design */}
-      <header className="flex-none h-16 border-b flex items-center justify-between px-6 bg-background shrink-0">
+      <header className="flex-none h-16 border-b flex items-center justify-between px-4 md:px-6 bg-background shrink-0">
         <div className="flex items-center gap-3">
-          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9 rounded-full shrink-0">
-                <Menu className="w-4 h-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-80 p-0 flex flex-col">
-              <SheetTitle className="sr-only">Chat History</SheetTitle>
-              <SidebarContent />
-            </SheetContent>
-          </Sheet>
+          {/* Main App Sidebar Trigger (Left) */}
+          <SidebarTrigger className="md:hidden" />
+          <div className="hidden md:block h-4 w-px bg-border" />
+          
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold truncate max-w-[200px] md:max-w-[400px] font-[family-name:var(--font-display)]">
+            <h1 className="text-lg font-bold truncate max-w-[180px] sm:max-w-[200px] md:max-w-[400px] font-[family-name:var(--font-display)]">
               {transcriptId 
                 ? (isLoadingTranscript ? "Loading..." : transcript?.title || "Meeting Chat")
                 : customTitle}
@@ -144,14 +148,18 @@ function ChatInterface() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          {transcriptId && (
-            <Link href={`/transcripts/${transcriptId}`}>
-              <Button variant="outline" size="sm" className="gap-2 rounded-full h-8">
-                <ExternalLink className="h-3 w-3" />
-                <span className="hidden sm:inline">View Source</span>
+          {/* Projects/Transcripts Sheet Trigger (Right) */}
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9 rounded-full shrink-0">
+                <Menu className="w-4 h-4" />
               </Button>
-            </Link>
-          )}
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80 p-0 flex flex-col">
+              <SheetTitle className="sr-only">Chat History</SheetTitle>
+              <SidebarContent />
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
 
