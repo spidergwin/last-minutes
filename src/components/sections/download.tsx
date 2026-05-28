@@ -89,7 +89,7 @@ export function Download() {
               {/* Screen Content Mockup */}
               <div className="absolute inset-0 bg-zinc-50 dark:bg-zinc-950 overflow-hidden">
                 <Image 
-                  src="/app-image.png" 
+                  src="/MobileRecordScreen.png" 
                   alt="App Mockup" 
                   fill
                   className="object-cover"
