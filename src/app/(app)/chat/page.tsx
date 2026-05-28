@@ -119,7 +119,7 @@ function ChatInterface() {
   );
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden bg-background">
+    <div className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background">
       
       {/* Custom Top Header mapping exactly to design */}
       <header className="flex-none h-14 border-b flex items-center justify-between px-4 bg-background shrink-0">
@@ -181,7 +181,7 @@ function ChatInterface() {
 
 export default function ChatPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+    <Suspense fallback={<div className="flex h-[100dvh] w-full items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
       <ChatInterface />
     </Suspense>
   );
