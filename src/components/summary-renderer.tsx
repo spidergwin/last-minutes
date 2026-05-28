@@ -17,8 +17,7 @@ interface SummaryRendererProps {
   isDeleting?: boolean;
 }
 
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { StandaloneMarkdown } from "@/components/assistant-ui/markdown-text";
 
 export function SummaryRenderer({ 
   content, 
@@ -81,22 +80,20 @@ export function SummaryRenderer({
           </Button>
           {onDelete && (
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-              title="Delete summary"
+               variant="ghost"
+               size="icon"
+               className="h-8 w-8 text-muted-foreground hover:text-destructive"
+               onClick={onDelete}
+               disabled={isDeleting}
+               title="Delete summary"
             >
               {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </Button>
           )}
         </div>
       )}
-      <div className={cn("prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:p-0", !hideActions && "pr-0")}>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {formattedText}
-        </ReactMarkdown>
+      <div className={cn("text-foreground", !hideActions && "pr-0")}>
+        <StandaloneMarkdown content={formattedText} />
       </div>
     </div>
   );
