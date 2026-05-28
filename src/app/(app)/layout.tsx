@@ -48,21 +48,23 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="-ml-1" />
-            <div className="h-4 w-px bg-border" />
-            <h1 className="text-sm font-semibold text-foreground font-[family-name:var(--font-display)]">
-              {pageTitle}
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="text-xs font-normal bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20">
-              {planName} Plan
-            </Badge>
-            <ThemeToggle />
-          </div>
-        </header>
+        {pathname !== "/chat" && (
+          <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="-ml-1" />
+              <div className="h-4 w-px bg-border" />
+              <h1 className="text-sm font-semibold text-foreground font-[family-name:var(--font-display)]">
+                {pageTitle}
+              </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="text-xs font-normal bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20">
+                {planName} Plan
+              </Badge>
+              <ThemeToggle />
+            </div>
+          </header>
+        )}
         <div className={`flex-1 overflow-x-hidden overflow-y-auto min-w-0 ${pathname === "/chat" ? "p-0" : "p-4 md:p-6 lg:p-8"}`}>
           {isTrialExpired && pathname !== "/settings/billing" ? (
             <div className="flex items-center justify-center h-[calc(100vh-12rem)]">
