@@ -134,7 +134,7 @@ function ChatInterface() {
   }, [threadId, transcriptId, threads, transcript]);
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full w-full bg-card/30">
+    <div className="flex flex-col h-full w-full bg-card/30 min-w-0 overflow-hidden">
       <div className="p-5 border-b border-border/40 flex flex-col gap-4 shrink-0 bg-background/50 backdrop-blur-sm">
         <Button 
           className="w-full justify-start h-10 px-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0 rounded-xl shadow-sm shadow-amber-500/20"
@@ -150,8 +150,8 @@ function ChatInterface() {
         </Button>
       </div>
       
-      <ScrollArea className="flex-1">
-        <div className="p-4 flex flex-col gap-6">
+      <ScrollArea className="flex-1 w-full min-w-0">
+        <div className="p-4 flex flex-col gap-6 w-full min-w-0 overflow-hidden">
           {transcriptId && transcript && (
             <div className="space-y-2">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2 px-1">
@@ -188,7 +188,7 @@ function ChatInterface() {
                 No recent general chats.
               </p>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 w-full min-w-0">
                 {threads
                   .filter((t: any) => !t.transcriptId)
                   .map((t: any) => (
@@ -196,7 +196,7 @@ function ChatInterface() {
                       key={t.id}
                       variant="ghost"
                       className={cn(
-                        "w-full min-w-0 justify-start h-auto py-2 px-3 rounded-xl text-left transition-all",
+                        "w-full min-w-0 justify-start h-auto py-2 px-3 rounded-xl text-left transition-all overflow-hidden",
                         threadId === t.id 
                           ? 'bg-accent/80 hover:bg-accent shadow-sm ring-1 ring-border/50' 
                           : 'hover:bg-accent/50'
@@ -206,12 +206,14 @@ function ChatInterface() {
                         setSheetOpen(false);
                       }}
                     >
-                      <span className={cn(
-                        "truncate text-sm font-medium pr-4 w-full block",
-                        threadId === t.id ? "text-foreground" : "text-muted-foreground"
-                      )}>
-                        {t.title}
-                      </span>
+                      <div className="flex flex-col min-w-0 w-full pr-4">
+                        <span className={cn(
+                          "truncate text-sm font-medium block w-full",
+                          threadId === t.id ? "text-foreground" : "text-muted-foreground"
+                        )}>
+                          {t.title}
+                        </span>
+                      </div>
                     </Button>
                   ))}
               </div>
@@ -231,13 +233,13 @@ function ChatInterface() {
                 <p className="text-sm text-muted-foreground">No transcripts found.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 w-full min-w-0">
                 {transcripts.map((t: any) => (
                   <Button
                     key={t.id}
                     variant="ghost"
                     className={cn(
-                      "w-full min-w-0 justify-start h-auto py-2.5 px-3 rounded-xl text-left transition-all",
+                      "w-full min-w-0 justify-start h-auto py-2.5 px-3 rounded-xl text-left transition-all overflow-hidden",
                       transcriptId === t.id 
                         ? 'bg-accent/80 hover:bg-accent shadow-sm ring-1 ring-border/50' 
                         : 'hover:bg-accent/50'
@@ -247,12 +249,12 @@ function ChatInterface() {
                       setSheetOpen(false);
                     }}
                   >
-                    <div className="flex flex-col min-w-0 w-full gap-0.5">
+                    <div className="flex flex-col min-w-0 w-full gap-0.5 pr-4">
                       <span className={cn(
-                        "truncate text-sm font-medium pr-4 block w-full",
+                        "truncate text-sm font-medium block w-full",
                         transcriptId === t.id ? "text-foreground" : "text-muted-foreground"
                       )}>{t.title}</span>
-                      <span className="truncate text-[11px] text-muted-foreground/70 block pr-4 w-full">
+                      <span className="truncate text-[11px] text-muted-foreground/70 block w-full">
                         {formatDistanceToNow(new Date(t.createdAt), { addSuffix: true })}
                       </span>
                     </div>
@@ -330,7 +332,7 @@ function ChatInterface() {
         </div>
 
         {/* Desktop Sidebar for Transcripts (Right side) */}
-        <div className="hidden md:flex w-72 border-l bg-card/10 flex-col shrink-0 h-full">
+        <div className="hidden md:flex w-72 border-l bg-card/10 flex-col shrink-0 h-full min-w-0 overflow-hidden">
           <SidebarContent />
         </div>
       </div>

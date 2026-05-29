@@ -69,7 +69,7 @@ export const fileValidation = {
 // ============= Translation Schemas =============
 
 export const translateSchema = z.object({
-  text: z.string().min(1, "Text is required"),
+  text: z.string().nullish().transform(val => val || ""),
   sourceLang: z.string().nullish().transform(val => val || "en"),
   targetLang: z.string(),
 });

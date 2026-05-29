@@ -83,10 +83,20 @@ export default function TranscriptDetailPage({
   );
 
   const displaySegments = useMemo(() => {
-    if (viewMode === "translated" && translatedSegments) {
-      return translatedSegments;
+    const segs = (transcript?.segments as any[]) ?? [];
+    if (viewMode === "translated") {
+      if (translatedSegments) {
+        return translatedSegments;
+      }
+      return segs.map(seg => ({
+        ...seg,
+        text: seg.translatedText || seg.text
+      }));
     }
-    return (transcript?.segments as any[]) ?? [];
+    return segs.map(seg => ({
+      ...seg,
+      text: seg.originalText || seg.text
+    }));
   }, [viewMode, translatedSegments, transcript?.segments]);
 
   const handleCopy = useCallback(() => {
@@ -200,16 +210,28 @@ export default function TranscriptDetailPage({
         for (let i = 0; i < segs.length; i++) {
           setTranslateProgress(`Translating segment ${i + 1} of ${segs.length}...`);
           const seg = segs[i];
+          const segmentText = seg.originalText || seg.text;
+          if (!segmentText || segmentText.trim() === "") {
+            segmentsResult.push({ ...seg, text: "", originalText: "" });
+            continue;
+          }
           const transResult = await translateMutation.mutateAsync({
-            text: seg.text,
+            text: segmentText,
             sourceLang: transcript.sourceLanguage,
             targetLang,
           });
-          segmentsResult.push({ ...seg, text: transResult.data.translatedText });
+          segmentsResult.push({ 
+            ...seg, 
+            originalText: segmentText,
+            translatedText: transResult.data.translatedText 
+          });
         }
         
         newSegments = segmentsResult;
-        setTranslatedSegments(newSegments);
+        setTranslatedSegments(newSegments.map(s => ({
+          ...s,
+          text: s.translatedText || s.text
+        })));
       }
       
       setTranslateProgress("Saving translation...");
@@ -386,13 +408,7 @@ export default function TranscriptDetailPage({
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              {viewMode === "translated" ? (
-                <TranscriptEditor
-                  initialContent={transcript.translatedText || ""}
-                  onSave={async () => {}}
-                  readOnly={true}
-                />
-              ) : hasMeetingData ? (
+              {hasMeetingData ? (
                 <MeetingTranscriptView
                   segments={displaySegments}
                   speakers={(transcript.speakers as string[]) ?? []}
@@ -406,7 +422,7 @@ export default function TranscriptDetailPage({
                     );
                     
                     const newOriginalText = newSegments
-                      .map(seg => `${normalizeSpeakerLabel(seg.speaker)}: ${seg.text}`)
+                      .map(seg => `${normalizeSpeakerLabel(seg.speaker)}: ${seg.originalText || seg.text}`)
                       .join('\n\n');
                     
                     await updateMutation.mutateAsync({
@@ -417,10 +433,15 @@ export default function TranscriptDetailPage({
                   }}
                   onEditSegmentText={async (index, newText) => {
                     const newSegments = [...(transcript.segments as any[])];
-                    newSegments[index] = { ...newSegments[index], text: newText };
+                    const seg = newSegments[index];
+                    newSegments[index] = { 
+                      ...seg, 
+                      text: newText, 
+                      originalText: newText 
+                    };
                     
                     const newOriginalText = newSegments
-                      .map(seg => `${normalizeSpeakerLabel(seg.speaker)}: ${seg.text}`)
+                      .map(seg => `${normalizeSpeakerLabel(seg.speaker)}: ${seg.originalText || seg.text}`)
                       .join('\n\n');
                     
                     await updateMutation.mutateAsync({
@@ -429,6 +450,12 @@ export default function TranscriptDetailPage({
                     });
                     queryClient.invalidateQueries({ queryKey: ["transcript", transcript.id] });
                   }}
+                />
+              ) : viewMode === "translated" ? (
+                <TranscriptEditor
+                  initialContent={transcript.translatedText || ""}
+                  onSave={async () => {}}
+                  readOnly={true}
                 />
               ) : (
                 <TranscriptEditor

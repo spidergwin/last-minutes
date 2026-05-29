@@ -15,6 +15,10 @@ async function getTranslation(
   const provider = getProviderName();
 
   try {
+    if (!text || text.trim() === "") {
+      return { translatedText: "", provider };
+    }
+
     const translatedText = await translateText(text, sourceLang, targetLang);
 
     // Log translation statistics
