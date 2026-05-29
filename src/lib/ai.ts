@@ -10,7 +10,7 @@
  *   DEEPSEEK_API_KEY              → for DeepSeek
  */
 
-import { createOpenAI } from "@ai-sdk/openai";
+import { createDeepSeek } from "@ai-sdk/deepseek";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText, type LanguageModel } from "ai";
 
@@ -21,7 +21,7 @@ import { generateText, type LanguageModel } from "ai";
 export type AIProvider = "gemini" | "deepseek";
 
 export const AI_PROVIDER: AIProvider =
-  (process.env.AI_PROVIDER as AIProvider) || "gemini";
+  (process.env.AI_PROVIDER?.toLowerCase() as AIProvider) || "gemini";
 
 /** Model identifiers per provider */
 const MODEL_IDS: Record<AIProvider, string> = {
@@ -38,9 +38,8 @@ function createDeepSeekProvider() {
   if (!apiKey) {
     throw new Error("DEEPSEEK_API_KEY is not set. Cannot use DeepSeek provider.");
   }
-  return createOpenAI({
+  return createDeepSeek({
     apiKey,
-    baseURL: "https://api.deepseek.com",
   });
 }
 
@@ -64,19 +63,19 @@ function createGeminiProvider() {
  * Get an AI SDK LanguageModel for the configured provider.
  * This is the single source of truth — use this everywhere.
  *
- * @param modelOverride - Optional model ID override (e.g. "deepseek-v4-pro")
+ * @param modelOverride - Optional model ID override (e.g. "deepseek-reasoner")
  */
 export function getModel(modelOverride?: string): LanguageModel {
-  const modelId = modelOverride ?? MODEL_IDS[AI_PROVIDER];
+  // Use process.env directly to be reactive to environment changes
+  const provider = (process.env.AI_PROVIDER?.toLowerCase() as AIProvider) || "gemini";
+  const modelId = modelOverride ?? MODEL_IDS[provider] ?? MODEL_IDS["gemini"];
 
-  if (AI_PROVIDER === "deepseek") {
-    const provider = createDeepSeekProvider();
-    return provider(modelId);
+  if (provider === "deepseek") {
+    return createDeepSeekProvider()(modelId);
   }
 
   // Default: Gemini
-  const provider = createGeminiProvider();
-  return provider(modelId);
+  return createGeminiProvider()(modelId);
 }
 
 /**

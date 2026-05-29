@@ -45,6 +45,9 @@ function extractTextContent(message: any): string | undefined {
 
 export async function POST(req: NextRequest) {
   try {
+    // Diagnostic: log provider config (visible in Vercel function logs)
+    console.log("[Chat API] AI_PROVIDER:", process.env.AI_PROVIDER, "| DEEPSEEK_API_KEY set:", !!process.env.DEEPSEEK_API_KEY, "| GOOGLE_KEY set:", !!process.env.GOOGLE_GENERATIVE_AI_API_KEY);
+
     const session = await auth.api.getSession({ headers: req.headers });
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
