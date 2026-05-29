@@ -70,13 +70,13 @@ export const fileValidation = {
 
 export const translateSchema = z.object({
   text: z.string().min(1, "Text is required"),
-  sourceLang: z.string().default("en"),
+  sourceLang: z.string().nullish().transform(val => val || "en"),
   targetLang: z.string(),
 });
 
 export const batchTranslateSchema = z.object({
   texts: z.array(z.string()).min(1),
-  sourceLang: z.string().default("en"),
+  sourceLang: z.string().nullish().transform(val => val || "en"),
   targetLang: z.string(),
 });
 

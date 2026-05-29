@@ -1,12 +1,19 @@
 import { generateCompletion } from "./ai";
+import { getLanguageName } from "@/features/translation/utils";
 
 export async function translateText(
   text: string, 
   sourceLang: string = "auto",
   targetLang: string = "en"
 ): Promise<string> {
+  const sLang = sourceLang && sourceLang.trim() !== "" ? sourceLang : "auto";
+  const tLang = targetLang && targetLang.trim() !== "" ? targetLang : "en";
+  
+  const sourceName = sLang === "auto" ? "its original language" : getLanguageName(sLang);
+  const targetName = getLanguageName(tLang);
+
   const systemPrompt = `You are a professional translator. 
-Translate the following text from ${sourceLang === "auto" ? "its original language" : sourceLang} to ${targetLang}.
+Translate the following text from ${sourceName} to ${targetName}.
 Preserve the original formatting, tone, and punctuation as much as possible.
 If the text contains specific industry jargon, translate it accurately.
 Only return the translated text without any conversational filler or explanations.`;

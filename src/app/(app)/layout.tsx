@@ -48,7 +48,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        {pathname !== "/chat" && (
+        {(pathname !== "/chat" && pathname !== "/app") && (
           <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
             <div className="flex items-center gap-3">
               <SidebarTrigger className="-ml-1" />
@@ -65,7 +65,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </div>
           </header>
         )}
-        <div className={`flex-1 overflow-x-hidden overflow-y-auto min-w-0 ${pathname === "/chat" ? "p-0" : "p-4 md:p-6 lg:p-8"}`}>
+        <div className={`flex-1 overflow-x-hidden min-w-0 ${(pathname === "/chat" || pathname === "/app") ? "p-0 overflow-y-hidden" : "overflow-y-auto p-4 md:p-6 lg:p-8"}`}>
           {isTrialExpired && pathname !== "/settings/billing" ? (
             <div className="flex items-center justify-center h-[calc(100vh-12rem)]">
               <div className="max-w-md text-center space-y-6">
