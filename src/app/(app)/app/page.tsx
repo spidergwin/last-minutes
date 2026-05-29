@@ -689,8 +689,8 @@ export default function DictationWorkspace() {
               <div className="space-y-2">
                 {recentTranscripts.slice(0, 8).map((transcript: any) => (
                   <Link key={transcript.id} href={`/transcripts/${transcript.id}`}>
-                    <div className="group flex flex-col p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50 bg-card/45 shadow-sm">
-                      <p className="text-sm font-medium truncate group-hover:text-amber-600 transition-colors">
+                    <div className="group flex flex-col min-w-0 p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50 bg-card/45 shadow-sm">
+                      <p className="text-sm font-medium truncate group-hover:text-amber-600 transition-colors pr-4">
                         {transcript.title || "Untitled"}
                       </p>
                       <div className="flex items-center justify-between mt-1">

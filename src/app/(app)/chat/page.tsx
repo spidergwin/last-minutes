@@ -196,7 +196,7 @@ function ChatInterface() {
                       key={t.id}
                       variant="ghost"
                       className={cn(
-                        "w-full justify-start h-auto py-2 px-3 rounded-xl text-left transition-all",
+                        "w-full min-w-0 justify-start h-auto py-2 px-3 rounded-xl text-left transition-all",
                         threadId === t.id 
                           ? 'bg-accent/80 hover:bg-accent shadow-sm ring-1 ring-border/50' 
                           : 'hover:bg-accent/50'
@@ -207,7 +207,7 @@ function ChatInterface() {
                       }}
                     >
                       <span className={cn(
-                        "truncate text-sm font-medium pr-2 w-full",
+                        "truncate text-sm font-medium pr-4 w-full block",
                         threadId === t.id ? "text-foreground" : "text-muted-foreground"
                       )}>
                         {t.title}
@@ -237,7 +237,7 @@ function ChatInterface() {
                     key={t.id}
                     variant="ghost"
                     className={cn(
-                      "w-full justify-start h-auto py-2.5 px-3 rounded-xl text-left transition-all",
+                      "w-full min-w-0 justify-start h-auto py-2.5 px-3 rounded-xl text-left transition-all",
                       transcriptId === t.id 
                         ? 'bg-accent/80 hover:bg-accent shadow-sm ring-1 ring-border/50' 
                         : 'hover:bg-accent/50'
@@ -248,13 +248,11 @@ function ChatInterface() {
                     }}
                   >
                     <div className="flex flex-col min-w-0 w-full gap-0.5">
-                      <div className="flex justify-between items-center w-full">
-                        <span className={cn(
-                          "truncate text-sm font-medium pr-2",
-                          transcriptId === t.id ? "text-foreground" : "text-muted-foreground"
-                        )}>{t.title}</span>
-                      </div>
-                      <span className="truncate text-[11px] text-muted-foreground/70">
+                      <span className={cn(
+                        "truncate text-sm font-medium pr-4 block w-full",
+                        transcriptId === t.id ? "text-foreground" : "text-muted-foreground"
+                      )}>{t.title}</span>
+                      <span className="truncate text-[11px] text-muted-foreground/70 block pr-4 w-full">
                         {formatDistanceToNow(new Date(t.createdAt), { addSuffix: true })}
                       </span>
                     </div>
