@@ -23,6 +23,10 @@
 # misc
 .DS_Store
 *.pem
+.vscode/
+.antigravitycli/
+.idea/
+*.local
 
 # debug
 npm-debug.log*
